@@ -2,48 +2,46 @@
 
 import Link from 'next/link';
 
-export default function HomePage() {
+export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-primary-50 to-white">
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center max-w-3xl mx-auto">
-          <h1 className="text-5xl font-bold text-primary-900 mb-6">
-            Cafe Sadakat Sistemi
-          </h1>
-          <p className="text-xl text-gray-600 mb-8">
-            Her kahvenizde puan kazanın, ödüllerinizi kullanın ve daha fazlasını keşfedin!
-          </p>
-          <div className="space-x-4">
-            <Link 
-              href="/auth/register" 
-              className="inline-block px-8 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-            >
-              Hemen Başla
-            </Link>
-            <Link 
-              href="/auth/login" 
-              className="inline-block px-8 py-3 border border-primary-600 text-primary-600 rounded-lg hover:bg-primary-50 transition-colors"
-            >
-              Giriş Yap
-            </Link>
+    <main className="flex flex-col items-center justify-center min-h-screen p-6 bg-gradient-to-b from-amber-50 to-amber-100">
+      <div className="max-w-4xl w-full bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="flex flex-col md:flex-row">
+          <div className="md:w-1/2 p-8 flex flex-col justify-center">
+            <h1 className="text-4xl font-bold text-amber-800 mb-4">Cafe Powered By AI</h1>
+            <p className="text-lg text-gray-600 mb-6">
+              Kahve keyfini yapay zeka ile birleştiren, keyif ve teknolojinin buluştuğu nokta.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link href="/auth/login" className="px-6 py-3 bg-amber-600 text-white font-medium rounded-lg hover:bg-amber-700 transition-colors text-center">
+                Giriş Yap
+              </Link>
+              <Link href="/auth/register" className="px-6 py-3 border border-amber-600 text-amber-600 font-medium rounded-lg hover:bg-amber-50 transition-colors text-center">
+                Kayıt Ol
+              </Link>
+            </div>
           </div>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-8 mt-16">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold mb-3">Puan Kazanın</h3>
-            <p className="text-gray-600">Her siparişinizde puan kazanın ve sadakat programımızın bir parçası olun.</p>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold mb-3">Ödüllerinizi Kullanın</h3>
-            <p className="text-gray-600">Kazandığınız puanları lezzetli ödüller için kullanın.</p>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold mb-3">Özel Teklifler</h3>
-            <p className="text-gray-600">Size özel indirimler ve kampanyalardan haberdar olun.</p>
+          <div className="md:w-1/2 bg-amber-600 p-8 flex items-center justify-center">
+            <div className="text-white">
+              <h2 className="text-2xl font-bold mb-4">Neler Sunuyoruz?</h2>
+              <ul className="space-y-3">
+                <li className="flex items-center">
+                  <span className="mr-2">✨</span> Kişiye özel kahve önerileri
+                </li>
+                <li className="flex items-center">
+                  <span className="mr-2">✨</span> Puan kazanma ve harcama
+                </li>
+                <li className="flex items-center">
+                  <span className="mr-2">✨</span> Sadakat programı
+                </li>
+                <li className="flex items-center">
+                  <span className="mr-2">✨</span> Özel indirimler ve sürprizler
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
