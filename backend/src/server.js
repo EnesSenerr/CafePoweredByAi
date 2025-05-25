@@ -24,7 +24,7 @@ app.get('/', (req, res) => {
 });
 
 // API yolları burada eklenecek
-// app.use('/api/auth', require('./routes/auth.routes'));
+app.use('/api/auth', require('./routes/auth'));
 // app.use('/api/users', require('./routes/user.routes'));
 // app.use('/api/points', require('./routes/point.routes'));
 // app.use('/api/rewards', require('./routes/reward.routes'));

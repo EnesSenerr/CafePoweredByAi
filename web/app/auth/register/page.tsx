@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { registerUser } from '../../api';
+import { useRouter } from 'next/navigation';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -10,11 +12,29 @@ export default function RegisterPage() {
     password: '',
     confirmPassword: '',
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: API entegrasyonu yapılacak
-    console.log('Kayıt yapılıyor:', formData);
+    setError(null);
+    setSuccess(false);
+    if (formData.password !== formData.confirmPassword) {
+      setError('Şifreler eşleşmiyor');
+      return;
+    }
+    setLoading(true);
+    try {
+      const data = await registerUser(formData.name, formData.email, formData.password);
+      setSuccess(true);
+      setTimeout(() => router.push('/auth/login'), 1500);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,7 +51,7 @@ export default function RegisterPage() {
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Veya{' '}
-            <Link href="/auth/login" className="font-medium text-primary-600 hover:text-primary-500">
+            <Link href="/auth/login" className="font-medium text-blue-700 hover:text-blue-500">
               mevcut hesabınıza giriş yapın
             </Link>
           </p>
@@ -101,11 +121,21 @@ export default function RegisterPage() {
           </div>
 
           <div>
+            {error && (
+              <div className="text-red-600 text-sm text-center">{error}</div>
+            )}
+            {success && (
+              <div className="text-green-600 text-sm text-center">Kayıt başarılı! Giriş yapabilirsiniz.</div>
+            )}
+          </div>
+
+          <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${loading ? 'bg-blue-300' : 'bg-blue-600 hover:bg-blue-700'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+              disabled={loading}
             >
-              Kayıt Ol
+              {loading ? 'Kayıt Olunuyor...' : 'Kayıt Ol'}
             </button>
           </div>
         </form>

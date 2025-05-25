@@ -2,15 +2,29 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { loginUser } from '../../api';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: API entegrasyonu yapılacak
-    console.log('Giriş yapılıyor:', { email, password });
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await loginUser(email, password);
+      // TODO: Token'ı localStorage/cookie'ye kaydet
+      router.push('/dashboard');
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -22,7 +36,7 @@ export default function LoginPage() {
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Veya{' '}
-            <Link href="/auth/register" className="font-medium text-primary-600 hover:text-primary-500">
+            <Link href="/auth/register" className="font-medium text-blue-700 hover:text-blue-500">
               yeni hesap oluşturun
             </Link>
           </p>
@@ -75,18 +89,25 @@ export default function LoginPage() {
             </div>
 
             <div className="text-sm">
-              <a href="#" className="font-medium text-primary-600 hover:text-primary-500">
+              <a href="#" className="font-medium text-blue-700 hover:text-blue-500">
                 Şifremi unuttum
               </a>
             </div>
           </div>
 
           <div>
+            {error && (
+              <div className="text-red-600 text-sm text-center">{error}</div>
+            )}
+          </div>
+
+          <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${loading ? 'bg-blue-300' : 'bg-blue-600 hover:bg-blue-700'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+              disabled={loading}
             >
-              Giriş Yap
+              {loading ? 'Giriş Yapılıyor...' : 'Giriş Yap'}
             </button>
           </div>
         </form>
