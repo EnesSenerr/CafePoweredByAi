@@ -4,6 +4,8 @@ export const AuthTokenManager = {
   setToken: (token: string) => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('authToken', token);
+      // AuthContext'e auth değişikliğini bildir
+      window.dispatchEvent(new CustomEvent('authChanged'));
     }
   },
 
@@ -19,6 +21,8 @@ export const AuthTokenManager = {
   removeToken: () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('authToken');
+      // AuthContext'e auth değişikliğini bildir
+      window.dispatchEvent(new CustomEvent('authChanged'));
     }
   },
 

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import CTASection from '../components/CTASection';
 
 interface MenuItem {
   id: number;
@@ -218,31 +219,14 @@ export default function MenuPage() {
       </div>
 
       {/* Call to Action */}
-      <div className="bg-coffee-800 text-white py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-serif font-bold mb-4">
-            Kahve Deneyiminizi Başlatın
-          </h2>
-          <p className="text-coffee-100 mb-8 max-w-2xl mx-auto font-medium">
-            Sadakat programımıza üye olun, her siparişinizde puan kazanın ve 
-            özel indirimlerden yararlanın.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/auth/register"
-              className="px-8 py-3 bg-cream-400 text-coffee-800 rounded-lg hover:bg-cream-300 transition-colors font-semibold"
-            >
-              Üye Ol
-            </Link>
-            <Link
-              href="/dashboard"
-              className="px-8 py-3 border-2 border-white text-white rounded-lg hover:bg-white hover:text-coffee-800 transition-colors font-semibold"
-            >
-              Giriş Yap
-            </Link>
-          </div>
-        </div>
-      </div>
+      <CTASection 
+        title="Kahve Deneyiminizi Başlatın"
+        description="Sadakat programımıza üye olun, her siparişinizde puan kazanın ve özel indirimlerden yararlanın."
+        primaryButtonText="Sipariş Ver"
+        primaryButtonHref="/menu"
+        secondaryButtonText="Dashboard"
+        secondaryButtonHref="/dashboard"
+      />
     </div>
   );
 } 

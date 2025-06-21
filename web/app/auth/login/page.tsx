@@ -24,6 +24,9 @@ export default function LoginPage() {
       // Token'ı localStorage'a kaydet
       AuthTokenManager.setToken(data.token);
       
+      // AuthContext'e auth değişikliğini bildir
+      window.dispatchEvent(new CustomEvent('authChanged'));
+      
       // Dashboard'a yönlendir
       router.push('/dashboard');
     } catch (err: any) {

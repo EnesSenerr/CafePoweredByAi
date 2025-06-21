@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import CTASection from '../components/CTASection';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -323,31 +324,14 @@ export default function ContactPage() {
       </div>
 
       {/* CTA Section */}
-      <div className="bg-coffee-800 text-white py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-serif font-bold mb-4">
-            Kahve Deneyiminize Başlayın
-          </h2>
-          <p className="text-coffee-100 mb-8 max-w-2xl mx-auto font-medium">
-            Menümüzü inceleyin ve sadakat programımıza katılarak 
-            özel avantajlardan yararlanın.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/menu"
-              className="px-8 py-3 bg-cream-400 text-coffee-800 rounded-lg hover:bg-cream-300 transition-colors font-semibold"
-            >
-              Menümüzü İnceleyin
-            </Link>
-            <Link
-              href="/auth/register"
-              className="px-8 py-3 border-2 border-white text-white rounded-lg hover:bg-white hover:text-coffee-800 transition-colors font-semibold"
-            >
-              Üye Olun
-            </Link>
-          </div>
-        </div>
-      </div>
+      <CTASection 
+        title="Kahve Deneyiminize Başlayın"
+        description="Menümüzü inceleyin ve sadakat programımıza katılarak özel avantajlardan yararlanın."
+        primaryButtonText="Menümüzü İnceleyin"
+        primaryButtonHref="/menu"
+        secondaryButtonText="Dashboard"
+        secondaryButtonHref="/dashboard"
+      />
     </div>
   );
 } 
