@@ -10,12 +10,13 @@ const { calculatePointsEarned, hasEnoughPoints, updatePointBalance } = require('
  */
 exports.earnPoints = async (req, res) => {
   try {
-    const { userId, amount, orderId, description } = req.body;
+    const { amount, orderId, description } = req.body;
+    const userId = req.user.id; // JWT middleware'den alınan kullanıcı ID'si
 
-    if (!userId || !amount || amount <= 0) {
+    if (!amount || amount <= 0) {
       return res.status(400).json({ 
         success: false,
-        message: 'Geçersiz kullanıcı veya tutar' 
+        message: 'Geçersiz tutar' 
       });
     }
 
@@ -75,12 +76,13 @@ exports.earnPoints = async (req, res) => {
  */
 exports.redeemPoints = async (req, res) => {
   try {
-    const { userId, rewardId } = req.body;
+    const { rewardId } = req.body;
+    const userId = req.user.id; // JWT middleware'den alınan kullanıcı ID'si
 
-    if (!userId || !rewardId) {
+    if (!rewardId) {
       return res.status(400).json({ 
         success: false,
-        message: 'Kullanıcı ID ve ödül ID zorunludur' 
+        message: 'Ödül ID zorunludur' 
       });
     }
 
@@ -174,22 +176,15 @@ exports.redeemPoints = async (req, res) => {
 
 /**
  * Kullanıcının puan işlem geçmişini getir
- * @route GET /api/points/history/:userId
+ * @route GET /api/points/history
  * @access Private
  */
 exports.getPointHistory = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const userId = req.user.id; // JWT middleware'den alınan kullanıcı ID'si
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const startIndex = (page - 1) * limit;
-
-    if (!userId) {
-      return res.status(400).json({ 
-        success: false,
-        message: 'Kullanıcı ID zorunludur' 
-      });
-    }
 
     // Kullanıcının varlığını kontrol et
     const userExists = await User.exists({ _id: userId });

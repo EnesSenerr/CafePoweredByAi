@@ -1,23 +1,38 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-
-// Navigation stack tipini tanımla
-export type RootStackParamList = {
-  Login: undefined;
-  Register: undefined;
-  Dashboard: undefined;
-};
+import { loginUser } from '../services/api';
+import { AuthTokenManager } from '../services/auth';
+import { RootStackParamList } from '../navigation/AppNavigator';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 const LoginScreen = ({ navigation }: Props) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    // TODO: API entegrasyonu yapılacak
-    navigation.replace('Dashboard');
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Hata', 'Lütfen e-posta ve şifrenizi girin');
+      return;
+    }
+
+    setLoading(true);
+    
+    try {
+      const data = await loginUser(email, password);
+      
+      // Token'ı AsyncStorage'a kaydet
+      await AuthTokenManager.setToken(data.token);
+      
+      // Dashboard'a yönlendir
+      navigation.replace('Dashboard');
+    } catch (error: any) {
+      Alert.alert('Giriş Hatası', error.message || 'Giriş yapılırken bir hata oluştu');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -38,7 +53,11 @@ const LoginScreen = ({ navigation }: Props) => {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="Giriş Yap" onPress={handleLogin} />
+      {loading ? (
+        <ActivityIndicator size="large" color="#2563eb" style={{ marginVertical: 16 }} />
+      ) : (
+        <Button title="Giriş Yap" onPress={handleLogin} />
+      )}
       <TouchableOpacity onPress={() => navigation.navigate('Register')} style={styles.linkContainer}>
         <Text style={styles.link}>Hesabın yok mu? Kayıt Ol</Text>
       </TouchableOpacity>

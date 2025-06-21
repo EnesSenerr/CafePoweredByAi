@@ -28,8 +28,14 @@ const authMiddleware = require('./middleware/authMiddleware');
 
 // API yolları
 app.use('/api/auth', require('./routes/auth'));
+
+// Point API'leri - JWT korumalı
 app.use('/api/points', authMiddleware, require('../../src/routes/point.routes'));
+
+// Reward API'leri - GET request'ler herkese açık, POST/PUT/DELETE korumalı
 app.use('/api/rewards', require('../../src/routes/reward.routes'));
+
+// Admin API'leri - JWT korumalı
 app.use('/api/admin', authMiddleware, require('../../src/routes/admin.routes'));
 
 // Port ayarı
@@ -37,15 +43,14 @@ const PORT = process.env.PORT || 5000;
 
 // Veritabanı bağlantısı
 mongoose
-  .connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/cafe-loyalty-system', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/cafe-loyalty-system')
   .then(() => {
     console.log('MongoDB bağlantısı başarılı');
     // Uygulamayı başlat
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`Sunucu ${PORT} numaralı portta çalışıyor`);
+      console.log(`Local: http://localhost:${PORT}`);
+      console.log(`Network: http://10.196.3.101:${PORT}`);
     });
   })
   .catch((err) => {

@@ -83,7 +83,7 @@ export default function DashboardPage() {
 
         // Point history (eğer varsa)
         try {
-          const historyData = await getPointHistory(token, currentUser.id);
+          const historyData = await getPointHistory(token);
           if (historyData && historyData.data) {
             // Backend'den gelen format: data.transactions
             const transactions = historyData.data.transactions || [];
@@ -146,7 +146,7 @@ export default function DashboardPage() {
     }
 
     try {
-      const result = await redeemPoints(token, currentUser.id, rewardId.toString());
+      const result = await redeemPoints(token, rewardId.toString());
       
       // Başarılı ise puan bakiyesini güncelle
       setPoints(result.data.currentBalance);

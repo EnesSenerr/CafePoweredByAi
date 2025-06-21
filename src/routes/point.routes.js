@@ -8,7 +8,7 @@ router.post('/earn', earnPoints);
 // Puan kullanım (ödül alma) endpoint'i
 router.post('/redeem', redeemPoints);
 
-// Kullanıcının puan işlem geçmişini getir
-router.get('/history/:userId', getPointHistory);
+// Kullanıcının puan işlem geçmişini getir (JWT'den kullanıcı ID alınır)
+router.get('/history', getPointHistory);
 
 module.exports = router; 

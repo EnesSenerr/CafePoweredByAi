@@ -9,6 +9,7 @@ export default function RegisterPage() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
     password: '',
     confirmPassword: '',
   });
@@ -27,7 +28,7 @@ export default function RegisterPage() {
     }
     setLoading(true);
     try {
-      const data = await registerUser(formData.name, formData.email, formData.password);
+      const data = await registerUser(formData.name, formData.email, formData.password, formData.phone);
       setSuccess(true);
       setTimeout(() => router.push('/auth/login'), 1500);
     } catch (err: any) {
@@ -85,6 +86,20 @@ export default function RegisterPage() {
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
                 placeholder="Email adresi"
                 value={formData.email}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <label htmlFor="phone" className="sr-only">
+                Telefon
+              </label>
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
+                placeholder="Telefon (Opsiyonel)"
+                value={formData.phone}
                 onChange={handleChange}
               />
             </div>

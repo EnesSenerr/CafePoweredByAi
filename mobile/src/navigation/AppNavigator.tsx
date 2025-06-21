@@ -5,7 +5,14 @@ import DashboardScreen from '../screens/DashboardScreen';
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 
-const Stack = createNativeStackNavigator();
+// Navigation stack tiplerini tanımla
+export type RootStackParamList = {
+  Login: undefined;
+  Register: undefined;
+  Dashboard: undefined;
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const AppNavigator = () => {
   // TODO: Auth durumuna göre yönlendirme yapılacak (şimdilik Login ile başlatıyoruz)

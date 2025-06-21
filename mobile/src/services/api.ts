@@ -1,5 +1,21 @@
-// Base URL
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://10.196.3.101:5000';
+// Base URL - Platform bazlı IP seçimi
+import { Platform } from 'react-native';
+
+// Geliştirme ortamı için farklı IP'ler
+const getApiBaseUrl = () => {
+  if (__DEV__) {
+    // Expo Go fiziksel cihazlar için local network IP kullan
+    // Emülatör için 10.0.2.2, Expo Go için local network IP
+    const localNetworkIP = 'http://10.196.3.101:5000'; // Fiziksel cihazlar ve Expo Go
+    
+    console.log(`Platform: ${Platform.OS}, API URL: ${localNetworkIP}`);
+    console.log('Expo Go kullanıyorsanız local network IP kullanılıyor');
+    return localNetworkIP;
+  }
+  return 'https://your-production-api.com'; // Production URL
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 // Helper function to get auth headers
 function getAuthHeaders(token?: string): HeadersInit {
@@ -34,12 +50,19 @@ export async function loginUser(email: string, password: string) {
 }
 
 export async function registerUser(name: string, email: string, password: string, phone?: string) {
-  const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify({ name, email, password, phone }),
-  });
-  return handleResponse(res);
+  try {
+    console.log('Kayıt isteği gönderiliyor:', `${API_BASE_URL}/api/auth/register`);
+    const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ name, email, password, phone, signupMethod: 'mobile' }),
+    });
+    console.log('Kayıt cevabı alındı:', res.status);
+    return handleResponse(res);
+  } catch (error) {
+    console.error('Kayıt hatası:', error);
+    throw error;
+  }
 }
 
 export async function getUserProfile(token: string) {
@@ -90,41 +113,6 @@ export async function getReward(rewardId: string) {
   const res = await fetch(`${API_BASE_URL}/api/rewards/${rewardId}`, {
     method: 'GET',
     headers: getAuthHeaders(),
-  });
-  return handleResponse(res);
-}
-
-// Admin APIs
-export async function createReward(token: string, rewardData: any) {
-  const res = await fetch(`${API_BASE_URL}/api/admin/rewards`, {
-    method: 'POST',
-    headers: getAuthHeaders(token),
-    body: JSON.stringify(rewardData),
-  });
-  return handleResponse(res);
-}
-
-export async function updateReward(token: string, rewardId: string, rewardData: any) {
-  const res = await fetch(`${API_BASE_URL}/api/admin/rewards/${rewardId}`, {
-    method: 'PUT',
-    headers: getAuthHeaders(token),
-    body: JSON.stringify(rewardData),
-  });
-  return handleResponse(res);
-}
-
-export async function deleteReward(token: string, rewardId: string) {
-  const res = await fetch(`${API_BASE_URL}/api/admin/rewards/${rewardId}`, {
-    method: 'DELETE',
-    headers: getAuthHeaders(token),
-  });
-  return handleResponse(res);
-}
-
-export async function getAdminRewards(token: string) {
-  const res = await fetch(`${API_BASE_URL}/api/admin/rewards`, {
-    method: 'GET',
-    headers: getAuthHeaders(token),
   });
   return handleResponse(res);
 } 

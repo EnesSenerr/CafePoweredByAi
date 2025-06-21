@@ -17,7 +17,7 @@ function generateToken(user) {
 // Kullanıcı kayıt
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, phone } = req.body;
+    const { name, email, password, phone, signupMethod } = req.body;
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'İsim, e-posta ve şifre zorunludur.' });
     }
@@ -25,10 +25,32 @@ exports.register = async (req, res) => {
     if (existingUser) {
       return res.status(409).json({ message: 'Bu e-posta ile zaten bir kullanıcı var.' });
     }
-    const user = await User.create({ name, email, password, phone });
+    
+    // Signup method'u belirle (mobil veya web)
+    const method = signupMethod || (req.headers['user-agent']?.includes('Expo') ? 'mobile' : 'email');
+    
+    const user = await User.create({ 
+      name, 
+      email, 
+      password, 
+      phone,
+      signupMethod: method
+    });
+    
+    // Son giriş zamanını güncelle
+    user.lastLogin = new Date();
+    await user.save();
+    
     const token = generateToken(user);
     res.status(201).json({
-      user: { id: user._id, name: user.name, email: user.email, role: user.role },
+      user: { 
+        id: user._id, 
+        name: user.name, 
+        email: user.email, 
+        phone: user.phone,
+        role: user.role,
+        points: user.points
+      },
       token,
     });
   } catch (error) {
@@ -51,9 +73,21 @@ exports.login = async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({ message: 'Geçersiz e-posta veya şifre.' });
     }
+    
+    // Son giriş zamanını güncelle
+    user.lastLogin = new Date();
+    await user.save();
+    
     const token = generateToken(user);
     res.status(200).json({
-      user: { id: user._id, name: user.name, email: user.email, role: user.role },
+      user: { 
+        id: user._id, 
+        name: user.name, 
+        email: user.email, 
+        phone: user.phone,
+        role: user.role,
+        points: user.points
+      },
       token,
     });
   } catch (error) {
