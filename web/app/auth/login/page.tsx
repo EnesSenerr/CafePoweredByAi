@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { loginUser } from '../../api';
+import { AuthTokenManager } from '../../utils/auth';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
@@ -16,12 +17,17 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    
     try {
       const data = await loginUser(email, password);
-      // TODO: Token'ı localStorage/cookie'ye kaydet
+      
+      // Token'ı localStorage'a kaydet
+      AuthTokenManager.setToken(data.token);
+      
+      // Dashboard'a yönlendir
       router.push('/dashboard');
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Giriş yapılırken bir hata oluştu');
     } finally {
       setLoading(false);
     }

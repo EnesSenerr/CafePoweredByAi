@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import PointsBalance from '@/components/dashboard/PointsBalance';
-import TransactionHistory from '@/components/dashboard/TransactionHistory';
+import TransactionHistory from '../../components/dashboard/TransactionHistory';
 import RewardsList from '@/components/dashboard/RewardsList';
 import Link from 'next/link';
-import { Metadata } from 'next';
+import { AuthHelpers, AuthTokenManager } from '../utils/auth';
+import { getUserProfile, getRewards, getPointHistory, redeemPoints } from '../api';
+import { useRouter } from 'next/navigation';
 
 interface Transaction {
   id: number;
@@ -30,42 +32,167 @@ interface User {
   progress: number;
 }
 
-export const metadata: Metadata = {
-  title: 'Kullanıcı Paneli | Cafe Sadakat Sistemi',
-  description: 'Cafe sadakat sisteminde puanlarınızı takip edin ve ödüllerinizi kullanın',
-};
+// Bu sayfa client component olduğu için metadata burada tanımlanmıyor
 
 export default function DashboardPage() {
   const [points, setPoints] = useState(0);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [user, setUser] = useState<User>({ name: 'Ahmet Yılmaz', level: 'Gold', nextLevel: 'Platinum', progress: 70 });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    // TODO: API entegrasyonu yapılacak
-    // Şimdilik dummy data
-    setPoints(350);
-    setTransactions([
-      { id: 1, type: 'earn', points: 50, date: '2024-05-10', description: 'Cortado Siparişi' },
-      { id: 2, type: 'earn', points: 35, date: '2024-05-08', description: 'Filtre Kahve Siparişi' },
-      { id: 3, type: 'redeem', points: -100, date: '2024-05-05', description: 'Ücretsiz Kahve Ödülü' },
-      { id: 4, type: 'earn', points: 65, date: '2024-05-03', description: 'Brunch Menü Siparişi' },
-      { id: 5, type: 'earn', points: 50, date: '2024-04-30', description: 'Flat White Siparişi' },
-    ]);
-    setRewards([
-      { id: 1, name: 'Ücretsiz Kahve', points: 100, description: 'Herhangi bir kahve içeceği ücretsiz', image: '/images/free-coffee.jpg' },
-      { id: 2, name: 'Ev Yapımı Kurabiye', points: 50, description: 'Kahvenizin yanında lezzetli kurabiye', image: '/images/cookie.jpg' },
-      { id: 3, name: 'Kahve Çekirdeği (250g)', points: 200, description: 'Ekvator menşeili, orta kavrulmuş', image: '/images/coffee-beans.jpg' },
-      { id: 4, name: '%15 İndirim Kuponu', points: 150, description: 'Bir sonraki alışverişinizde geçerli', image: '/images/discount.jpg' },
-      { id: 5, name: 'Özel Barista Deneyimi', points: 500, description: 'Baristamızla birlikte kahve yapımını öğrenin', image: '/images/barista.jpg' },
-    ]);
-  }, []);
+    const initializeDashboard = async () => {
+      // Auth kontrolü
+      if (!AuthHelpers.isAuthenticated()) {
+        router.push('/auth/login');
+        return;
+      }
 
-  const handleRedeemReward = (rewardId: number) => {
-    // TODO: API entegrasyonu yapılacak
-    console.log('Ödül kullanıldı:', rewardId);
-    alert(`${rewards.find(r => r.id === rewardId)?.name} ödülünüz başarıyla kullanıldı!`);
+      const token = AuthTokenManager.getToken();
+      const currentUser = AuthHelpers.getCurrentUser();
+      
+      if (!token || !currentUser) {
+        router.push('/auth/login');
+        return;
+      }
+
+      try {
+        setLoading(true);
+        
+        // Paralel API çağrıları
+        const [profileData, rewardsData] = await Promise.all([
+          getUserProfile(token),
+          getRewards()
+        ]);
+
+        // Kullanıcı profil bilgilerini güncelle
+        setUser({
+          name: profileData.user.name,
+          level: 'Gold', // Backend'den gelmeyen bilgiler için fallback
+          nextLevel: 'Platinum',
+          progress: Math.min((profileData.user.points / 500) * 100, 100)
+        });
+        
+        setPoints(profileData.user.points || 0);
+        
+        // Ödülleri güncelle
+        setRewards(rewardsData.data || []);
+
+        // Point history (eğer varsa)
+        try {
+          const historyData = await getPointHistory(token, currentUser.id);
+          if (historyData && historyData.data) {
+            // Backend'den gelen format: data.transactions
+            const transactions = historyData.data.transactions || [];
+            
+            // Frontend format'ına dönüştür
+            const formattedTransactions = Array.isArray(transactions) 
+              ? transactions.map(tx => ({
+                  id: tx._id || tx.id,
+                  type: tx.type,
+                  points: tx.amount || tx.points,
+                  date: tx.createdAt || tx.date,
+                  description: tx.description
+                }))
+              : [];
+            
+            setTransactions(formattedTransactions);
+          } else {
+            setTransactions([]);
+          }
+        } catch (historyError) {
+          console.log('Point history API error:', historyError);
+          // Point history yoksa boş array
+          setTransactions([]);
+        }
+
+      } catch (err: any) {
+        console.error('Dashboard data loading error:', err);
+        setError(err.message || 'Veriler yüklenirken hata oluştu');
+        
+        // Token geçersizse login'e yönlendir
+        if (err.message?.includes('401') || err.message?.includes('token')) {
+          AuthHelpers.logout();
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeDashboard();
+  }, [router]);
+
+  const handleRedeemReward = async (rewardId: number) => {
+    const token = AuthTokenManager.getToken();
+    const currentUser = AuthHelpers.getCurrentUser();
+    
+    if (!token || !currentUser) {
+      alert('Lütfen tekrar giriş yapın');
+      return;
+    }
+
+    const reward = rewards.find(r => r.id === rewardId);
+    if (!reward) {
+      alert('Ödül bulunamadı');
+      return;
+    }
+
+    if (points < reward.points) {
+      alert('Yeterli puanınız bulunmuyor');
+      return;
+    }
+
+    try {
+      const result = await redeemPoints(token, currentUser.id, rewardId.toString());
+      
+      // Başarılı ise puan bakiyesini güncelle
+      setPoints(result.data.currentBalance);
+      
+      // Transaction history'ye ekle
+      const newTransaction: Transaction = {
+        id: Date.now(),
+        type: 'redeem',
+        points: -reward.points,
+        date: new Date().toISOString().split('T')[0],
+        description: `${reward.name} ödülü kullanıldı`
+      };
+      setTransactions(prev => [newTransaction, ...prev]);
+      
+      alert(`${reward.name} ödülünüz başarıyla kullanıldı!`);
+    } catch (err: any) {
+      alert(err.message || 'Ödül kullanılırken hata oluştu');
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="bg-coffee-50 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-coffee-800 mx-auto"></div>
+          <p className="mt-4 text-coffee-800 text-lg">Veriler yükleniyor...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-coffee-50 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 text-lg mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-coffee-800 text-white px-4 py-2 rounded hover:bg-coffee-700"
+          >
+            Tekrar Dene
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-coffee-50 min-h-screen pb-16">
@@ -78,17 +205,23 @@ export default function DashboardPage() {
             </div>
             <div className="mt-4 md:mt-0">
               <div className="flex items-center space-x-4">
-                <div>
-                  <p className="text-sm text-coffee-200">Sadakat Seviyesi</p>
-                  <p className="font-semibold text-lg">{user.level}</p>
-                </div>
-                <div className="h-10 w-10 rounded-full flex items-center justify-center bg-coffee-600">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2L9.19 8.63L2 9.24l5.46 4.73L5.82 21L12 17.27z" />
-                  </svg>
-                </div>
-              </div>
+                            <div>
+              <p className="text-sm text-coffee-200">Sadakat Seviyesi</p>
+              <p className="font-semibold text-lg">{user.level}</p>
             </div>
+            <div className="h-10 w-10 rounded-full flex items-center justify-center bg-coffee-600">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2L9.19 8.63L2 9.24l5.46 4.73L5.82 21L12 17.27z" />
+              </svg>
+            </div>
+            <button 
+              onClick={AuthHelpers.logout}
+              className="ml-4 bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-sm"
+            >
+              Çıkış Yap
+            </button>
+          </div>
+        </div>
           </div>
           
           <div className="mt-6">

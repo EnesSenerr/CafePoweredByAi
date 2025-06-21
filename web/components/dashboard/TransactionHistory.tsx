@@ -11,7 +11,10 @@ interface TransactionHistoryProps {
 }
 
 export default function TransactionHistory({ transactions }: TransactionHistoryProps) {
-  if (transactions.length === 0) {
+  // Transactions'ın array olduğunu ve length property'sine sahip olduğunu garanti et
+  const safeTransactions = Array.isArray(transactions) ? transactions : [];
+  
+  if (safeTransactions.length === 0) {
     return (
       <div className="text-center py-8">
         <div className="w-16 h-16 mx-auto bg-coffee-100 rounded-full flex items-center justify-center mb-4">
@@ -27,7 +30,7 @@ export default function TransactionHistory({ transactions }: TransactionHistoryP
 
   return (
     <div className="divide-y divide-coffee-100">
-      {transactions.map((transaction) => (
+      {safeTransactions.map((transaction) => (
         <div key={transaction.id} className="py-4 flex justify-between items-center">
           <div className="flex items-center">
             <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-3 ${
@@ -48,7 +51,13 @@ export default function TransactionHistory({ transactions }: TransactionHistoryP
             
             <div>
               <p className="font-medium text-coffee-900">{transaction.description}</p>
-              <p className="text-sm text-coffee-500">{transaction.date}</p>
+              <p className="text-sm text-coffee-500">
+                {new Date(transaction.date).toLocaleDateString('tr-TR', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </p>
             </div>
           </div>
           
@@ -60,7 +69,7 @@ export default function TransactionHistory({ transactions }: TransactionHistoryP
         </div>
       ))}
       
-      {transactions.length > 0 && (
+      {safeTransactions.length > 0 && (
         <div className="pt-4 text-center">
           <button className="text-coffee-700 hover:text-coffee-900 text-sm font-medium">
             Tüm İşlem Geçmişi

@@ -23,12 +23,14 @@ app.get('/', (req, res) => {
   });
 });
 
-// API yolları burada eklenecek
+// Auth middleware'i import et
+const authMiddleware = require('./middleware/authMiddleware');
+
+// API yolları
 app.use('/api/auth', require('./routes/auth'));
-// app.use('/api/users', require('./routes/user.routes'));
-// app.use('/api/points', require('./routes/point.routes'));
-// app.use('/api/rewards', require('./routes/reward.routes'));
-// app.use('/api/admin', require('./routes/admin.routes'));
+app.use('/api/points', authMiddleware, require('../../src/routes/point.routes'));
+app.use('/api/rewards', require('../../src/routes/reward.routes'));
+app.use('/api/admin', authMiddleware, require('../../src/routes/admin.routes'));
 
 // Port ayarı
 const PORT = process.env.PORT || 5000;

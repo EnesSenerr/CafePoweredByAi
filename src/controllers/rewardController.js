@@ -1,4 +1,4 @@
-const Reward = require('../models/Reward');
+const Reward = require('../../backend/src/models/Reward');
 
 /**
  * Tüm ödülleri listeler (kullanıcı tarafı)

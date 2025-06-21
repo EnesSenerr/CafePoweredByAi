@@ -1,6 +1,6 @@
-const User = require('../models/User');
-const PointTransaction = require('../models/PointTransaction');
-const Reward = require('../models/Reward');
+const User = require('../../backend/src/models/User');
+const PointTransaction = require('../../backend/src/models/PointTransaction');
+const Reward = require('../../backend/src/models/Reward');
 const { calculatePointsEarned, hasEnoughPoints, updatePointBalance } = require('../utils/pointCalculations');
 
 /**
