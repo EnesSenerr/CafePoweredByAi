@@ -26,11 +26,9 @@ export default function Navigation() {
             <a href="/iletisim" className="text-coffee-900 hover:text-coffee-600 transition-colors">
               İletişim
             </a>
-            {user && (
-              <a href="/dashboard" className="text-coffee-900 hover:text-coffee-600 transition-colors">
-                Sadakat Programı
-              </a>
-            )}
+            <a href="/sadakat-programi" className="text-coffee-900 hover:text-coffee-600 transition-colors">
+              Sadakat Programı
+            </a>
           </div>
 
           <div className="flex items-center space-x-4">
@@ -50,7 +48,7 @@ export default function Navigation() {
                   <span className="text-coffee-800 font-medium">{user.name}</span>
                 </div>
                 <a href="/dashboard" className="text-coffee-800 hover:text-coffee-600 transition-colors">
-                  Dashboard
+                  Hesabım
                 </a>
                 <button 
                   onClick={logout}

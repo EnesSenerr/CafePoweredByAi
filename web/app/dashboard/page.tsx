@@ -34,6 +34,42 @@ interface User {
 
 // Bu sayfa client component olduğu için metadata burada tanımlanmıyor
 
+// Seviye hesaplama utility fonksiyonu
+const calculateUserLevel = (points: number) => {
+  let userLevel = 'Bronz';
+  let nextLevel = 'Silver';
+  let requiredPoints = 250;
+  let currentLevelPoints = 0;
+  
+  if (points >= 1000) {
+    userLevel = 'Platinum';
+    nextLevel = 'Diamond';
+    requiredPoints = 2000;
+    currentLevelPoints = 1000;
+  } else if (points >= 500) {
+    userLevel = 'Gold';
+    nextLevel = 'Platinum';
+    requiredPoints = 1000;
+    currentLevelPoints = 500;
+  } else if (points >= 250) {
+    userLevel = 'Silver';
+    nextLevel = 'Gold';
+    requiredPoints = 500;
+    currentLevelPoints = 250;
+  }
+  
+  const progressPercentage = Math.min(((points - currentLevelPoints) / (requiredPoints - currentLevelPoints)) * 100, 100);
+  
+  return {
+    userLevel,
+    nextLevel,
+    requiredPoints,
+    currentLevelPoints,
+    progressPercentage,
+    remainingPoints: Math.max(0, requiredPoints - points)
+  };
+};
+
 export default function DashboardPage() {
   const [points, setPoints] = useState(0);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -92,11 +128,15 @@ export default function DashboardPage() {
 
         console.log('User Data:', userData);
 
+        // Seviye hesaplama
+        const currentPoints = userData.points || 0;
+        const levelInfo = calculateUserLevel(currentPoints);
+
         setUser({
           name: userData.name || 'Kullanıcı',
-          level: 'Gold', // Backend'den gelmeyen bilgiler için fallback
-          nextLevel: 'Platinum',
-          progress: Math.min((userData.points || 0) / 500 * 100, 100)
+          level: levelInfo.userLevel,
+          nextLevel: levelInfo.nextLevel,
+          progress: levelInfo.progressPercentage
         });
         
         setPoints(userData.points || 0);
@@ -218,137 +258,193 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="bg-coffee-50 min-h-screen pb-16">
-      <div className="bg-coffee-800 text-white py-10">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-serif font-bold">Sadakat Programı</h1>
-              <p className="mt-2 text-coffee-200">Hoş geldiniz, {user.name}</p>
+    <div className="bg-gradient-to-br from-coffee-50 to-cream-100 min-h-screen">
+      {/* Header Section - Temizlenmiş ve düzenlenmiş */}
+      <div className="bg-gradient-to-r from-coffee-800 to-coffee-900 text-white">
+        <div className="container mx-auto px-4 py-12">
+          <div className="max-w-4xl mx-auto">
+            {/* Kullanıcı Bilgileri */}
+            <div className="text-center mb-8">
+              <h1 className="text-4xl md:text-5xl font-serif font-bold mb-3">
+                Hoş Geldiniz, {user.name}
+              </h1>
+              <p className="text-coffee-200 text-lg">
+                Sadakat programınızda {points} puan biriktirdiniz
+              </p>
             </div>
-            <div className="mt-4 md:mt-0">
-              <div className="flex items-center space-x-4">
-                            <div>
-              <p className="text-sm text-coffee-200">Sadakat Seviyesi</p>
-              <p className="font-semibold text-lg">{user.level}</p>
+
+            {/* Seviye Kartı */}
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
+              <div className="flex flex-col md:flex-row items-center justify-between mb-6">
+                <div className="text-center md:text-left mb-4 md:mb-0">
+                  <div className="flex items-center justify-center md:justify-start space-x-3">
+                    <div className="h-12 w-12 rounded-full flex items-center justify-center bg-gradient-to-r from-yellow-400 to-yellow-600">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2L9.19 8.63L2 9.24l5.46 4.73L5.82 21L12 17.27z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-coffee-200 text-sm">Mevcut Seviyeniz</p>
+                      <p className="text-2xl font-bold">{user.level}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="text-center">
+                  <p className="text-coffee-200 text-sm mb-1">Toplam Puanınız</p>
+                  <div className="text-3xl font-bold text-cream-300">{points}</div>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-coffee-200">{user.level}</span>
+                  <span className="text-coffee-200">{user.nextLevel}</span>
+                </div>
+                <div className="w-full bg-coffee-900/50 rounded-full h-3">
+                  <div 
+                    className="bg-gradient-to-r from-cream-400 to-yellow-400 h-3 rounded-full transition-all duration-500" 
+                    style={{ width: `${user.progress}%` }}
+                  ></div>
+                </div>
+                <p className="text-xs text-coffee-200 text-center">
+                  {(() => {
+                    const levelInfo = calculateUserLevel(points);
+                    return levelInfo.remainingPoints > 0 
+                      ? `${levelInfo.remainingPoints} puan daha ile ${user.nextLevel} seviyesine yükseleceksiniz`
+                      : `Tebrikler! ${user.level} seviyesindesiniz!`;
+                  })()}
+                </p>
+              </div>
             </div>
-            <div className="h-10 w-10 rounded-full flex items-center justify-center bg-coffee-600">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2L9.19 8.63L2 9.24l5.46 4.73L5.82 21L12 17.27z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-          </div>
-          
-          <div className="mt-6">
-            <div className="flex justify-between text-sm mb-1">
-              <span>{user.level}</span>
-              <span>{user.nextLevel}</span>
-            </div>
-            <div className="w-full bg-coffee-900 rounded-full h-2.5">
-              <div className="bg-cream-400 h-2.5 rounded-full" style={{ width: `${user.progress}%` }}></div>
-            </div>
-            <p className="text-xs mt-1 text-coffee-100 font-medium">{500 - points} puan daha kazanın ve {user.nextLevel} seviyesine yükselin</p>
           </div>
         </div>
       </div>
       
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            <div className="mb-8">
-              <PointsBalance points={points} />
-            </div>
+      {/* Ana İçerik Bölümü - Yeniden düzenlenmiş */}
+      <div className="container mx-auto px-4 py-12">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
             
-            <div className="bg-white rounded-xl shadow-md overflow-hidden mb-8">
-              <div className="px-6 py-4 bg-coffee-700 text-white">
-                <h2 className="text-xl font-serif font-semibold">QR Kod ile Hızlı İşlem</h2>
+            {/* Sol Sütun - Ana İçerik */}
+            <div className="xl:col-span-3 space-y-8">
+              {/* Puan Bakiyesi */}
+              <div className="transform hover:scale-105 transition-transform duration-200">
+                <PointsBalance points={points} />
               </div>
-              <div className="p-6 flex flex-col md:flex-row items-center justify-between">
-                <div className="mb-4 md:mb-0 md:mr-6">
-                  <p className="text-gray-900 font-semibold mb-2">Kasada göstermek için QR kodunuz:</p>
-                  <p className="text-sm text-gray-700">Çalışana göstererek hızlıca puan kazanabilir veya ödüllerinizi kullanabilirsiniz.</p>
+              
+              {/* İçerik Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* QR Kod Kartı - İyileştirilmiş */}
+                <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+                  <div className="bg-gradient-to-r from-coffee-700 to-coffee-800 px-6 py-5">
+                    <h3 className="text-xl font-serif font-semibold text-white flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M3 11h2v2H3v-2m8-6h2v4h-2V5m-2 6h4v4h-2v-2H9v-2m6 0h2v2h2v-2h2v2h-2v2h2v4h-2v2h-2v-2h-4v2h-2v-4h4v-2h2v-2h-2v-2m4 8v-4h-2v4h2M15 3h6v6h-6V3m2 2v2h2V5h-2M3 3h6v6H3V3m2 2v2h2V5H5m-2 8h6v6H3v-6m2 2v2h2v-2H5Z"/>
+                      </svg>
+                      QR Kod
+                    </h3>
+                  </div>
+                  <div className="p-6 text-center">
+                    <div className="bg-gradient-to-br from-coffee-100 to-cream-200 h-40 w-40 mx-auto rounded-2xl flex items-center justify-center mb-4 shadow-inner">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-28 w-28 text-coffee-700" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M3 11h2v2H3v-2m8-6h2v4h-2V5m-2 6h4v4h-2v-2H9v-2m6 0h2v2h2v-2h2v2h-2v2h2v4h-2v2h-2v-2h-4v2h-2v-4h4v-2h2v-2h-2v-2m4 8v-4h-2v4h2M15 3h6v6h-6V3m2 2v2h2V5h-2M3 3h6v6H3V3m2 2v2h2V5H5m-2 8h6v6H3v-6m2 2v2h2v-2H5Z"/>
+                      </svg>
+                    </div>
+                    <p className="text-gray-600 text-sm">Kasada göstererek hızlıca puan kazanın</p>
+                  </div>
                 </div>
-                <div className="bg-coffee-100 h-32 w-32 flex items-center justify-center rounded-lg">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 text-coffee-800" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M3 11h2v2H3v-2m8-6h2v4h-2V5m-2 6h4v4h-2v-2H9v-2m6 0h2v2h2v-2h2v2h-2v2h2v4h-2v2h-2v-2h-4v2h-2v-4h4v-2h2v-2h-2v-2m4 8v-4h-2v4h2M15 3h6v6h-6V3m2 2v2h2V5h-2M3 3h6v6H3V3m2 2v2h2V5H5m-2 8h6v6H3v-6m2 2v2h2v-2H5Z"/>
-                  </svg>
+
+                {/* İşlem Geçmişi Özeti */}
+                <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+                  <div className="bg-gradient-to-r from-coffee-700 to-coffee-800 px-6 py-5 flex justify-between items-center">
+                    <h3 className="text-xl font-serif font-semibold text-white">Son İşlemler</h3>
+                    <button className="text-cream-300 hover:text-white text-sm underline transition-colors">
+                      Tümünü Gör
+                    </button>
+                  </div>
+                  <div className="p-4">
+                    <TransactionHistory transactions={transactions.slice(0, 3)} />
+                    {transactions.length === 0 && (
+                      <div className="text-center py-8 text-gray-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto mb-3 text-gray-300" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                        </svg>
+                        <p>Henüz işlem bulunmuyor</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
             
-            <div className="bg-white rounded-xl shadow-md overflow-hidden">
-              <div className="px-6 py-4 bg-coffee-700 text-white flex justify-between items-center">
-                <h2 className="text-xl font-serif font-semibold">İşlem Geçmişi</h2>
-                <button className="text-sm underline">Tümünü Gör</button>
+            {/* Sağ Sütun - Yan Panel */}
+            <div className="space-y-8">
+              {/* Hızlı İşlemler - İyileştirilmiş */}
+              <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+                <div className="bg-gradient-to-r from-coffee-700 to-coffee-800 px-6 py-5">
+                  <h3 className="text-xl font-serif font-semibold text-white">Hızlı İşlemler</h3>
+                </div>
+                <div className="p-6 space-y-3">
+                  <Link 
+                    href="/dashboard/profile" 
+                    className="group flex items-center p-4 bg-gradient-to-r from-coffee-50 to-cream-100 rounded-xl hover:from-coffee-100 hover:to-cream-200 transition-all duration-200 border border-transparent hover:border-coffee-200"
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-coffee-600 to-coffee-700 flex items-center justify-center text-white mr-4 group-hover:scale-110 transition-transform">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 4a4 4 0 0 1 4 4a4 4 0 0 1-4 4a4 4 0 0 1-4-4a4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4Z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Profilim</h4>
+                      <p className="text-sm text-gray-600">Hesap bilgilerinizi yönetin</p>
+                    </div>
+                  </Link>
+                  
+                  <Link 
+                    href="/dashboard/favorites" 
+                    className="group flex items-center p-4 bg-gradient-to-r from-coffee-50 to-cream-100 rounded-xl hover:from-coffee-100 hover:to-cream-200 transition-all duration-200 border border-transparent hover:border-coffee-200"
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-red-500 to-pink-500 flex items-center justify-center text-white mr-4 group-hover:scale-110 transition-transform">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="m12 21.35l-1.45-1.32C5.4 15.36 2 12.27 2 8.5C2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53L12 21.35Z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Favorilerim</h4>
+                      <p className="text-sm text-gray-600">Favori ürünleriniz</p>
+                    </div>
+                  </Link>
+                  
+                  <Link 
+                    href="/dashboard/orders" 
+                    className="group flex items-center p-4 bg-gradient-to-r from-coffee-50 to-cream-100 rounded-xl hover:from-coffee-100 hover:to-cream-200 transition-all duration-200 border border-transparent hover:border-coffee-200"
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white mr-4 group-hover:scale-110 transition-transform">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 7h-3V6a4 4 0 0 0-8 0v1H5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2m-9-1a2 2 0 0 1 4 0v1h-4Z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Siparişlerim</h4>
+                      <p className="text-sm text-gray-600">Sipariş geçmişiniz</p>
+                    </div>
+                  </Link>
+                </div>
               </div>
-              <div className="p-4">
-                <TransactionHistory transactions={transactions} />
-              </div>
-            </div>
-          </div>
-          
-          <div>
-            <div className="bg-white rounded-xl shadow-md overflow-hidden mb-8">
-              <div className="px-6 py-4 bg-coffee-700 text-white">
-                <h2 className="text-xl font-serif font-semibold">Hızlı İşlemler</h2>
-              </div>
-              <div className="p-6 space-y-4">
-                <Link 
-                  href="/dashboard/profile" 
-                  className="flex items-center p-3 bg-coffee-50 rounded-lg hover:bg-coffee-100 transition-colors"
-                >
-                  <div className="w-10 h-10 rounded-full bg-coffee-600 flex items-center justify-center text-white mr-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 4a4 4 0 0 1 4 4a4 4 0 0 1-4 4a4 4 0 0 1-4-4a4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4Z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">Profilim</h3>
-                    <p className="text-sm text-gray-700">Hesap bilgilerinizi yönetin</p>
-                  </div>
-                </Link>
-                
-                <Link 
-                  href="/dashboard/favorites" 
-                  className="flex items-center p-3 bg-coffee-50 rounded-lg hover:bg-coffee-100 transition-colors"
-                >
-                  <div className="w-10 h-10 rounded-full bg-coffee-600 flex items-center justify-center text-white mr-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="m12 21.35l-1.45-1.32C5.4 15.36 2 12.27 2 8.5C2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53L12 21.35Z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">Favorilerim</h3>
-                    <p className="text-sm text-gray-700">Favori kahveleriniz ve ürünleriniz</p>
-                  </div>
-                </Link>
-                
-                <Link 
-                  href="/dashboard/orders" 
-                  className="flex items-center p-3 bg-coffee-50 rounded-lg hover:bg-coffee-100 transition-colors"
-                >
-                  <div className="w-10 h-10 rounded-full bg-coffee-600 flex items-center justify-center text-white mr-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M19 7h-3V6a4 4 0 0 0-8 0v1H5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2m-9-1a2 2 0 0 1 4 0v1h-4Z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">Siparişlerim</h3>
-                    <p className="text-sm text-gray-700">Önceki siparişlerinizi görüntüleyin</p>
-                  </div>
-                </Link>
-              </div>
-            </div>
-            
-            <div className="bg-white rounded-xl shadow-md overflow-hidden">
-              <div className="px-6 py-4 bg-coffee-700 text-white flex justify-between items-center">
-                <h2 className="text-xl font-serif font-semibold">Ödül Kataloğu</h2>
-                <button className="text-sm underline">Tümünü Gör</button>
-              </div>
-              <div className="p-4">
-                <RewardsList rewards={rewards} onRedeem={handleRedeemReward} />
+              
+              {/* Ödül Kataloğu - İyileştirilmiş */}
+              <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+                <div className="bg-gradient-to-r from-coffee-700 to-coffee-800 px-6 py-5 flex justify-between items-center">
+                  <h3 className="text-xl font-serif font-semibold text-white">Ödül Kataloğu</h3>
+                  <button className="text-cream-300 hover:text-white text-sm underline transition-colors">
+                    Tümünü Gör
+                  </button>
+                </div>
+                <div className="p-4">
+                  <RewardsList rewards={rewards} onRedeem={handleRedeemReward} />
+                </div>
               </div>
             </div>
           </div>

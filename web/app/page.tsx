@@ -13,9 +13,9 @@ const coffeeMenu = [
 ];
 
 const testimonials = [
-  { id: 1, name: 'Ahmet Yılmaz', text: 'Bu kafeye her geldiğimde kendimi evimde gibi hissediyorum. Türk kahvesi özellikle harika!', avatar: '/images/avatar-1.jpg' },
-  { id: 2, name: 'Ayşe Kaya', text: 'Sadakat programı sayesinde her ay birkaç kahve bedavaya geliyor. Üstelik baristalar çok ilgili.', avatar: '/images/avatar-2.jpg' },
-  { id: 3, name: 'Mehmet Demir', text: 'AI Cafe\'nin organik çekirdeklerini çok seviyorum. Sürdürülebilirliğe verdikleri önem takdire şayan.', avatar: '/images/avatar-3.jpg' },
+  { id: 1, name: 'Ahmet Yılmaz', text: 'AI önerileri sayesinde daha önce hiç denemediğim kahveleri keşfettim. Artık her seferinde mükemmel lezzet!', avatar: '/images/avatar-1.jpg' },
+  { id: 2, name: 'Ayşe Kaya', text: 'Akıllı sipariş sistemi tercihlerimi öğrendi. Sadece bir tıkla her zaman favori kahvem hazır!', avatar: '/images/avatar-2.jpg' },
+  { id: 3, name: 'Mehmet Demir', text: 'AI destekli sadakat programı ile kişiselleştirilmiş indirimler alıyorum. Teknoloji ve lezzet bir arada!', avatar: '/images/avatar-3.jpg' },
 ];
 
 export default function HomePage() {
@@ -46,10 +46,10 @@ export default function HomePage() {
         </div>
         <div className="container mx-auto px-4 relative z-20">
           <h1 className="text-5xl md:text-7xl font-bold font-serif mb-6 text-white">
-            Premium Kahve Deneyimi
+            AI Destekli Kahve Deneyimi
           </h1>
           <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto text-white">
-            Özenle seçilen çekirdeklerden, uzman baristalar tarafından hazırlanan eşsiz kahveler
+            Yapay zeka teknolojisi ile kişiselleştirilmiş kahve önerileri ve mükemmel lezzet deneyimi
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link 
@@ -67,14 +67,14 @@ export default function HomePage() {
                 href="/dashboard" 
                 className="px-8 py-3 bg-transparent border-2 border-white text-white rounded-full hover:bg-white/10 transition-colors text-lg"
               >
-                Dashboard
+                Hesabım
               </Link>
             ) : (
               <Link 
                 href="/auth/register" 
                 className="px-8 py-3 bg-transparent border-2 border-white text-white rounded-full hover:bg-white/10 transition-colors text-lg"
               >
-                Sadakat Programına Katıl
+                AI Deneyimini Başlat
               </Link>
             )}
           </div>
@@ -84,37 +84,31 @@ export default function HomePage() {
       {/* Features Section */}
       <section className="py-20 bg-coffee-100">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-serif font-bold text-white text-center mb-16">Sizin İçin Sunduklarımız</h2>
+          <h2 className="text-4xl font-serif font-bold text-white text-center mb-16">AI ile Yeni Nesil Kahve Deneyimi</h2>
           
           <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-white p-8 rounded-xl shadow-md text-center">
               <div className="w-20 h-20 bg-coffee-700 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M2 21v-2h18v2H2ZM7 17q-1.25 0-2.125-.875T4 14V6q0-1.25.875-2.125T7 3h10q1.25 0 2.125.875T20 6v1h1q.825 0 1.413.588T23 9v2q0 .825-.588 1.413T21 13h-1v1q0 1.25-.875 2.125T17 17H7Z" />
-                </svg>
+                <span className="text-3xl">🤖</span>
               </div>
-              <h3 className="text-xl font-semibold mb-4 text-black">Premium Kahveler</h3>
-              <p className="text-coffee-900 font-medium text-black">Dünya'nın farklı bölgelerinden özenle seçtiğimiz kahve çekirdekleri ve özel harmanlarımız</p>
+              <h3 className="text-xl font-semibold mb-4 text-black">AI Kahve Önerileri</h3>
+              <p className="text-coffee-900 font-medium text-black">Yapay zeka teknolojisi ile kişisel tercihlerinize uygun kahve önerileri alın</p>
             </div>
             
             <div className="bg-white p-8 rounded-xl shadow-md text-center">
               <div className="w-20 h-20 bg-coffee-700 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 4a4 4 0 0 1 4 4a4 4 0 0 1-4 4a4 4 0 0 1-4-4a4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4Z" />
-                </svg>
+                <span className="text-3xl">📱</span>
               </div>
-              <h3 className="text-xl font-semibold mb-4 text-black">Sadakat Programı</h3>
-              <p className="text-coffee-700 font-medium text-black">Her siparişinizde puan kazanın ve bu puanlarla bedava kahveler, tatlılar kazanın</p>
+              <h3 className="text-xl font-semibold mb-4 text-black">Akıllı Sipariş</h3>
+              <p className="text-coffee-700 font-medium text-black">Tercihlerinizi öğrenen sistem ile hızlı ve kolay sipariş deneyimi</p>
             </div>
             
             <div className="bg-white p-8 rounded-xl shadow-md text-center">
               <div className="w-20 h-20 bg-coffee-700 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M17 12c-2.76 0-5 2.24-5 5s2.24 5 5 5s5-2.24 5-5s-2.24-5-5-5m0 8.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5s3.5 1.57 3.5 3.5s-1.57 3.5-3.5 3.5M3 13h8v-2H3v2m0 7h8v-2H3v2M3 8h8V6H3v2m10.1 9.5h1.4v-3.8l2.1 3.8h1.7L15.5 14h-1.4v3.9l-2.1-3.9h-1.7l2.8 5.5Z" />
-                </svg>
+                <span className="text-3xl">⭐</span>
               </div>
-              <h3 className="text-xl font-semibold mb-4 text-black">Özel Deneyimler</h3>
-              <p className="text-coffee-700 font-medium text-black">Kahve tadım etkinlikleri, barista eğitimleri ve özel atölye çalışmalarımız</p>
+              <h3 className="text-xl font-semibold mb-4 text-black">Kişiselleştirilmiş Ödüller</h3>
+              <p className="text-coffee-700 font-medium text-black">AI destekli sadakat programı ile size özel indirimler ve avantajlar</p>
             </div>
           </div>
         </div>
@@ -124,7 +118,7 @@ export default function HomePage() {
       <section className="py-20 coffee-texture">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center mb-16">
-            <h2 className="text-4xl font-serif font-bold text-black">Popüler Kahvelerimiz</h2>
+            <h2 className="text-4xl font-serif font-bold text-black">AI Tarafından Önerilen Kahveler</h2>
             <Link 
               href="/menu" 
               className="mt-4 md:mt-0 px-6 py-2 bg-coffee-700 text-white rounded-full hover:bg-coffee-800 transition-colors"
