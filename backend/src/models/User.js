@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 
 const UserSchema = new mongoose.Schema(
   {
@@ -47,6 +48,12 @@ const UserSchema = new mongoose.Schema(
     lastLogin: {
       type: Date,
     },
+    resetPasswordToken: {
+      type: String,
+    },
+    resetPasswordExpires: {
+      type: Date,
+    },
   },
   {
     timestamps: true,
@@ -71,6 +78,23 @@ UserSchema.pre('save', async function (next) {
 // Şifre doğrulama yöntemi
 UserSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// Password reset token oluşturma
+UserSchema.methods.getResetPasswordToken = function () {
+  // Reset token oluştur
+  const resetToken = crypto.randomBytes(20).toString('hex');
+
+  // Token'ı hashle ve kaydet
+  this.resetPasswordToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  // Expiry süresini 10 dakika olarak ayarla
+  this.resetPasswordExpires = Date.now() + 10 * 60 * 1000;
+
+  return resetToken;
 };
 
 module.exports = mongoose.model('User', UserSchema); 

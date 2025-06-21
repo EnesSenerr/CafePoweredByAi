@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useAuth } from './contexts/AuthContext';
 
 const coffeeMenu = [
   { id: 1, name: 'Türk Kahvesi', price: '45 ₺', image: '/images/turkish-coffee.jpg', category: 'Klasik' },
@@ -19,6 +20,7 @@ const testimonials = [
 
 export default function HomePage() {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const { user, isLoading } = useAuth();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -56,12 +58,25 @@ export default function HomePage() {
             >
               Menüyü Keşfet
             </Link>
-            <Link 
-              href="/auth/register" 
-              className="px-8 py-3 bg-transparent border-2 border-white text-white rounded-full hover:bg-white/10 transition-colors text-lg"
-            >
-              Sadakat Programına Katıl
-            </Link>
+            {isLoading ? (
+              <div className="px-8 py-3 bg-transparent border-2 border-white text-white rounded-full animate-pulse">
+                Yükleniyor...
+              </div>
+            ) : user ? (
+              <Link 
+                href="/dashboard" 
+                className="px-8 py-3 bg-transparent border-2 border-white text-white rounded-full hover:bg-white/10 transition-colors text-lg"
+              >
+                Dashboard
+              </Link>
+            ) : (
+              <Link 
+                href="/auth/register" 
+                className="px-8 py-3 bg-transparent border-2 border-white text-white rounded-full hover:bg-white/10 transition-colors text-lg"
+              >
+                Sadakat Programına Katıl
+              </Link>
+            )}
           </div>
         </div>
       </section>

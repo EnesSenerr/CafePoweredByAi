@@ -1,5 +1,5 @@
-// Base URL
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://10.196.3.101:5000';
+// Base URL - Next.js proxy kullanacağız
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 // Helper function to get auth headers
 function getAuthHeaders(token?: string): HeadersInit {
@@ -24,28 +24,57 @@ async function handleResponse(response: Response) {
 }
 
 // Auth APIs
-export async function loginUser(email: string, password: string) {
+export async function loginUser(email: string, password: string, rememberMe?: boolean) {
   const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
     method: 'POST',
     headers: getAuthHeaders(),
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password, rememberMe }),
   });
   return handleResponse(res);
 }
 
-export async function registerUser(name: string, email: string, password: string, phone?: string) {
+export async function registerUser(name: string, email: string, password: string, phone?: string, rememberMe?: boolean) {
   const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
     method: 'POST',
     headers: getAuthHeaders(),
-    body: JSON.stringify({ name, email, password, phone }),
+    body: JSON.stringify({ name, email, password, phone, rememberMe }),
   });
   return handleResponse(res);
 }
 
 export async function getUserProfile(token: string) {
-  const res = await fetch(`${API_BASE_URL}/api/auth/me`, {
+  // Debug için direkt backend'e bağlan
+  const url = process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:5000/api/auth/me' 
+    : `${API_BASE_URL}/api/auth/me`;
+    
+  console.log('API URL:', url);
+  console.log('Token:', token);
+  
+  const res = await fetch(url, {
     method: 'GET',
     headers: getAuthHeaders(token),
+  });
+  
+  const data = await handleResponse(res);
+  console.log('getUserProfile response:', data);
+  return data;
+}
+
+export async function forgotPassword(email: string) {
+  const res = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ email }),
+  });
+  return handleResponse(res);
+}
+
+export async function resetPassword(token: string, password: string) {
+  const res = await fetch(`${API_BASE_URL}/api/auth/reset-password/${token}`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ password }),
   });
   return handleResponse(res);
 }

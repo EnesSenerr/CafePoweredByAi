@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { registerUser } from '../../api';
+import { AuthTokenManager } from '../../utils/auth';
 import { useRouter } from 'next/navigation';
 
 export default function RegisterPage() {
@@ -29,8 +30,17 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       const data = await registerUser(formData.name, formData.email, formData.password, formData.phone);
+      
+      // Token'ı localStorage'a kaydet
+      AuthTokenManager.setToken(data.token);
+      
+      // AuthContext'e auth değişikliğini bildir
+      window.dispatchEvent(new CustomEvent('authChanged'));
+      
       setSuccess(true);
-      setTimeout(() => router.push('/auth/login'), 1500);
+      
+      // Ana sayfaya yönlendir
+      setTimeout(() => router.push('/'), 1500);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -140,7 +150,7 @@ export default function RegisterPage() {
               <div className="text-red-600 text-sm text-center">{error}</div>
             )}
             {success && (
-              <div className="text-green-600 text-sm text-center">Kayıt başarılı! Giriş yapabilirsiniz.</div>
+              <div className="text-green-600 text-sm text-center">Kayıt başarılı! Ana sayfaya yönlendiriliyorsunuz...</div>
             )}
           </div>
 

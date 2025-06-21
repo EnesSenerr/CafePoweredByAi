@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -19,7 +20,7 @@ export default function LoginPage() {
     setError(null);
     
     try {
-      const data = await loginUser(email, password);
+      const data = await loginUser(email, password, rememberMe);
       
       // Token'ı localStorage'a kaydet
       AuthTokenManager.setToken(data.token);
@@ -90,7 +91,9 @@ export default function LoginPage() {
                 id="remember-me"
                 name="remember-me"
                 type="checkbox"
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
               <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
                 Beni hatırla
@@ -98,9 +101,9 @@ export default function LoginPage() {
             </div>
 
             <div className="text-sm">
-              <a href="#" className="font-medium text-blue-700 hover:text-blue-500">
+              <Link href="/auth/forgot-password" className="font-medium text-blue-700 hover:text-blue-500">
                 Şifremi unuttum
-              </a>
+              </Link>
             </div>
           </div>
 

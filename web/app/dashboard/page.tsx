@@ -62,21 +62,44 @@ export default function DashboardPage() {
       try {
         setLoading(true);
         
+        // Debug bilgisi
+        console.log('=== DASHBOARD DEBUG ===');
+        console.log('Token:', token);
+        console.log('Current User:', currentUser);
+        
         // Paralel API çağrıları
         const [profileData, rewardsData] = await Promise.all([
           getUserProfile(token),
           getRewards()
         ]);
 
+        console.log('Profile Data:', profileData);
+        console.log('Rewards Data:', rewardsData);
+
         // Kullanıcı profil bilgilerini güncelle
+        // profileData format'ını esnek hale getir
+        let userData;
+        
+        if (profileData && profileData.user) {
+          // Eğer { user: {...} } formatında geliyorsa
+          userData = profileData.user;
+        } else if (profileData && profileData.id) {
+          // Eğer direkt { id, name, email, ... } formatında geliyorsa
+          userData = profileData;
+        } else {
+          throw new Error('Kullanıcı profil verisi alınamadı');
+        }
+
+        console.log('User Data:', userData);
+
         setUser({
-          name: profileData.user.name,
+          name: userData.name || 'Kullanıcı',
           level: 'Gold', // Backend'den gelmeyen bilgiler için fallback
           nextLevel: 'Platinum',
-          progress: Math.min((profileData.user.points / 500) * 100, 100)
+          progress: Math.min((userData.points || 0) / 500 * 100, 100)
         });
         
-        setPoints(profileData.user.points || 0);
+        setPoints(userData.points || 0);
         
         // Ödülleri güncelle
         setRewards(rewardsData.data || []);

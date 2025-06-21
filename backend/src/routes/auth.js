@@ -11,5 +11,9 @@ router.post('/login', authController.login);
 router.get('/me', authMiddleware, authController.getProfile);
 // Admin için kullanıcı listeleme (korumalı)
 router.get('/admin/users', authMiddleware, authController.listUsers);
+// Şifremi unuttum
+router.post('/forgot-password', authController.forgotPassword);
+// Şifre sıfırlama
+router.post('/reset-password/:token', authController.resetPassword);
 
 module.exports = router; 
