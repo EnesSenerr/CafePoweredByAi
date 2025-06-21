@@ -17,14 +17,14 @@ export default function PointsBalance({ points }: PointsBalanceProps) {
           </div>
           <div>
             <div className="text-5xl font-bold text-coffee-800">{points}</div>
-            <p className="text-coffee-600 mt-1">Toplam Puan</p>
+            <p className="text-gray-700 mt-1 font-medium">Toplam Puan</p>
           </div>
         </div>
         
         <div className="mt-6 bg-coffee-50 rounded-lg p-4 border border-coffee-100 flex justify-between items-center">
           <div>
-            <p className="text-coffee-800 font-medium">Ödüllerinizi kullanmak için puanlarınızı harcayabilirsiniz</p>
-            <p className="text-coffee-600 text-sm mt-1">Her 50 puan = 15₺ değerinde</p>
+            <p className="text-gray-900 font-medium">Ödüllerinizi kullanmak için puanlarınızı harcayabilirsiniz</p>
+            <p className="text-gray-700 text-sm mt-1">Her 50 puan = 15₺ değerinde</p>
           </div>
           <div className="flex-shrink-0">
             <a 

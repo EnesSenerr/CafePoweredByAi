@@ -181,7 +181,7 @@ const DashboardScreen = ({ navigation }: Props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f9fafb', // Daha açık ve temiz background
   },
   centered: {
     justifyContent: 'center',
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 16,
-    color: '#666',
+    color: '#374151', // Daha koyu gri ile okunabilirlik artırıldı
   },
   header: {
     padding: 20,
@@ -207,12 +207,14 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   section: {
-    margin: 15,
+    marginHorizontal: 16,
+    marginVertical: 8,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: '#1a1a1a', // Koyu renk ile okunabilirlik artırıldı
   },
   logoutButton: {
     position: 'absolute',

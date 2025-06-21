@@ -51,18 +51,20 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions })
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
-    borderRadius: 8,
-    padding: 8,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 16,
     marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 4,
   },
   transactionItem: {
     flexDirection: 'row',
@@ -75,9 +77,10 @@ const styles = StyleSheet.create({
   transactionDescription: {
     fontWeight: '500',
     fontSize: 16,
+    color: '#1a1a1a', // Koyu renk ile okunabilirlik artırıldı
   },
   transactionDate: {
-    color: '#666',
+    color: '#6b7280', // Daha koyu gri ile okunabilirlik artırıldı
     fontSize: 12,
     marginTop: 2,
   },
@@ -94,7 +97,8 @@ const styles = StyleSheet.create({
   emptyText: {
     textAlign: 'center',
     padding: 16,
-    color: '#666',
+    color: '#4b5563', // Daha koyu gri ile okunabilirlik artırıldı
+    fontSize: 16,
   },
 });
 

@@ -232,7 +232,7 @@ export default function DashboardPage() {
             <div className="w-full bg-coffee-900 rounded-full h-2.5">
               <div className="bg-cream-400 h-2.5 rounded-full" style={{ width: `${user.progress}%` }}></div>
             </div>
-            <p className="text-xs mt-1 text-coffee-200">{500 - points} puan daha kazanın ve {user.nextLevel} seviyesine yükselin</p>
+            <p className="text-xs mt-1 text-coffee-100 font-medium">{500 - points} puan daha kazanın ve {user.nextLevel} seviyesine yükselin</p>
           </div>
         </div>
       </div>
@@ -250,8 +250,8 @@ export default function DashboardPage() {
               </div>
               <div className="p-6 flex flex-col md:flex-row items-center justify-between">
                 <div className="mb-4 md:mb-0 md:mr-6">
-                  <p className="text-coffee-800 mb-2">Kasada göstermek için QR kodunuz:</p>
-                  <p className="text-sm text-coffee-600">Çalışana göstererek hızlıca puan kazanabilir veya ödüllerinizi kullanabilirsiniz.</p>
+                  <p className="text-gray-900 font-semibold mb-2">Kasada göstermek için QR kodunuz:</p>
+                  <p className="text-sm text-gray-700">Çalışana göstererek hızlıca puan kazanabilir veya ödüllerinizi kullanabilirsiniz.</p>
                 </div>
                 <div className="bg-coffee-100 h-32 w-32 flex items-center justify-center rounded-lg">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 text-coffee-800" viewBox="0 0 24 24" fill="currentColor">
@@ -288,8 +288,8 @@ export default function DashboardPage() {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-coffee-800">Profilim</h3>
-                    <p className="text-sm text-coffee-600">Hesap bilgilerinizi yönetin</p>
+                    <h3 className="font-semibold text-gray-900">Profilim</h3>
+                    <p className="text-sm text-gray-700">Hesap bilgilerinizi yönetin</p>
                   </div>
                 </Link>
                 
@@ -303,8 +303,8 @@ export default function DashboardPage() {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-coffee-800">Favorilerim</h3>
-                    <p className="text-sm text-coffee-600">Favori kahveleriniz ve ürünleriniz</p>
+                    <h3 className="font-semibold text-gray-900">Favorilerim</h3>
+                    <p className="text-sm text-gray-700">Favori kahveleriniz ve ürünleriniz</p>
                   </div>
                 </Link>
                 
@@ -318,8 +318,8 @@ export default function DashboardPage() {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-coffee-800">Siparişlerim</h3>
-                    <p className="text-sm text-coffee-600">Önceki siparişlerinizi görüntüleyin</p>
+                    <h3 className="font-semibold text-gray-900">Siparişlerim</h3>
+                    <p className="text-sm text-gray-700">Önceki siparişlerinizi görüntüleyin</p>
                   </div>
                 </Link>
               </div>

@@ -19,23 +19,26 @@ const PointsBalance: React.FC<PointsBalanceProps> = ({ points }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
-    borderRadius: 8,
-    padding: 16,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 20,
     marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 4,
   },
   title: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: '#1a1a1a', // Koyu renk ile okunabilirlik artırıldı
   },
   pointsValue: {
     fontSize: 32,
@@ -44,7 +47,7 @@ const styles = StyleSheet.create({
   },
   helpText: {
     marginTop: 8,
-    color: '#666',
+    color: '#4b5563', // Daha koyu gri ile okunabilirlik artırıldı
     fontSize: 14,
   },
 });

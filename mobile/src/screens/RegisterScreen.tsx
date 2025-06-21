@@ -121,13 +121,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 24,
     textAlign: 'center',
+    color: '#1a1a1a', // Koyu renk ile okunabilirlik artırıldı
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#d1d5db', // Daha belirgin border rengi
     borderRadius: 8,
     padding: 12,
     marginBottom: 16,
+    fontSize: 16,
+    color: '#1a1a1a', // Koyu text rengi
+    backgroundColor: '#ffffff',
   },
   linkContainer: {
     marginTop: 16,
