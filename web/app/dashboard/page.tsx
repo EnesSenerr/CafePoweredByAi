@@ -237,12 +237,6 @@ export default function DashboardPage() {
                 <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2L9.19 8.63L2 9.24l5.46 4.73L5.82 21L12 17.27z" />
               </svg>
             </div>
-            <button 
-              onClick={AuthHelpers.logout}
-              className="ml-4 bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-sm"
-            >
-              Çıkış Yap
-            </button>
           </div>
         </div>
           </div>
