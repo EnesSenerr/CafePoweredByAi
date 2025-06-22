@@ -4,6 +4,9 @@ import { useAuth } from '../contexts/AuthContext';
 
 export default function Navigation() {
   const { user, isLoading, logout } = useAuth();
+  
+  const canAccessEmployee = () => user?.role === 'employee' || user?.role === 'admin';
+  const canAccessAdmin = () => user?.role === 'admin';
 
   return (
     <header className="bg-coffee-200 shadow-md sticky top-0 z-50">
@@ -50,6 +53,16 @@ export default function Navigation() {
                 <a href="/dashboard" className="text-coffee-800 hover:text-coffee-600 transition-colors">
                   Hesabım
                 </a>
+                {canAccessEmployee() && (
+                  <a href="/employee" className="text-blue-600 hover:text-blue-700 transition-colors font-medium">
+                    Çalışan Paneli
+                  </a>
+                )}
+                {canAccessAdmin() && (
+                  <a href="/admin" className="text-red-600 hover:text-red-700 transition-colors font-medium">
+                    Admin Paneli
+                  </a>
+                )}
                 <button 
                   onClick={logout}
                   className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"

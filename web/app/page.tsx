@@ -89,7 +89,7 @@ export default function HomePage() {
           <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-white p-8 rounded-xl shadow-md text-center">
               <div className="w-20 h-20 bg-coffee-700 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-3xl">🤖</span>
+                <span className="text-3xl"></span>
               </div>
               <h3 className="text-xl font-semibold mb-4 text-black">AI Kahve Önerileri</h3>
               <p className="text-coffee-900 font-medium text-black">Yapay zeka teknolojisi ile kişisel tercihlerinize uygun kahve önerileri alın</p>
@@ -97,7 +97,7 @@ export default function HomePage() {
             
             <div className="bg-white p-8 rounded-xl shadow-md text-center">
               <div className="w-20 h-20 bg-coffee-700 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-3xl">📱</span>
+                <span className="text-3xl"></span>
               </div>
               <h3 className="text-xl font-semibold mb-4 text-black">Akıllı Sipariş</h3>
               <p className="text-coffee-700 font-medium text-black">Tercihlerinizi öğrenen sistem ile hızlı ve kolay sipariş deneyimi</p>
@@ -105,7 +105,7 @@ export default function HomePage() {
             
             <div className="bg-white p-8 rounded-xl shadow-md text-center">
               <div className="w-20 h-20 bg-coffee-700 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-3xl">⭐</span>
+                <span className="text-3xl"></span>
               </div>
               <h3 className="text-xl font-semibold mb-4 text-black">Kişiselleştirilmiş Ödüller</h3>
               <p className="text-coffee-700 font-medium text-black">AI destekli sadakat programı ile size özel indirimler ve avantajlar</p>

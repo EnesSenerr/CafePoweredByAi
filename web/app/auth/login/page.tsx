@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { loginUser } from '../../api';
-import { AuthTokenManager } from '../../utils/auth';
+import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
@@ -13,6 +13,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const { login } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,16 +23,17 @@ export default function LoginPage() {
     
     try {
       const data = await loginUser(email, password, rememberMe);
+      console.log('Login response:', data);
       
-      // Token'ı localStorage'a kaydet
-      AuthTokenManager.setToken(data.token);
+      // Login fonksiyonu ile user'ı set et
+      login(data.user, data.token);
       
-      // AuthContext'e auth değişikliğini bildir
-      window.dispatchEvent(new CustomEvent('authChanged'));
+      console.log('User role:', data.user?.role);
       
-      // Dashboard'a yönlendir
+      // Role'e göre yönlendirme - admin için varsayılan dashboard
       router.push('/dashboard');
     } catch (err: any) {
+      console.error('Login error:', err);
       setError(err.message || 'Giriş yapılırken bir hata oluştu');
     } finally {
       setLoading(false);

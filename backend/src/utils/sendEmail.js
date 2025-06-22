@@ -2,7 +2,7 @@ const nodemailer = require('nodemailer');
 
 const sendEmail = async (options) => {
   try {
-    console.log('📧 Transporter oluşturuluyor...');
+    console.log('Transporter oluşturuluyor...');
     console.log('SMTP Host:', process.env.SMTP_HOST);
     console.log('SMTP Port:', process.env.SMTP_PORT);
     console.log('SMTP User:', process.env.SMTP_USER);
@@ -22,9 +22,9 @@ const sendEmail = async (options) => {
     });
 
     // Bağlantıyı test et
-    console.log('🔍 SMTP bağlantısı test ediliyor...');
+    console.log('SMTP bağlantısı test ediliyor...');
     await transporter.verify();
-    console.log('✅ SMTP bağlantısı başarılı!');
+    console.log('SMTP bağlantısı başarılı!');
 
     // Mail options
     const mailOptions = {
@@ -34,20 +34,20 @@ const sendEmail = async (options) => {
       html: options.message,
     };
 
-    console.log('📤 Email gönderiliyor...');
+    console.log('Email gönderiliyor...');
     console.log('To:', mailOptions.to);
     console.log('From:', mailOptions.from);
     console.log('Subject:', mailOptions.subject);
 
     // Email gönder
     const info = await transporter.sendMail(mailOptions);
-    console.log('✅ Email başarıyla gönderildi!');
+    console.log('Email başarıyla gönderildi!');
     console.log('Message ID:', info.messageId);
     console.log('Response:', info.response);
     
     return info;
   } catch (error) {
-    console.error('❌ sendEmail fonksiyonunda hata:');
+    console.error('sendEmail fonksiyonunda hata:');
     console.error('Error type:', error.constructor.name);
     console.error('Error message:', error.message);
     console.error('Error code:', error.code);

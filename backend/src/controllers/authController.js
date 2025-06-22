@@ -218,10 +218,10 @@ exports.forgotPassword = async (req, res) => {
         message,
       });
 
-      console.log('✅ Email başarıyla gönderildi!');
+      console.log('Email başarıyla gönderildi!');
       res.status(200).json({ message: 'Şifre sıfırlama linki e-posta adresinize gönderildi.' });
     } catch (err) {
-      console.error('❌ Email gönderme hatası:');
+      console.error('Email gönderme hatası:');
       console.error('Error name:', err.name);
       console.error('Error message:', err.message);
       console.error('Error code:', err.code);

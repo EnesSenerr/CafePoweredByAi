@@ -6,6 +6,7 @@ interface User {
   id: string;
   name: string;
   email: string;
+  role: 'customer' | 'employee' | 'admin';
 }
 
 interface AuthContextType {
@@ -14,6 +15,7 @@ interface AuthContextType {
   setUser: (user: User | null) => void;
   logout: () => void;
   refreshAuth: () => void;
+  login: (userData: User, token: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -64,6 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (response.ok) {
         const userData = await response.json();
+        console.log('AuthContext received user data:', userData);
         setUser(userData);
       } else {
         // Token geçersiz, localStorage'dan temizle
@@ -89,8 +92,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkAuthStatus();
   };
 
+  const login = (userData: User, token: string) => {
+    localStorage.setItem('authToken', token);
+    setUser(userData);
+    window.dispatchEvent(new CustomEvent('authChanged'));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, setUser, logout, refreshAuth }}>
+    <AuthContext.Provider value={{ user, isLoading, setUser, logout, refreshAuth, login }}>
       {children}
     </AuthContext.Provider>
   );

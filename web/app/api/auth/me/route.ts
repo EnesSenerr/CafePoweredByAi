@@ -34,6 +34,7 @@ export async function GET(request: NextRequest) {
       id: user.id || user._id,
       name: user.name || user.username,
       email: user.email,
+      role: user.role || 'customer',
     });
     
   } catch (error) {

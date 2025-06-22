@@ -287,7 +287,7 @@ export default function OrdersPage() {
           </div>
         ) : (
           <div className="text-center py-16">
-            <div className="text-6xl mb-4">📦</div>
+                            <div className="text-6xl mb-4"></div>
             <h3 className="text-2xl font-bold text-gray-900 mb-2">
               {activeTab === 'active' ? 'Aktif siparişiniz yok' : 
                activeTab === 'completed' ? 'Tamamlanan siparişiniz yok' : 
@@ -319,7 +319,7 @@ export default function OrdersPage() {
 
               <button className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300 text-left">
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center text-white text-xl mb-4">
-                  ⭐
+                  
                 </div>
                 <h3 className="font-bold text-gray-900 mb-2">Favori Siparişim</h3>
                 <p className="text-gray-600 text-sm">En çok sipariş ettiğiniz ürünler</p>
@@ -327,7 +327,7 @@ export default function OrdersPage() {
 
               <button className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300 text-left">
                 <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center text-white text-xl mb-4">
-                  📊
+                  
                 </div>
                 <h3 className="font-bold text-gray-900 mb-2">Sipariş İstatistikleri</h3>
                 <p className="text-gray-600 text-sm">Detaylı sipariş analizleriniz</p>
@@ -335,7 +335,7 @@ export default function OrdersPage() {
 
               <button className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300 text-left">
                 <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center text-white text-xl mb-4">
-                  🎁
+                  
                 </div>
                 <h3 className="font-bold text-gray-900 mb-2">Hediye Gönder</h3>
                 <p className="text-gray-600 text-sm">Sevdiklerinize kahve hediye edin</p>

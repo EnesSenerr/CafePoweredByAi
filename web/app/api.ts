@@ -25,16 +25,33 @@ async function handleResponse(response: Response) {
 
 // Auth APIs
 export async function loginUser(email: string, password: string, rememberMe?: boolean) {
-  const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
+  // Debug için direkt backend'e bağlan
+  const url = process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:5000/api/auth/login' 
+    : `${API_BASE_URL}/api/auth/login`;
+    
+  console.log('Login API URL:', url);
+  console.log('Login data:', { email, password });
+  
+  const res = await fetch(url, {
     method: 'POST',
     headers: getAuthHeaders(),
     body: JSON.stringify({ email, password, rememberMe }),
   });
-  return handleResponse(res);
+  
+  console.log('Login response status:', res.status);
+  const data = await handleResponse(res);
+  console.log('Login response data:', data);
+  return data;
 }
 
 export async function registerUser(name: string, email: string, password: string, phone?: string, rememberMe?: boolean) {
-  const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
+  // Debug için direkt backend'e bağlan
+  const url = process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:5000/api/auth/register' 
+    : `${API_BASE_URL}/api/auth/register`;
+    
+  const res = await fetch(url, {
     method: 'POST',
     headers: getAuthHeaders(),
     body: JSON.stringify({ name, email, password, phone, rememberMe }),
@@ -154,6 +171,111 @@ export async function getAdminRewards(token: string) {
   const res = await fetch(`${API_BASE_URL}/api/admin/rewards`, {
     method: 'GET',
     headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+// Menu APIs
+export async function getMenuItems(filters: { category?: string; available?: boolean; search?: string } = {}) {
+  const queryParams = new URLSearchParams();
+  if (filters.category) queryParams.append('category', filters.category);
+  if (filters.available !== undefined) queryParams.append('available', filters.available.toString());
+  if (filters.search) queryParams.append('search', filters.search);
+
+  const url = process.env.NODE_ENV === 'development' 
+    ? `http://localhost:5000/api/menu${queryParams.toString() ? '?' + queryParams.toString() : ''}` 
+    : `${API_BASE_URL}/api/menu${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+  });
+  return handleResponse(res);
+}
+
+export async function getMenuItem(id: string) {
+  const url = process.env.NODE_ENV === 'development' 
+    ? `http://localhost:5000/api/menu/${id}` 
+    : `${API_BASE_URL}/api/menu/${id}`;
+
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+  });
+  return handleResponse(res);
+}
+
+export async function createMenuItem(token: string, menuItemData: any) {
+  const url = process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:5000/api/menu' 
+    : `${API_BASE_URL}/api/menu`;
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(menuItemData),
+  });
+  return handleResponse(res);
+}
+
+export async function updateMenuItem(token: string, id: string, menuItemData: any) {
+  const url = process.env.NODE_ENV === 'development' 
+    ? `http://localhost:5000/api/menu/${id}` 
+    : `${API_BASE_URL}/api/menu/${id}`;
+
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(menuItemData),
+  });
+  return handleResponse(res);
+}
+
+export async function deleteMenuItem(token: string, id: string) {
+  const url = process.env.NODE_ENV === 'development' 
+    ? `http://localhost:5000/api/menu/${id}` 
+    : `${API_BASE_URL}/api/menu/${id}`;
+
+  const res = await fetch(url, {
+    method: 'DELETE',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+export async function toggleMenuItemAvailability(token: string, id: string) {
+  const url = process.env.NODE_ENV === 'development' 
+    ? `http://localhost:5000/api/menu/${id}/toggle` 
+    : `${API_BASE_URL}/api/menu/${id}/toggle`;
+
+  const res = await fetch(url, {
+    method: 'PATCH',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+export async function updateMenuItemStock(token: string, id: string, stock: number) {
+  const url = process.env.NODE_ENV === 'development' 
+    ? `http://localhost:5000/api/menu/${id}/stock` 
+    : `${API_BASE_URL}/api/menu/${id}/stock`;
+
+  const res = await fetch(url, {
+    method: 'PATCH',
+    headers: getAuthHeaders(token),
+    body: JSON.stringify({ stock }),
+  });
+  return handleResponse(res);
+}
+
+export async function getMenuCategories() {
+  const url = process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:5000/api/menu/categories' 
+    : `${API_BASE_URL}/api/menu/categories`;
+
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: getAuthHeaders(),
   });
   return handleResponse(res);
 } 

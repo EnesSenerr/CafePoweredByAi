@@ -58,7 +58,7 @@ export default function ProfilePage() {
                   {user?.name?.charAt(0)?.toUpperCase() || 'U'}
                 </div>
                 <button className="absolute -bottom-2 -right-2 bg-coffee-600 text-white w-8 h-8 rounded-full hover:bg-coffee-700 transition-colors duration-200">
-                  ✏️
+                  
                 </button>
               </div>
               <div>
@@ -78,7 +78,7 @@ export default function ProfilePage() {
                   onClick={() => setIsEditing(true)}
                   className="bg-coffee-600 text-white px-4 py-2 rounded-lg hover:bg-coffee-700 transition-colors duration-200"
                 >
-                  Düzenle
+                  <span className="ml-2">Düzenle</span>
                 </button>
               ) : (
                 <div className="space-x-2">

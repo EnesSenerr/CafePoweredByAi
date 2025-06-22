@@ -54,7 +54,7 @@ export default function LoyaltyProgramPage() {
               AI destekli kahve deneyiminizi daha da özel kılan avantajlar
             </p>
             <div className="inline-flex items-center bg-white/10 backdrop-blur-sm rounded-lg px-6 py-3">
-              <span className="text-2xl mr-3">🤖</span>
+              <span className="text-2xl mr-3"></span>
               <span className="text-lg">Yapay zeka ile kişiselleştirilmiş ödüller</span>
             </div>
           </div>
@@ -66,9 +66,10 @@ export default function LoyaltyProgramPage() {
         <div className="flex justify-center mb-12">
           <div className="flex space-x-1 bg-white rounded-lg p-1 shadow-lg">
             {[
-              { key: 'overview', label: 'Genel Bakış', icon: '📊' },
-              { key: 'levels', label: 'Seviyeler', icon: '🏆' },
-              { key: 'rewards', label: 'Ödüller', icon: '🎁' }
+              { key: 'overview', label: 'Genel Bakış', icon: '' },
+                              { key: 'rewards', label: 'Ödüller', icon: '' },
+                { key: 'history', label: 'Geçmiş', icon: '' },
+                { key: 'tiers', label: 'Seviyeler', icon: '' }
             ].map((tab) => (
               <button
                 key={tab.key}
@@ -102,25 +103,25 @@ export default function LoyaltyProgramPage() {
                 <div className="space-y-4">
                   <div className="flex items-center space-x-3">
                     <div className="w-8 h-8 bg-coffee-600 rounded-full flex items-center justify-center text-white">
-                      🤖
+                      
                     </div>
                     <span className="text-gray-700">AI ile kişiselleştirilmiş kahve önerileri</span>
                   </div>
                   <div className="flex items-center space-x-3">
                     <div className="w-8 h-8 bg-coffee-600 rounded-full flex items-center justify-center text-white">
-                      📱
+    
                     </div>
                     <span className="text-gray-700">Akıllı sipariş sistemi</span>
                   </div>
                   <div className="flex items-center space-x-3">
                     <div className="w-8 h-8 bg-coffee-600 rounded-full flex items-center justify-center text-white">
-                      ⚡
+    
                     </div>
                     <span className="text-gray-700">Otomatik ödül sistemi</span>
                   </div>
                   <div className="flex items-center space-x-3">
                     <div className="w-8 h-8 bg-coffee-600 rounded-full flex items-center justify-center text-white">
-                      📊
+    
                     </div>
                     <span className="text-gray-700">Tercihlere göre dinamik indirimler</span>
                   </div>
@@ -228,7 +229,7 @@ export default function LoyaltyProgramPage() {
               <div className="bg-white rounded-2xl shadow-lg p-8">
                 <div className="flex items-center space-x-4 mb-6">
                   <div className="w-12 h-12 bg-gradient-to-br from-coffee-400 to-coffee-600 rounded-lg flex items-center justify-center text-white text-xl">
-                    🎯
+                    
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-gray-900">Kişiselleştirilmiş İndirimler</h3>
@@ -254,7 +255,7 @@ export default function LoyaltyProgramPage() {
               <div className="bg-white rounded-2xl shadow-lg p-8">
                 <div className="flex items-center space-x-4 mb-6">
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center text-white text-xl">
-                    🤖
+                    
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-gray-900">AI Asistan Hizmetleri</h3>
@@ -283,17 +284,17 @@ export default function LoyaltyProgramPage() {
               <h3 className="text-2xl font-bold mb-6">Özel Deneyimler</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="text-center">
-                  <div className="text-4xl mb-3">☕</div>
+                  <div className="text-4xl mb-3"></div>
                   <h4 className="font-bold mb-2">AI Barista Workshopu</h4>
                   <p className="text-coffee-100 text-sm">Yapay zeka destekli kahve hazırlama teknikleri</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-4xl mb-3">🎪</div>
+                  <div className="text-4xl mb-3"></div>
                   <h4 className="font-bold mb-2">Teknoloji Etkinlikleri</h4>
                   <p className="text-coffee-100 text-sm">AI ve kahve teknolojisi buluşmaları</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-4xl mb-3">🌟</div>
+                  <div className="text-4xl mb-3"></div>
                   <h4 className="font-bold mb-2">Beta Test Programı</h4>
                   <p className="text-coffee-100 text-sm">Yeni AI özelliklerini ilk deneyenler olun</p>
                 </div>

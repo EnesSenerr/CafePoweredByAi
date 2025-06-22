@@ -13,7 +13,7 @@ const app = express();
 app.use(cors({
   origin: ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001'],
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
@@ -33,6 +33,9 @@ const authMiddleware = require('./middleware/authMiddleware');
 
 // API yolları
 app.use('/api/auth', require('./routes/auth'));
+
+// Menu API'leri - GET request'ler herkese açık, diğerleri role-based korumalı
+app.use('/api/menu', require('./routes/menu'));
 
 // Point API'leri - JWT korumalı
 app.use('/api/points', authMiddleware, require('../../src/routes/point.routes'));
