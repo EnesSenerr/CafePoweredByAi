@@ -3,19 +3,16 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { 
+import {
   getMenuItems, 
   createMenuItem, 
   updateMenuItem, 
   deleteMenuItem, 
-  toggleMenuItemAvailability, 
-  updateMenuItemStock,
+  toggleMenuItemAvailability,
   getMenuCategories,
   createOrder,
   getOrders,
   updateOrderStatus,
-  getSalesReport,
-  getInventoryReport,
   downloadReport
 } from '../api';
 
@@ -35,8 +32,8 @@ interface MenuItem {
   isPopular?: boolean;
   createdAt?: string;
   updatedAt?: string;
-  createdBy?: any;
-  updatedBy?: any;
+  createdBy?: string;
+  updatedBy?: string;
 }
 
 interface StockItem {
@@ -79,7 +76,7 @@ export default function EmployeePage() {
   const [activeTab, setActiveTab] = useState<'menu' | 'stock' | 'orders'>('menu');
   const [isLoading, setIsLoading] = useState(true);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
+  const [, setCategories] = useState<string[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [formData, setFormData] = useState({
@@ -132,7 +129,7 @@ export default function EmployeePage() {
     // Employee veya Admin değilse dashboard'a yönlendir
     if (user.role !== 'employee' && user.role !== 'admin') {
       console.log('User role:', user.role, 'Expected: employee or admin');
-      router.push('/dashboard');
+              router.push('/hesabim');
       return;
     }
     
@@ -573,7 +570,7 @@ export default function EmployeePage() {
                 <div className="text-6xl mb-4">📋</div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">Henüz Sipariş Yok</h3>
                 <p className="text-gray-600 mb-6">
-                  Yeni sipariş oluşturmak için "Yeni Sipariş" butonunu kullanın.
+                  Yeni sipariş oluşturmak için &ldquo;Yeni Sipariş&rdquo; butonunu kullanın.
                 </p>
                 <div className="grid grid-cols-3 gap-6 mt-8">
                   <div className="text-center">

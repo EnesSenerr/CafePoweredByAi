@@ -15,7 +15,7 @@ interface FavoriteItem {
 }
 
 export default function FavoritesPage() {
-  const { user } = useAuth();
+  const { } = useAuth();
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const [loading, setLoading] = useState(true);
 

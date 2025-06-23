@@ -70,7 +70,7 @@ const calculateUserLevel = (points: number) => {
   };
 };
 
-export default function DashboardPage() {
+export default function HesabimPage() {
   const [points, setPoints] = useState(0);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [rewards, setRewards] = useState<Reward[]>([]);
@@ -80,7 +80,7 @@ export default function DashboardPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const initializeDashboard = async () => {
+    const initializeHesabim = async () => {
       // Auth kontrolü
       if (!AuthHelpers.isAuthenticated()) {
         router.push('/auth/login');
@@ -99,7 +99,7 @@ export default function DashboardPage() {
         setLoading(true);
         
         // Debug bilgisi
-        console.log('=== DASHBOARD DEBUG ===');
+        console.log('=== HESABIM DEBUG ===');
         console.log('Token:', token);
         console.log('Current User:', currentUser);
         
@@ -172,12 +172,13 @@ export default function DashboardPage() {
           setTransactions([]);
         }
 
-      } catch (err: any) {
-        console.error('Dashboard data loading error:', err);
-        setError(err.message || 'Veriler yüklenirken hata oluştu');
+      } catch (err: unknown) {
+        console.error('Hesabim data loading error:', err);
+        const errorMessage = err instanceof Error ? err.message : 'Veriler yüklenirken hata oluştu';
+        setError(errorMessage);
         
         // Token geçersizse login'e yönlendir
-        if (err.message?.includes('401') || err.message?.includes('token')) {
+        if (errorMessage.includes('401') || errorMessage.includes('token')) {
           AuthHelpers.logout();
         }
       } finally {
@@ -185,7 +186,7 @@ export default function DashboardPage() {
       }
     };
 
-    initializeDashboard();
+    initializeHesabim();
   }, [router]);
 
   const handleRedeemReward = async (rewardId: number) => {
@@ -225,8 +226,9 @@ export default function DashboardPage() {
       setTransactions(prev => [newTransaction, ...prev]);
       
       alert(`${reward.name} ödülünüz başarıyla kullanıldı!`);
-    } catch (err: any) {
-      alert(err.message || 'Ödül kullanılırken hata oluştu');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Ödül kullanılırken hata oluştu';
+      alert(errorMessage);
     }
   };
 
@@ -388,7 +390,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="p-6 space-y-3">
                   <Link 
-                    href="/dashboard/profile" 
+                                          href="/hesabim/profile" 
                     className="group flex items-center p-4 bg-gradient-to-r from-coffee-50 to-cream-100 rounded-xl hover:from-coffee-100 hover:to-cream-200 transition-all duration-200 border border-transparent hover:border-coffee-200"
                   >
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-coffee-600 to-coffee-700 flex items-center justify-center text-white mr-4 group-hover:scale-110 transition-transform">
@@ -403,7 +405,7 @@ export default function DashboardPage() {
                   </Link>
                   
                   <Link 
-                    href="/dashboard/favorites" 
+                                          href="/hesabim/favorites" 
                     className="group flex items-center p-4 bg-gradient-to-r from-coffee-50 to-cream-100 rounded-xl hover:from-coffee-100 hover:to-cream-200 transition-all duration-200 border border-transparent hover:border-coffee-200"
                   >
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-red-500 to-pink-500 flex items-center justify-center text-white mr-4 group-hover:scale-110 transition-transform">
@@ -418,7 +420,7 @@ export default function DashboardPage() {
                   </Link>
                   
                   <Link 
-                    href="/dashboard/orders" 
+                                          href="/hesabim/orders" 
                     className="group flex items-center p-4 bg-gradient-to-r from-coffee-50 to-cream-100 rounded-xl hover:from-coffee-100 hover:to-cream-200 transition-all duration-200 border border-transparent hover:border-coffee-200"
                   >
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white mr-4 group-hover:scale-110 transition-transform">

@@ -71,7 +71,7 @@ export default function AdminPage() {
   });
 
   // Content items
-  const [contentItems, setContentItems] = useState<ContentItem[]>([
+  const [, setContentItems] = useState<ContentItem[]>([
     {
       id: 1,
       type: 'announcement',
@@ -100,7 +100,7 @@ export default function AdminPage() {
     
     if (user.role !== 'admin') {
       console.log('User role:', user.role, 'Expected: admin');
-      router.push('/dashboard');
+              router.push('/hesabim');
       return;
     }
     
@@ -140,7 +140,7 @@ export default function AdminPage() {
     try {
       if (editingUser) {
         // Güncelle
-        const updateData: any = {
+        const updateData: Partial<UserFormData> = {
           name: userFormData.name,
           email: userFormData.email,
           role: userFormData.role,
@@ -162,8 +162,9 @@ export default function AdminPage() {
       setShowUserModal(false);
       setEditingUser(null);
       resetUserForm();
-    } catch (error: any) {
-      alert(`Hata: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Bilinmeyen hata';
+      alert(`Hata: ${errorMessage}`);
     }
   };
 
@@ -191,8 +192,9 @@ export default function AdminPage() {
     try {
       await deleteUser(token, userId);
       await loadUsers();
-    } catch (error: any) {
-      alert(`Hata: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Bilinmeyen hata';
+      alert(`Hata: ${errorMessage}`);
     }
   };
 
@@ -203,8 +205,9 @@ export default function AdminPage() {
     try {
       await toggleUserStatus(token, userId);
       await loadUsers();
-    } catch (error: any) {
-      alert(`Hata: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Bilinmeyen hata';
+      alert(`Hata: ${errorMessage}`);
     }
   };
 
@@ -219,6 +222,8 @@ export default function AdminPage() {
     });
   };
 
+  // Gelecekteki kullanım için ayrılmış
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const toggleContentStatus = (id: number) => {
     setContentItems(items =>
       items.map(item =>

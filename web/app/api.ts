@@ -141,7 +141,7 @@ export async function getReward(rewardId: string) {
 }
 
 // Admin APIs
-export async function createReward(token: string, rewardData: any) {
+export async function createReward(token: string, rewardData: Record<string, unknown>) {
   const res = await fetch(`${API_BASE_URL}/api/admin/rewards`, {
     method: 'POST',
     headers: getAuthHeaders(token),
@@ -150,7 +150,7 @@ export async function createReward(token: string, rewardData: any) {
   return handleResponse(res);
 }
 
-export async function updateReward(token: string, rewardId: string, rewardData: any) {
+export async function updateReward(token: string, rewardId: string, rewardData: Record<string, unknown>) {
   const res = await fetch(`${API_BASE_URL}/api/admin/rewards/${rewardId}`, {
     method: 'PUT',
     headers: getAuthHeaders(token),
@@ -205,7 +205,7 @@ export async function getMenuItem(id: string) {
   return handleResponse(res);
 }
 
-export async function createMenuItem(token: string, menuItemData: any) {
+export async function createMenuItem(token: string, menuItemData: Record<string, unknown>) {
   const url = process.env.NODE_ENV === 'development' 
     ? 'http://localhost:5000/api/menu' 
     : `${API_BASE_URL}/api/menu`;
@@ -218,7 +218,7 @@ export async function createMenuItem(token: string, menuItemData: any) {
   return handleResponse(res);
 }
 
-export async function updateMenuItem(token: string, id: string, menuItemData: any) {
+export async function updateMenuItem(token: string, id: string, menuItemData: Record<string, unknown>) {
   const url = process.env.NODE_ENV === 'development' 
     ? `http://localhost:5000/api/menu/${id}` 
     : `${API_BASE_URL}/api/menu/${id}`;
@@ -454,10 +454,10 @@ export async function getInventoryReport(token: string) {
   return handleResponse(res);
 }
 
-export async function downloadReport(token: string, reportType: string, filters: any = {}) {
+export async function downloadReport(token: string, reportType: string, filters: Record<string, unknown> = {}) {
   const queryParams = new URLSearchParams();
   Object.keys(filters).forEach(key => {
-    if (filters[key]) queryParams.append(key, filters[key]);
+    if (filters[key]) queryParams.append(key, String(filters[key]));
   });
 
   const url = process.env.NODE_ENV === 'development' 

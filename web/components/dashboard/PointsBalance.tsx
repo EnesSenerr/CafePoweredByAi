@@ -28,7 +28,7 @@ export default function PointsBalance({ points }: PointsBalanceProps) {
           </div>
           <div className="flex-shrink-0">
             <a 
-              href="/dashboard/rewards" 
+              href="/hesabim/rewards" 
               className="px-4 py-2 bg-coffee-700 text-white rounded-lg hover:bg-coffee-800 transition-colors text-sm"
             >
               Ödülleri Gör

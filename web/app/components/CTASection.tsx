@@ -17,8 +17,8 @@ export default function CTASection({
   description,
   primaryButtonText = "Menümüzü İnceleyin",
   primaryButtonHref = "/menu",
-  secondaryButtonText = "Dashboard",
-  secondaryButtonHref = "/dashboard"
+  secondaryButtonText = "Hesabım",
+  secondaryButtonHref = "/hesabim"
 }: CTASectionProps) {
   const { user, isLoading } = useAuth();
   if (isLoading) {

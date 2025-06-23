@@ -2,21 +2,90 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { useAuth } from './contexts/AuthContext';
 
 const coffeeMenu = [
-  { id: 1, name: 'Türk Kahvesi', price: '45 ₺', image: '/images/turkish-coffee.jpg', category: 'Klasik' },
-  { id: 2, name: 'Flat White', price: '60 ₺', image: '/images/flat-white.jpg', category: 'Espresso Bazlı' },
-  { id: 3, name: 'Filtre Kahve', price: '55 ₺', image: '/images/filter-coffee.jpg', category: 'Filtre' },
-  { id: 4, name: 'Cold Brew', price: '65 ₺', image: '/images/cold-brew.jpg', category: 'Soğuk İçecekler' },
+  { id: 1, name: 'Türk Kahvesi', price: '45 ₺', category: 'Klasik', emoji: '☕' },
+  { id: 2, name: 'Flat White', price: '60 ₺', category: 'Espresso Bazlı', emoji: '🥛' },
+  { id: 3, name: 'Filtre Kahve', price: '55 ₺', category: 'Filtre', emoji: '☕' },
+  { id: 4, name: 'Cold Brew', price: '65 ₺', category: 'Soğuk İçecekler', emoji: '🧊' },
 ];
 
 const testimonials = [
-  { id: 1, name: 'Ahmet Yılmaz', text: 'AI önerileri sayesinde daha önce hiç denemediğim kahveleri keşfettim. Artık her seferinde mükemmel lezzet!', avatar: '/images/avatar-1.jpg' },
-  { id: 2, name: 'Ayşe Kaya', text: 'Akıllı sipariş sistemi tercihlerimi öğrendi. Sadece bir tıkla her zaman favori kahvem hazır!', avatar: '/images/avatar-2.jpg' },
-  { id: 3, name: 'Mehmet Demir', text: 'AI destekli sadakat programı ile kişiselleştirilmiş indirimler alıyorum. Teknoloji ve lezzet bir arada!', avatar: '/images/avatar-3.jpg' },
+  { 
+    id: 1, 
+    name: 'Ahmet Yılmaz', 
+    text: 'AI önerileri sayesinde daha önce hiç denemediğim kahveleri keşfettim. Artık her seferinde mükemmel lezzet!', 
+    rating: 5,
+    title: 'Sadık Müşteri'
+  },
+  { 
+    id: 2, 
+    name: 'Ayşe Kaya', 
+    text: 'Akıllı sipariş sistemi tercihlerimi öğrendi. Sadece bir tıkla her zaman favori kahvem hazır!', 
+    rating: 5,
+    title: 'Premium Üye'
+  },
+  { 
+    id: 3, 
+    name: 'Mehmet Demir', 
+    text: 'AI destekli sadakat programı ile kişiselleştirilmiş indirimler alıyorum. Teknoloji ve lezzet bir arada!', 
+    rating: 5,
+    title: 'Elmas Üye'
+  },
 ];
+
+const features = [
+  {
+    emoji: '🤖',
+    title: 'AI Kahve Önerileri',
+    description: 'Yapay zeka teknolojisi ile kişisel tercihlerinize uygun kahve önerileri alın',
+    gradient: 'from-blue-500 to-purple-600'
+  },
+  {
+    emoji: '⚡',
+    title: 'Akıllı Sipariş',
+    description: 'Tercihlerinizi öğrenen sistem ile hızlı ve kolay sipariş deneyimi',
+    gradient: 'from-green-500 to-emerald-600'
+  },
+  {
+    emoji: '🎁',
+    title: 'Kişiselleştirilmiş Ödüller',
+    description: 'AI destekli sadakat programı ile size özel indirimler ve avantajlar',
+    gradient: 'from-orange-500 to-red-500'
+  }
+];
+
+// Unsplash resim URL'leri - cafe/coffee temalı
+const getCoffeeImage = (index: number) => {
+  const images = [
+    'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&h=300&fit=crop',
+    'https://images.unsplash.com/photo-1497636577773-f1231844b336?w=400&h=300&fit=crop',
+    'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400&h=300&fit=crop',
+    'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop'
+  ];
+  return images[index % images.length];
+};
+
+const getHeroImage = () => {
+  return 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1920&h=1080&fit=crop';
+};
+
+const getLoyaltyImage = () => {
+  return 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=600&h=400&fit=crop';
+};
+
+const getInstagramImage = (index: number) => {
+  const images = [
+    'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300&h=300&fit=crop',
+    'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=300&h=300&fit=crop',
+    'https://images.unsplash.com/photo-1497636577773-f1231844b336?w=300&h=300&fit=crop',
+    'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=300&h=300&fit=crop',
+    'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=300&h=300&fit=crop',
+    'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=300&h=300&fit=crop'
+  ];
+  return images[index % images.length];
+};
 
 export default function HomePage() {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
@@ -30,124 +99,177 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="bg-coffee-50">
+    <div className="bg-gradient-to-br from-slate-50 via-white to-orange-50">
       {/* Hero Section */}
-      <section className="relative h-[80vh] flex flex-col justify-center items-center text-center text-white">
-        <div className="absolute inset-0 bg-black z-0">
-          <div className="absolute inset-0 bg-black/60 z-10"></div>
+      <section className="relative min-h-screen flex flex-col justify-center items-center text-center text-white overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-amber-600 via-orange-600 to-red-600">
+          <div className="absolute inset-0 bg-black/30"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
           <div 
-            className="absolute inset-0 z-0 bg-cover bg-center" 
+            className="absolute inset-0 bg-cover bg-center opacity-80 mix-blend-overlay" 
             style={{ 
-              backgroundImage: "url('/images/cafe-hero.jpg')", 
-              backgroundPosition: 'center',
-              backgroundSize: 'cover',
+              backgroundImage: `url('${getHeroImage()}')`,
             }}
           ></div>
         </div>
         <div className="container mx-auto px-4 relative z-20">
-          <h1 className="text-5xl md:text-7xl font-bold font-serif mb-6 text-white">
-            AI Destekli Kahve Deneyimi
+          <div className="inline-flex items-center bg-white/10 backdrop-blur-sm rounded-full px-6 py-3 mb-8">
+            <span className="text-3xl mr-3">🤖</span>
+            <span className="text-lg font-semibold">AI Destekli Kahve Teknolojisi</span>
+          </div>
+          <h1 className="text-6xl md:text-8xl font-bold mb-8 bg-gradient-to-r from-white to-yellow-100 bg-clip-text text-transparent leading-tight">
+            AI Destekli<br />Kahve Deneyimi
           </h1>
-          <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto text-white">
-            Yapay zeka teknolojisi ile kişiselleştirilmiş kahve önerileri ve mükemmel lezzet deneyimi
+          <p className="text-xl md:text-2xl mb-12 max-w-4xl mx-auto text-white/90 leading-relaxed">
+            Yapay zeka teknolojisi ile kişiselleştirilmiş kahve önerileri ve mükemmel lezzet deneyimi. 
+            Geleceğin kahve kültürünü bugün yaşayın.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-8">
             <Link 
               href="/menu" 
-              className="px-8 py-3 bg-coffee-600 text-white rounded-full hover:bg-coffee-700 transition-colors text-lg"
+              className="px-10 py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-2xl hover:from-orange-600 hover:to-red-600 transition-all duration-300 text-lg font-bold shadow-2xl hover:shadow-3xl transform hover:-translate-y-1"
             >
-              Menüyü Keşfet
+              🍴 Menüyü Keşfet
             </Link>
             {isLoading ? (
-              <div className="px-8 py-3 bg-transparent border-2 border-white text-white rounded-full animate-pulse">
-                Yükleniyor...
+              <div className="px-10 py-4 bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white rounded-2xl animate-pulse">
+                <div className="flex items-center space-x-2">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Yükleniyor...</span>
+                </div>
               </div>
             ) : user ? (
               <Link 
-                href="/dashboard" 
-                className="px-8 py-3 bg-transparent border-2 border-white text-white rounded-full hover:bg-white/10 transition-colors text-lg"
+                href="/hesabim" 
+                className="px-10 py-4 bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white rounded-2xl hover:bg-white/30 transition-all duration-300 text-lg font-bold shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
               >
-                Hesabım
+                👤 Hesabım
               </Link>
             ) : (
               <Link 
                 href="/auth/register" 
-                className="px-8 py-3 bg-transparent border-2 border-white text-white rounded-full hover:bg-white/10 transition-colors text-lg"
+                className="px-10 py-4 bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white rounded-2xl hover:bg-white/30 transition-all duration-300 text-lg font-bold shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
               >
-                AI Deneyimini Başlat
+                🚀 AI Deneyimini Başlat
               </Link>
             )}
+          </div>
+          <div className="flex flex-wrap justify-center gap-6 text-sm text-white/80">
+            <div className="flex items-center space-x-2">
+              <span>✓</span>
+              <span>AI Destekli Öneriler</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span>✓</span>
+              <span>Akıllı Sipariş Sistemi</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span>✓</span>
+              <span>Kişiselleştirilmiş Deneyim</span>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-coffee-100">
+      <section className="py-20 bg-gradient-to-br from-gray-900 to-black text-white">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-serif font-bold text-white text-center mb-16">AI ile Yeni Nesil Kahve Deneyimi</h2>
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center bg-gradient-to-r from-orange-100 to-red-100 rounded-full px-4 py-2 mb-6">
+              <span className="text-xl mr-2">⭐</span>
+              <span className="text-sm font-semibold text-orange-800">Özellikler</span>
+            </div>
+            <h2 className="text-5xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+              AI ile Yeni Nesil Kahve Deneyimi
+            </h2>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              Teknoloji ve geleneksel kahve kültürünü harmanlayarak size eşsiz bir deneyim sunuyoruz
+            </p>
+          </div>
           
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-white p-8 rounded-xl shadow-md text-center">
-              <div className="w-20 h-20 bg-coffee-700 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-3xl"></span>
+            {features.map((feature, index) => (
+              <div key={index} className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm p-8 rounded-3xl border border-white/10 hover:border-white/20 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl">
+                <div className={`w-20 h-20 bg-gradient-to-r ${feature.gradient} rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg`}>
+                  <span className="text-3xl">{feature.emoji}</span>
+                </div>
+                <h3 className="text-2xl font-bold mb-4 text-center">{feature.title}</h3>
+                <p className="text-gray-300 text-center leading-relaxed">{feature.description}</p>
               </div>
-              <h3 className="text-xl font-semibold mb-4 text-black">AI Kahve Önerileri</h3>
-              <p className="text-coffee-900 font-medium text-black">Yapay zeka teknolojisi ile kişisel tercihlerinize uygun kahve önerileri alın</p>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-16 bg-gradient-to-r from-orange-500 via-red-500 to-pink-500">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center text-white">
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
+              <div className="text-4xl font-bold mb-2">500K+</div>
+              <div className="text-white/90">Servis Edilen Kahve</div>
             </div>
-            
-            <div className="bg-white p-8 rounded-xl shadow-md text-center">
-              <div className="w-20 h-20 bg-coffee-700 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-3xl"></span>
-              </div>
-              <h3 className="text-xl font-semibold mb-4 text-black">Akıllı Sipariş</h3>
-              <p className="text-coffee-700 font-medium text-black">Tercihlerinizi öğrenen sistem ile hızlı ve kolay sipariş deneyimi</p>
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
+              <div className="text-4xl font-bold mb-2">10K+</div>
+              <div className="text-white/90">Mutlu Müşteri</div>
             </div>
-            
-            <div className="bg-white p-8 rounded-xl shadow-md text-center">
-              <div className="w-20 h-20 bg-coffee-700 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-3xl"></span>
-              </div>
-              <h3 className="text-xl font-semibold mb-4 text-black">Kişiselleştirilmiş Ödüller</h3>
-              <p className="text-coffee-700 font-medium text-black">AI destekli sadakat programı ile size özel indirimler ve avantajlar</p>
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
+              <div className="text-4xl font-bold mb-2">95%</div>
+              <div className="text-white/90">AI Doğruluk Oranı</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
+              <div className="text-4xl font-bold mb-2">24/7</div>
+              <div className="text-white/90">AI Destek</div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Coffee Menu Preview */}
-      <section className="py-20 coffee-texture">
+      <section className="py-20 bg-gradient-to-br from-orange-50 to-red-50">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center mb-16">
-            <h2 className="text-4xl font-serif font-bold text-black">AI Tarafından Önerilen Kahveler</h2>
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center bg-gradient-to-r from-orange-100 to-red-100 rounded-full px-4 py-2 mb-6">
+              <span className="text-xl mr-2">☕</span>
+              <span className="text-sm font-semibold text-orange-800">Menü Önizleme</span>
+            </div>
+            <h2 className="text-5xl font-bold text-gray-900 mb-6">AI Tarafından Önerilen Kahveler</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-8">
+              Yapay zeka algoritması ile sizin için özel olarak seçilmiş en popüler kahve çeşitleri
+            </p>
             <Link 
               href="/menu" 
-              className="mt-4 md:mt-0 px-6 py-2 bg-coffee-700 text-white rounded-full hover:bg-coffee-800 transition-colors"
+              className="inline-flex items-center bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-3 rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1"
             >
+              <span className="mr-2">📖</span>
               Tüm Menüyü Gör
             </Link>
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {coffeeMenu.map((item) => (
-              <div key={item.id} className="bg-white rounded-xl shadow-lg overflow-hidden group">
+            {coffeeMenu.map((item, index) => (
+              <div key={item.id} className="bg-white rounded-3xl shadow-xl overflow-hidden group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100">
                 <div className="relative h-60 overflow-hidden">
-                  <div 
-                    className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-500"
-                    style={{ 
-                      backgroundImage: `url(${item.image})`, 
-                      backgroundPosition: 'center',
-                      backgroundSize: 'cover',
+                  <img
+                    src={getCoffeeImage(index)}
+                    alt={item.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    onError={(e) => {
+                      e.currentTarget.src = '/images/placeholder-coffee.jpg';
                     }}
-                  ></div>
-                  <div className="absolute top-2 right-2 bg-coffee-800 text-white text-sm font-medium px-3 py-1 rounded-full">
+                  />
+                  <div className="absolute top-4 right-4 bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg">
                     {item.category}
                   </div>
+                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full w-12 h-12 flex items-center justify-center text-2xl">
+                    {item.emoji}
+                  </div>
                 </div>
-                <div className="p-5">
-                  <h3 className="text-xl font-bold text-coffee-900 mb-2">{item.name}</h3>
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">{item.name}</h3>
                   <div className="flex justify-between items-center">
-                    <span className="text-lg font-bold text-coffee-700">{item.price}</span>
-                    <button className="px-3 py-1 bg-coffee-600 text-white rounded-lg hover:bg-coffee-700 transition-colors">
+                    <span className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">{item.price}</span>
+                    <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-3 rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
                       </svg>
@@ -161,12 +283,23 @@ export default function HomePage() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-20 bg-coffee-800 text-white">
+      <section className="py-20 bg-gradient-to-br from-gray-900 to-black text-white">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-serif font-bold text-center mb-16">Misafirlerimiz Ne Diyor?</h2>
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center bg-gradient-to-r from-yellow-100 to-orange-100 rounded-full px-4 py-2 mb-6">
+              <span className="text-xl mr-2">💬</span>
+              <span className="text-sm font-semibold text-orange-800">Müşteri Yorumları</span>
+            </div>
+            <h2 className="text-5xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+              Misafirlerimiz Ne Diyor?
+            </h2>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              AI destekli kahve deneyimimizi yaşayan müşterilerimizin gerçek yorumları
+            </p>
+          </div>
           
-          <div className="max-w-3xl mx-auto">
-            <div className="relative overflow-hidden h-64">
+          <div className="max-w-4xl mx-auto">
+            <div className="relative overflow-hidden min-h-[300px]">
               {testimonials.map((testimonial, index) => (
                 <div 
                   key={testimonial.id}
@@ -176,36 +309,36 @@ export default function HomePage() {
                       : 'opacity-0 translate-x-full'
                   }`}
                 >
-                  <div className="bg-coffee-700 p-8 rounded-xl">
-                    <div className="flex items-center space-x-4 mb-6">
-                      <div className="w-16 h-16 rounded-full overflow-hidden bg-coffee-400">
-                        <div 
-                          className="w-full h-full bg-cover"
-                          style={{ 
-                            backgroundImage: `url(${testimonial.avatar})`,
-                            backgroundPosition: 'center',
-                            backgroundSize: 'cover',
-                          }}
-                        ></div>
+                  <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm p-8 rounded-3xl border border-white/20 shadow-2xl">
+                    <div className="flex items-center space-x-6 mb-6">
+                      <div className="w-20 h-20 rounded-full bg-gradient-to-r from-orange-400 to-red-500 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                        {testimonial.name.charAt(0)}
                       </div>
                       <div>
-                        <h3 className="font-semibold text-xl">{testimonial.name}</h3>
-                        <p className="text-coffee-200">Sadık Müşteri</p>
+                        <h3 className="font-bold text-2xl">{testimonial.name}</h3>
+                        <p className="text-gray-300 text-lg">{testimonial.title}</p>
+                        <div className="flex items-center mt-2">
+                          {[...Array(testimonial.rating)].map((_, i) => (
+                            <span key={i} className="text-yellow-400 text-xl">⭐</span>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                    <p className="text-lg italic">"{testimonial.text}"</p>
+                                         <p className="text-xl italic leading-relaxed text-gray-200">&ldquo;{testimonial.text}&rdquo;</p>
                   </div>
                 </div>
               ))}
             </div>
             
-            <div className="flex justify-center space-x-2 mt-6">
+            <div className="flex justify-center space-x-3 mt-8">
               {testimonials.map((_, index) => (
                 <button 
                   key={index}
                   onClick={() => setActiveTestimonial(index)}
-                  className={`w-3 h-3 rounded-full ${
-                    index === activeTestimonial ? 'bg-white' : 'bg-coffee-600'
+                  className={`w-4 h-4 rounded-full transition-all duration-300 ${
+                    index === activeTestimonial 
+                      ? 'bg-gradient-to-r from-orange-400 to-red-500 scale-125' 
+                      : 'bg-white/30 hover:bg-white/50'
                   }`}
                   aria-label={`Yorum ${index + 1}`}
                 />
@@ -216,72 +349,157 @@ export default function HomePage() {
       </section>
 
       {/* Loyalty Program CTA */}
-      <section className="py-20 bg-coffee-100">
+      <section className="py-20 bg-gradient-to-br from-orange-50 to-red-50">
         <div className="container mx-auto px-4">
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+          <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
             <div className="grid md:grid-cols-2">
               <div className="p-12 flex flex-col justify-center">
-                <h2 className="text-3xl md:text-4xl font-serif font-bold text-black mb-6">Sadakat Programımıza Katılın</h2>
-                <p className="text-black mb-8">
-                  Kahve Dünyası Sadakat Programı ile her siparişinizde puan kazanın, 
-                  özel avantajlardan yararlanın ve bedava kahveler için puanlarınızı kullanın.
+                <div className="inline-flex items-center bg-gradient-to-r from-orange-100 to-red-100 rounded-full px-4 py-2 mb-6 w-fit">
+                  <span className="text-xl mr-2">🎁</span>
+                  <span className="text-sm font-semibold text-orange-800">Sadakat Programı</span>
+                </div>
+                <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                  AI Destekli Sadakat Programımıza Katılın
+                </h2>
+                <p className="text-gray-600 text-lg mb-8 leading-relaxed">
+                  Yapay zeka destekli sadakat programı ile her siparişinizde puan kazanın, 
+                  kişiselleştirilmiş öneriler alın ve özel avantajlardan yararlanın.
                 </p>
+                <div className="space-y-4 mb-8">
+                  <div className="flex items-center space-x-3">
+                    <span className="text-green-500 text-xl">✓</span>
+                    <span className="text-gray-700">Her 1₺ harcamada 1 puan kazanın</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <span className="text-green-500 text-xl">✓</span>
+                    <span className="text-gray-700">AI destekli kişisel öneriler</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <span className="text-green-500 text-xl">✓</span>
+                    <span className="text-gray-700">Özel indirimler ve kampanyalar</span>
+                  </div>
+                </div>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link 
                     href="/auth/register" 
-                    className="px-8 py-3 bg-coffee-700 text-white rounded-lg hover:bg-coffee-800 transition-colors text-center"
+                    className="px-8 py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-300 text-center font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-1"
                   >
-                    Hemen Üye Ol
+                    🚀 Hemen Üye Ol
                   </Link>
                   <Link 
                     href="/sadakat-programi" 
-                    className="px-8 py-3 border border-coffee-700 text-black rounded-lg hover:bg-coffee-50 transition-colors text-center"
+                    className="px-8 py-4 border-2 border-orange-500 text-orange-600 rounded-xl hover:bg-orange-50 transition-all duration-300 text-center font-bold hover:shadow-lg transform hover:-translate-y-1"
                   >
-                    Daha Fazla Bilgi
+                    📖 Daha Fazla Bilgi
                   </Link>
                 </div>
               </div>
-              <div 
-                className="relative min-h-[300px] bg-cover bg-center" 
-                style={{ 
-                  backgroundImage: "url('/images/loyalty-card.jpg')", 
-                  backgroundPosition: 'center',
-                  backgroundSize: 'cover',
-                }}
-              ></div>
+              <div className="relative min-h-[400px]">
+                <img
+                  src={getLoyaltyImage()}
+                  alt="Sadakat Programı"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = '/images/placeholder-loyalty.jpg';
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Instagram Feed */}
-      <section className="py-20">
+      <section className="py-20 bg-gradient-to-br from-gray-900 to-black">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-serif font-bold text-coffee-900 text-center mb-4">Instagram'da Bizi Takip Edin</h2>
-          <p className="text-coffee-600 text-center mb-12">@kahvedunyasi</p>
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center bg-gradient-to-r from-pink-100 to-purple-100 rounded-full px-4 py-2 mb-6">
+              <span className="text-xl mr-2">📸</span>
+              <span className="text-sm font-semibold text-pink-800">Sosyal Medya</span>
+            </div>
+            <h2 className="text-5xl font-bold text-white mb-4">Instagram&rsquo;da Bizi Takip Edin</h2>
+            <p className="text-xl text-gray-300 mb-8">@cafepoweredbyai</p>
+            <a 
+              href="https://instagram.com/cafepoweredbyai" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center bg-gradient-to-r from-pink-500 to-purple-600 text-white px-8 py-3 rounded-xl hover:from-pink-600 hover:to-purple-700 transition-all duration-300 font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+            >
+              <span className="mr-2">📱</span>
+              Takip Et
+            </a>
+          </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {[1, 2, 3, 4, 5, 6].map((item) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {[0, 1, 2, 3, 4, 5].map((index) => (
               <a 
-                href="#" 
-                key={item} 
-                className="aspect-square relative group overflow-hidden"
+                href="https://instagram.com/cafepoweredbyai" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                key={index} 
+                className="aspect-square relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
               >
-                <div 
-                  className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-500"
-                  style={{ 
-                    backgroundImage: `url('/images/insta-${item}.jpg')`, 
-                    backgroundPosition: 'center',
-                    backgroundSize: 'cover',
+                <img
+                  src={getInstagramImage(index)}
+                  alt={`Instagram Post ${index + 1}`}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  onError={(e) => {
+                    e.currentTarget.src = '/images/placeholder-instagram.jpg';
                   }}
-                ></div>
-                <div className="absolute inset-0 bg-coffee-900/0 group-hover:bg-coffee-900/70 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8A1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5a5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3Z" />
-                  </svg>
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                  <div className="text-white text-center">
+                    <div className="text-3xl mb-2">📸</div>
+                    <div className="text-sm font-semibold">Instagram&rsquo;da Gör</div>
+                  </div>
                 </div>
               </a>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-orange-500 via-red-500 to-pink-500">
+        <div className="container mx-auto px-4 text-center">
+          <div className="max-w-4xl mx-auto text-white">
+            <div className="text-6xl mb-8">🚀</div>
+            <h2 className="text-5xl font-bold mb-6">
+              Geleceğin Kahve Deneyimini Bugün Yaşayın
+            </h2>
+            <p className="text-xl mb-12 leading-relaxed opacity-90">
+              AI destekli teknoloji, premium kahve kalitesi ve kişiselleştirilmiş hizmet. 
+              Size özel kahve yolculuğunuza hemen başlayın.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+              <Link
+                href="/menu"
+                className="bg-white text-orange-600 px-10 py-4 rounded-2xl hover:bg-gray-100 transition-all duration-300 font-bold text-lg shadow-2xl hover:shadow-3xl transform hover:-translate-y-1"
+              >
+                ☕ Kahve Keşfine Başla
+              </Link>
+              <Link
+                href="/auth/register"
+                className="bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white px-10 py-4 rounded-2xl hover:bg-white/30 transition-all duration-300 font-bold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
+              >
+                🎁 Ücretsiz Üye Ol
+              </Link>
+            </div>
+            <div className="mt-8 flex justify-center space-x-8 text-sm opacity-80">
+              <div className="flex items-center space-x-2">
+                <span>✓</span>
+                <span>Ücretsiz üyelik</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span>✓</span>
+                <span>Anında AI önerileri</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span>✓</span>
+                <span>Premium kahve kalitesi</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>

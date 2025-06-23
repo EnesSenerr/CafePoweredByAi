@@ -37,8 +37,9 @@ export default function ResetPasswordPage() {
       await resetPassword(token, password);
       setSuccess(true);
       setTimeout(() => router.push('/auth/login'), 3000);
-    } catch (err: any) {
-      setError(err.message || 'Şifre sıfırlama işlemi sırasında bir hata oluştu');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Şifre sıfırlama işlemi sırasında bir hata oluştu';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

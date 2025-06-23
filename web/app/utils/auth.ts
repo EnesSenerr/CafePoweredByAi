@@ -37,13 +37,13 @@ export const AuthTokenManager = {
       
       // Token süresi dolmuş mu?
       return payload.exp > currentTime;
-    } catch (error) {
+    } catch {
       return false;
     }
   },
 
   // Token'dan kullanıcı bilgilerini al
-  getUserFromToken: (token: string | null): any | null => {
+  getUserFromToken: (token: string | null): { id: string; email: string; role: string } | null => {
     if (!token || !AuthTokenManager.isTokenValid(token)) return null;
     
     try {
@@ -53,7 +53,7 @@ export const AuthTokenManager = {
         email: payload.email,
         role: payload.role
       };
-    } catch (error) {
+    } catch {
       return null;
     }
   }

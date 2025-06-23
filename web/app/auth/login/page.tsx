@@ -31,10 +31,11 @@ export default function LoginPage() {
       console.log('User role:', data.user?.role);
       
       // Role'e göre yönlendirme - admin için varsayılan dashboard
-      router.push('/dashboard');
-    } catch (err: any) {
+              router.push('/hesabim');
+    } catch (err: unknown) {
       console.error('Login error:', err);
-      setError(err.message || 'Giriş yapılırken bir hata oluştu');
+      const errorMessage = err instanceof Error ? err.message : 'Giriş yapılırken bir hata oluştu';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

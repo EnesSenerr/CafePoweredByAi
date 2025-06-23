@@ -43,8 +43,9 @@ export default function RegisterPage() {
       
       // Ana sayfaya yönlendir
       setTimeout(() => router.push('/'), 1500);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Kayıt olurken bir hata oluştu';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

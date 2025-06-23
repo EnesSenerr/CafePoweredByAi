@@ -18,8 +18,9 @@ export default function ForgotPasswordPage() {
     try {
       await forgotPassword(email);
       setSuccess(true);
-    } catch (err: any) {
-      setError(err.message || 'Şifre sıfırlama e-postası gönderilirken bir hata oluştu');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Şifre sıfırlama e-postası gönderilirken bir hata oluştu';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
