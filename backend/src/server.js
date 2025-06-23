@@ -29,7 +29,7 @@ app.get('/', (req, res) => {
 });
 
 // Auth middleware'i import et
-const authMiddleware = require('./middleware/authMiddleware');
+const { protect } = require('./middleware/authMiddleware');
 
 // API yolları
 app.use('/api/auth', require('./routes/auth'));
@@ -37,14 +37,20 @@ app.use('/api/auth', require('./routes/auth'));
 // Menu API'leri - GET request'ler herkese açık, diğerleri role-based korumalı
 app.use('/api/menu', require('./routes/menu'));
 
+// Order API'leri - JWT korumalı
+app.use('/api/orders', require('./routes/orders'));
+
+// Report API'leri - JWT korumalı
+app.use('/api/reports', require('./routes/reports'));
+
 // Point API'leri - JWT korumalı
-app.use('/api/points', authMiddleware, require('../../src/routes/point.routes'));
+app.use('/api/points', protect, require('../../src/routes/point.routes'));
 
 // Reward API'leri - GET request'ler herkese açık, POST/PUT/DELETE korumalı
 app.use('/api/rewards', require('../../src/routes/reward.routes'));
 
 // Admin API'leri - JWT korumalı
-app.use('/api/admin', authMiddleware, require('../../src/routes/admin.routes'));
+app.use('/api/admin', protect, require('../../src/routes/admin.routes'));
 
 // Port ayarı
 const PORT = process.env.PORT || 5000;

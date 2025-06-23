@@ -278,4 +278,200 @@ export async function getMenuCategories() {
     headers: getAuthHeaders(),
   });
   return handleResponse(res);
+}
+
+// User Management APIs (Admin only)
+export async function getUsers(token: string) {
+  const url = process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:5000/api/auth/admin/users' 
+    : `${API_BASE_URL}/api/auth/admin/users`;
+
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+export async function createUser(token: string, userData: {
+  name: string;
+  email: string;
+  password: string;
+  role?: string;
+  phone?: string;
+  points?: number;
+}) {
+  const url = process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:5000/api/auth/admin/users' 
+    : `${API_BASE_URL}/api/auth/admin/users`;
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(userData),
+  });
+  return handleResponse(res);
+}
+
+export async function updateUser(token: string, id: string, userData: {
+  name?: string;
+  email?: string;
+  role?: string;
+  phone?: string;
+  points?: number;
+  isActive?: boolean;
+  password?: string;
+}) {
+  const url = process.env.NODE_ENV === 'development' 
+    ? `http://localhost:5000/api/auth/admin/users/${id}` 
+    : `${API_BASE_URL}/api/auth/admin/users/${id}`;
+
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(userData),
+  });
+  return handleResponse(res);
+}
+
+export async function deleteUser(token: string, id: string) {
+  const url = process.env.NODE_ENV === 'development' 
+    ? `http://localhost:5000/api/auth/admin/users/${id}` 
+    : `${API_BASE_URL}/api/auth/admin/users/${id}`;
+
+  const res = await fetch(url, {
+    method: 'DELETE',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+export async function toggleUserStatus(token: string, id: string) {
+  const url = process.env.NODE_ENV === 'development' 
+    ? `http://localhost:5000/api/auth/admin/users/${id}/toggle` 
+    : `${API_BASE_URL}/api/auth/admin/users/${id}/toggle`;
+
+  const res = await fetch(url, {
+    method: 'PATCH',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+// Order APIs
+export async function createOrder(token: string, orderData: {
+  items: Array<{
+    menuItemId: string;
+    quantity: number;
+    notes?: string;
+  }>;
+  customerName?: string;
+  customerPhone?: string;
+  tableNumber?: number;
+  notes?: string;
+}) {
+  const url = process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:5000/api/orders' 
+    : `${API_BASE_URL}/api/orders`;
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(orderData),
+  });
+  return handleResponse(res);
+}
+
+export async function getOrders(token: string, filters: { 
+  status?: string; 
+  startDate?: string; 
+  endDate?: string;
+  limit?: number;
+  skip?: number;
+} = {}) {
+  const queryParams = new URLSearchParams();
+  if (filters.status) queryParams.append('status', filters.status);
+  if (filters.startDate) queryParams.append('startDate', filters.startDate);
+  if (filters.endDate) queryParams.append('endDate', filters.endDate);
+  if (filters.limit) queryParams.append('limit', filters.limit.toString());
+  if (filters.skip) queryParams.append('skip', filters.skip.toString());
+
+  const url = process.env.NODE_ENV === 'development' 
+    ? `http://localhost:5000/api/orders${queryParams.toString() ? '?' + queryParams.toString() : ''}` 
+    : `${API_BASE_URL}/api/orders${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+export async function updateOrderStatus(token: string, orderId: string, status: string) {
+  const url = process.env.NODE_ENV === 'development' 
+    ? `http://localhost:5000/api/orders/${orderId}/status` 
+    : `${API_BASE_URL}/api/orders/${orderId}/status`;
+
+  const res = await fetch(url, {
+    method: 'PATCH',
+    headers: getAuthHeaders(token),
+    body: JSON.stringify({ status }),
+  });
+  return handleResponse(res);
+}
+
+// Report APIs
+export async function getSalesReport(token: string, filters: {
+  startDate?: string;
+  endDate?: string;
+  type?: 'daily' | 'weekly' | 'monthly' | 'custom';
+} = {}) {
+  const queryParams = new URLSearchParams();
+  if (filters.startDate) queryParams.append('startDate', filters.startDate);
+  if (filters.endDate) queryParams.append('endDate', filters.endDate);
+  if (filters.type) queryParams.append('type', filters.type);
+
+  const url = process.env.NODE_ENV === 'development' 
+    ? `http://localhost:5000/api/reports/sales${queryParams.toString() ? '?' + queryParams.toString() : ''}` 
+    : `${API_BASE_URL}/api/reports/sales${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+export async function getInventoryReport(token: string) {
+  const url = process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:5000/api/reports/inventory' 
+    : `${API_BASE_URL}/api/reports/inventory`;
+
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+export async function downloadReport(token: string, reportType: string, filters: any = {}) {
+  const queryParams = new URLSearchParams();
+  Object.keys(filters).forEach(key => {
+    if (filters[key]) queryParams.append(key, filters[key]);
+  });
+
+  const url = process.env.NODE_ENV === 'development' 
+    ? `http://localhost:5000/api/reports/${reportType}/download${queryParams.toString() ? '?' + queryParams.toString() : ''}` 
+    : `${API_BASE_URL}/api/reports/${reportType}/download${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: getAuthHeaders(token),
+  });
+
+  if (!res.ok) {
+    throw new Error('Rapor indirilemedi');
+  }
+
+  return res.blob();
 } 

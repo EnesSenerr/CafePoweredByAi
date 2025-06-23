@@ -42,7 +42,7 @@ const UserSchema = new mongoose.Schema(
     },
     signupMethod: {
       type: String,
-      enum: ['email', 'qr', 'mobile'],
+      enum: ['email', 'qr', 'mobile', 'admin'],
       default: 'email',
     },
     lastLogin: {

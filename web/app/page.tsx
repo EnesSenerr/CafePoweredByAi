@@ -234,7 +234,7 @@ export default function HomePage() {
                     Hemen Üye Ol
                   </Link>
                   <Link 
-                    href="/dashboard" 
+                    href="/sadakat-programi" 
                     className="px-8 py-3 border border-coffee-700 text-black rounded-lg hover:bg-coffee-50 transition-colors text-center"
                   >
                     Daha Fazla Bilgi

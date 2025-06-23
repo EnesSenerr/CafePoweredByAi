@@ -84,8 +84,16 @@ const requireMinRole = (minRole) => {
   };
 };
 
+// Specific role middlewares
+const admin = requireRole('admin');
+const employee = requireMinRole('employee'); // employee ve admin rolleri için
+const customer = requireRole('customer');
+
 module.exports = {
   requireRole,
   requireAnyRole,
-  requireMinRole
+  requireMinRole,
+  admin,
+  employee,
+  customer
 }; 

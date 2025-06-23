@@ -2,6 +2,7 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const sendEmail = require('../utils/sendEmail');
+const bcrypt = require('bcrypt');
 
 // Ortam değişkenlerinden JWT secret alınır, yoksa fallback
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_secret';
@@ -133,14 +134,176 @@ exports.getProfile = async (req, res) => {
 // Admin için kullanıcı listeleme (korumalı route)
 exports.listUsers = async (req, res) => {
   try {
-    // Sadece admin erişebilir
-    if (!req.user || req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Yetkisiz erişim.' });
-    }
-    const users = await User.find({}, 'id name email role points isActive createdAt');
+    const users = await User.find({}, 'id name email role points isActive createdAt phone lastLogin');
     res.status(200).json({ users });
   } catch (error) {
     res.status(500).json({ message: 'Kullanıcılar listelenirken hata oluştu.', error: error.message });
+  }
+};
+
+// Admin için kullanıcı oluşturma
+exports.createUser = async (req, res) => {
+  try {
+    const { name, email, password, role = 'customer', phone, points = 0 } = req.body;
+
+    // Validation
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: 'Ad, e-posta ve şifre zorunludur.' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ message: 'Şifre en az 6 karakter olmalıdır.' });
+    }
+
+    // E-posta kontrolü
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Bu e-posta adresi zaten kullanılıyor.' });
+    }
+
+    // Kullanıcı oluştur
+    const user = new User({
+      name,
+      email,
+      password,
+      role,
+      phone,
+      points,
+      signupMethod: 'admin',
+      isActive: true
+    });
+
+    await user.save();
+
+    res.status(201).json({
+      message: 'Kullanıcı başarıyla oluşturuldu.',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        points: user.points,
+        phone: user.phone,
+        isActive: user.isActive,
+        createdAt: user.createdAt
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Kullanıcı oluşturulurken hata oluştu.', error: error.message });
+  }
+};
+
+// Admin için kullanıcı güncelleme
+exports.updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, email, role, phone, points, isActive, password } = req.body;
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'Kullanıcı bulunamadı.' });
+    }
+
+    // E-posta değişikliği kontrolü
+    if (email && email !== user.email) {
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({ message: 'Bu e-posta adresi zaten kullanılıyor.' });
+      }
+    }
+
+    // Güncellenecek alanları ayarla
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (role) user.role = role;
+    if (phone !== undefined) user.phone = phone;
+    if (points !== undefined) user.points = points;
+    if (isActive !== undefined) user.isActive = isActive;
+    
+    // Şifre güncellemesi
+    if (password) {
+      if (password.length < 6) {
+        return res.status(400).json({ message: 'Şifre en az 6 karakter olmalıdır.' });
+      }
+      user.password = password;
+    }
+
+    user.updatedAt = new Date();
+    await user.save();
+
+    res.status(200).json({
+      message: 'Kullanıcı başarıyla güncellendi.',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        points: user.points,
+        phone: user.phone,
+        isActive: user.isActive,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Kullanıcı güncellenirken hata oluştu.', error: error.message });
+  }
+};
+
+// Admin için kullanıcı silme
+exports.deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Kendi hesabını silemesin
+    if (id === req.user.id) {
+      return res.status(400).json({ message: 'Kendi hesabınızı silemezsiniz.' });
+    }
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'Kullanıcı bulunamadı.' });
+    }
+
+    await User.findByIdAndDelete(id);
+
+    res.status(200).json({ message: 'Kullanıcı başarıyla silindi.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Kullanıcı silinirken hata oluştu.', error: error.message });
+  }
+};
+
+// Admin için kullanıcı aktif/pasif durumu değiştirme
+exports.toggleUserStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Kendi hesabının durumunu değiştiremesin
+    if (id === req.user.id) {
+      return res.status(400).json({ message: 'Kendi hesabınızın durumunu değiştiremezsiniz.' });
+    }
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'Kullanıcı bulunamadı.' });
+    }
+
+    user.isActive = !user.isActive;
+    user.updatedAt = new Date();
+    await user.save();
+
+    res.status(200).json({
+      message: `Kullanıcı ${user.isActive ? 'aktif' : 'pasif'} duruma getirildi.`,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isActive: user.isActive
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Kullanıcı durumu değiştirilirken hata oluştu.', error: error.message });
   }
 };
 

@@ -10,7 +10,13 @@ import {
   deleteMenuItem, 
   toggleMenuItemAvailability, 
   updateMenuItemStock,
-  getMenuCategories 
+  getMenuCategories,
+  createOrder,
+  getOrders,
+  updateOrderStatus,
+  getSalesReport,
+  getInventoryReport,
+  downloadReport
 } from '../api';
 
 interface MenuItem {
@@ -43,6 +49,30 @@ interface StockItem {
   lastUpdated: string;
 }
 
+interface Order {
+  _id: string;
+  orderNumber: string;
+  items: Array<{
+    menuItem: MenuItem;
+    quantity: number;
+    notes?: string;
+  }>;
+  customerName?: string;
+  customerPhone?: string;
+  tableNumber?: number;
+  status: 'pending' | 'preparing' | 'ready' | 'completed' | 'cancelled';
+  total: number;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface OrderItem {
+  menuItemId: string;
+  quantity: number;
+  notes?: string;
+}
+
 export default function EmployeePage() {
   const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
@@ -72,6 +102,21 @@ export default function EmployeePage() {
     { id: 4, name: 'Mascarpone', category: 'Tatlı', currentStock: 2, minStock: 3, unit: 'kg', lastUpdated: '2024-01-13' }
   ]);
 
+  // Order states
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [showOrderModal, setShowOrderModal] = useState(false);
+  const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+  const [orderCustomerName, setOrderCustomerName] = useState('');
+  const [orderCustomerPhone, setOrderCustomerPhone] = useState('');
+  const [orderTableNumber, setOrderTableNumber] = useState<number | undefined>();
+  const [orderNotes, setOrderNotes] = useState('');
+
+  // Report states
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportType, setReportType] = useState<'sales' | 'inventory'>('sales');
+  const [reportStartDate, setReportStartDate] = useState('');
+  const [reportEndDate, setReportEndDate] = useState('');
+
   useEffect(() => {
     // Auth yüklenmesini bekle
     if (authLoading) {
@@ -94,6 +139,7 @@ export default function EmployeePage() {
     console.log('Employee access granted for user:', user);
     loadMenuItems();
     loadCategories();
+    loadOrders();
     setIsLoading(false);
   }, [user, authLoading, router]);
 
@@ -112,6 +158,18 @@ export default function EmployeePage() {
       setCategories(response.data || []);
     } catch (error) {
       console.error('Kategoriler yüklenirken hata:', error);
+    }
+  };
+
+  const loadOrders = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+      
+      const response = await getOrders(token, { limit: 20 });
+      setOrders(response.data || []);
+    } catch (error) {
+      console.error('Siparişler yüklenirken hata:', error);
     }
   };
 
@@ -205,6 +263,117 @@ export default function EmployeePage() {
         item.id === id ? { ...item, currentStock: newStock, lastUpdated: new Date().toISOString().split('T')[0] } : item
       )
     );
+  };
+
+  // Order functions
+  const handleNewOrder = () => {
+    setOrderItems([]);
+    setOrderCustomerName('');
+    setOrderCustomerPhone('');
+    setOrderTableNumber(undefined);
+    setOrderNotes('');
+    setShowOrderModal(true);
+  };
+
+  const addOrderItem = (menuItemId: string) => {
+    const existingItem = orderItems.find(item => item.menuItemId === menuItemId);
+    if (existingItem) {
+      setOrderItems(items =>
+        items.map(item =>
+          item.menuItemId === menuItemId
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        )
+      );
+    } else {
+      setOrderItems([...orderItems, { menuItemId, quantity: 1 }]);
+    }
+  };
+
+  const removeOrderItem = (menuItemId: string) => {
+    setOrderItems(items => items.filter(item => item.menuItemId !== menuItemId));
+  };
+
+  const updateOrderItemQuantity = (menuItemId: string, quantity: number) => {
+    if (quantity <= 0) {
+      removeOrderItem(menuItemId);
+      return;
+    }
+    setOrderItems(items =>
+      items.map(item =>
+        item.menuItemId === menuItemId
+          ? { ...item, quantity }
+          : item
+      )
+    );
+  };
+
+  const handleCreateOrder = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token || orderItems.length === 0) return;
+
+      const orderData = {
+        items: orderItems,
+        customerName: orderCustomerName || undefined,
+        customerPhone: orderCustomerPhone || undefined,
+        tableNumber: orderTableNumber,
+        notes: orderNotes || undefined
+      };
+
+      await createOrder(token, orderData);
+      setShowOrderModal(false);
+      loadOrders();
+      alert('Sipariş başarıyla oluşturuldu!');
+    } catch (error) {
+      console.error('Sipariş oluşturma hatası:', error);
+      alert('Sipariş oluşturulurken hata oluştu!');
+    }
+  };
+
+  const handleOrderStatusUpdate = async (orderId: string, status: string) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+
+      await updateOrderStatus(token, orderId, status);
+      loadOrders();
+    } catch (error) {
+      console.error('Sipariş durumu güncelleme hatası:', error);
+    }
+  };
+
+  // Report functions
+  const handleGenerateReport = () => {
+    setShowReportModal(true);
+  };
+
+  const handleDownloadReport = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+
+      const filters = {
+        startDate: reportStartDate,
+        endDate: reportEndDate
+      };
+
+      const blob = await downloadReport(token, reportType, filters);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${reportType}-raporu-${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      setShowReportModal(false);
+      alert('Rapor başarıyla indirildi!');
+    } catch (error) {
+      console.error('Rapor indirme hatası:', error);
+      alert('Rapor indirilirken hata oluştu!');
+    }
   };
 
   if (authLoading || isLoading) {
@@ -384,37 +553,118 @@ export default function EmployeePage() {
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-gray-900">Sipariş Yönetimi</h2>
               <div className="flex space-x-2">
-                <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                <button 
+                  onClick={handleNewOrder}
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                >
                   Yeni Sipariş
                 </button>
-                <button className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                <button 
+                  onClick={handleGenerateReport}
+                  className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+                >
                   Rapor Al
                 </button>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-lg p-8 text-center">
-              <div className="text-6xl mb-4">🔄</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Sipariş Sistemi</h3>
-              <p className="text-gray-600 mb-6">
-                Sipariş yönetimi sistemi yakında aktif olacak. 
-                Gerçek zamanlı sipariş takibi ve yönetimi için AI entegrasyonu sonrası kullanıma açılacak.
-              </p>
-              <div className="grid grid-cols-3 gap-6 mt-8">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">0</div>
-                  <div className="text-gray-600">Bekleyen</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-yellow-600">0</div>
-                  <div className="text-gray-600">Hazırlanıyor</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">0</div>
-                  <div className="text-gray-600">Tamamlanan</div>
+            {orders.length === 0 ? (
+              <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+                <div className="text-6xl mb-4">📋</div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Henüz Sipariş Yok</h3>
+                <p className="text-gray-600 mb-6">
+                  Yeni sipariş oluşturmak için "Yeni Sipariş" butonunu kullanın.
+                </p>
+                <div className="grid grid-cols-3 gap-6 mt-8">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-600">{orders.filter(o => o.status === 'pending').length}</div>
+                    <div className="text-gray-600">Bekleyen</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-yellow-600">{orders.filter(o => o.status === 'preparing').length}</div>
+                    <div className="text-gray-600">Hazırlanıyor</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600">{orders.filter(o => o.status === 'completed').length}</div>
+                    <div className="text-gray-600">Tamamlanan</div>
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="space-y-4">
+                {orders.map((order) => (
+                  <div key={order._id} className="bg-white rounded-xl shadow-lg p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center space-x-4">
+                        <div className={`w-4 h-4 rounded-full ${
+                          order.status === 'pending' ? 'bg-blue-500' :
+                          order.status === 'preparing' ? 'bg-yellow-500' :
+                          order.status === 'ready' ? 'bg-orange-500' :
+                          order.status === 'completed' ? 'bg-green-500' : 'bg-red-500'
+                        }`}></div>
+                        <div>
+                          <h3 className="text-xl font-bold text-gray-900">Sipariş #{order.orderNumber}</h3>
+                          {order.customerName && (
+                            <p className="text-gray-600">Müşteri: {order.customerName}</p>
+                          )}
+                          {order.tableNumber && (
+                            <p className="text-gray-600">Masa: {order.tableNumber}</p>
+                          )}
+                          <p className="text-sm text-gray-500">
+                            {new Date(order.createdAt).toLocaleString('tr-TR')}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-gray-900">₺{order.total}</div>
+                        <div className="flex space-x-2 mt-2">
+                          {order.status === 'pending' && (
+                            <button
+                              onClick={() => handleOrderStatusUpdate(order._id, 'preparing')}
+                              className="bg-yellow-100 text-yellow-600 px-3 py-1 rounded text-sm hover:bg-yellow-200"
+                            >
+                              Hazırlama Başlat
+                            </button>
+                          )}
+                          {order.status === 'preparing' && (
+                            <button
+                              onClick={() => handleOrderStatusUpdate(order._id, 'ready')}
+                              className="bg-orange-100 text-orange-600 px-3 py-1 rounded text-sm hover:bg-orange-200"
+                            >
+                              Hazır
+                            </button>
+                          )}
+                          {order.status === 'ready' && (
+                            <button
+                              onClick={() => handleOrderStatusUpdate(order._id, 'completed')}
+                              className="bg-green-100 text-green-600 px-3 py-1 rounded text-sm hover:bg-green-200"
+                            >
+                              Teslim Et
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="border-t pt-4">
+                      <h4 className="font-medium text-gray-900 mb-2">Sipariş İçeriği:</h4>
+                      <div className="space-y-1">
+                        {order.items.map((item, index) => (
+                          <div key={index} className="flex justify-between text-sm">
+                            <span>{item.quantity}x {item.menuItem?.name || 'Bilinmeyen ürün'}</span>
+                            <span>₺{(item.menuItem?.price || 0) * item.quantity}</span>
+                          </div>
+                        ))}
+                      </div>
+                      {order.notes && (
+                        <div className="mt-2 p-2 bg-gray-50 rounded text-sm">
+                          <strong>Not:</strong> {order.notes}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -572,6 +822,235 @@ export default function EmployeePage() {
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   {editingItem ? 'Güncelle' : 'Kaydet'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Order Modal */}
+      {showOrderModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-bold text-gray-900">Yeni Sipariş Oluştur</h3>
+                <button 
+                  onClick={() => setShowOrderModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Menu Items */}
+                <div>
+                  <h4 className="text-lg font-semibold mb-4">Menü Öğeleri</h4>
+                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                    {menuItems.filter(item => item.available && item.stock > 0).map((item) => (
+                      <div key={item._id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div>
+                          <div className="font-medium">{item.name}</div>
+                          <div className="text-sm text-gray-500">₺{item.price}</div>
+                        </div>
+                        <button
+                          onClick={() => addOrderItem(item._id)}
+                          className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                        >
+                          Ekle
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Order Items */}
+                <div>
+                  <h4 className="text-lg font-semibold mb-4">Sipariş İçeriği</h4>
+                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                    {orderItems.map((orderItem) => {
+                      const menuItem = menuItems.find(item => item._id === orderItem.menuItemId);
+                      return (
+                        <div key={orderItem.menuItemId} className="flex items-center justify-between p-3 border rounded-lg">
+                          <div>
+                            <div className="font-medium">{menuItem?.name}</div>
+                            <div className="text-sm text-gray-500">₺{menuItem?.price}</div>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => updateOrderItemQuantity(orderItem.menuItemId, orderItem.quantity - 1)}
+                              className="bg-gray-200 text-gray-700 w-6 h-6 rounded text-sm hover:bg-gray-300"
+                            >
+                              -
+                            </button>
+                            <span className="w-8 text-center">{orderItem.quantity}</span>
+                            <button
+                              onClick={() => updateOrderItemQuantity(orderItem.menuItemId, orderItem.quantity + 1)}
+                              className="bg-gray-200 text-gray-700 w-6 h-6 rounded text-sm hover:bg-gray-300"
+                            >
+                              +
+                            </button>
+                            <button
+                              onClick={() => removeOrderItem(orderItem.menuItemId)}
+                              className="bg-red-100 text-red-600 px-2 py-1 rounded text-sm hover:bg-red-200"
+                            >
+                              Kaldır
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  
+                  <div className="mt-4 pt-4 border-t">
+                    <div className="text-lg font-bold">
+                      Toplam: ₺{orderItems.reduce((total, orderItem) => {
+                        const menuItem = menuItems.find(item => item._id === orderItem.menuItemId);
+                        return total + (menuItem?.price || 0) * orderItem.quantity;
+                      }, 0)}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Customer Info */}
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Müşteri Adı</label>
+                  <input
+                    type="text"
+                    value={orderCustomerName}
+                    onChange={(e) => setOrderCustomerName(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Müşteri adı (opsiyonel)"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Telefon</label>
+                  <input
+                    type="tel"
+                    value={orderCustomerPhone}
+                    onChange={(e) => setOrderCustomerPhone(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Telefon numarası (opsiyonel)"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Masa Numarası</label>
+                  <input
+                    type="number"
+                    value={orderTableNumber || ''}
+                    onChange={(e) => setOrderTableNumber(e.target.value ? Number(e.target.value) : undefined)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Masa numarası (opsiyonel)"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Notlar</label>
+                  <textarea
+                    value={orderNotes}
+                    onChange={(e) => setOrderNotes(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Sipariş notları (opsiyonel)"
+                    rows={2}
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-4 mt-6 pt-6 border-t">
+                <button
+                  onClick={() => setShowOrderModal(false)}
+                  className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  İptal
+                </button>
+                <button
+                  onClick={handleCreateOrder}
+                  disabled={orderItems.length === 0}
+                  className={`px-4 py-2 rounded-lg transition-colors ${
+                    orderItems.length === 0
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-green-600 text-white hover:bg-green-700'
+                  }`}
+                >
+                  Sipariş Oluştur
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Report Modal */}
+      {showReportModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-bold text-gray-900">Rapor İndir</h3>
+                <button 
+                  onClick={() => setShowReportModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Rapor Türü</label>
+                  <select
+                    value={reportType}
+                    onChange={(e) => setReportType(e.target.value as 'sales' | 'inventory')}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="sales">Satış Raporu</option>
+                    <option value="inventory">Envanter Raporu</option>
+                  </select>
+                </div>
+
+                {reportType === 'sales' && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Başlangıç Tarihi</label>
+                      <input
+                        type="date"
+                        value={reportStartDate}
+                        onChange={(e) => setReportStartDate(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Bitiş Tarihi</label>
+                      <input
+                        type="date"
+                        value={reportEndDate}
+                        onChange={(e) => setReportEndDate(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <div className="flex justify-end space-x-4 mt-6 pt-6 border-t">
+                <button
+                  onClick={() => setShowReportModal(false)}
+                  className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  İptal
+                </button>
+                <button
+                  onClick={handleDownloadReport}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Raporu İndir
                 </button>
               </div>
             </div>
