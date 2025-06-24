@@ -433,6 +433,21 @@ export default function HesabimPage() {
                         <p className="text-sm text-gray-600">Sipariş geçmişiniz</p>
                       </div>
                     </Link>
+                    
+                    <Link 
+                      href="/hesabim/rewards" 
+                      className="group flex items-center p-4 bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl hover:from-purple-100 hover:to-violet-100 transition-all duration-200 border border-transparent hover:border-purple-200 hover:shadow-md"
+                    >
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-violet-600 flex items-center justify-center text-white mr-4 group-hover:scale-110 transition-transform shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M5 16L3 5l5.5-5L12 4l3.5-4L21 5l-2 11H5zm2.7-2h8.6l.9-5.4-2.1-2.1L12 8l-3.1-1.5-2.1 2.1L7.7 14z"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900">Ödüllerim</h4>
+                        <p className="text-sm text-gray-600">Puan karşılığı ödüller</p>
+                      </div>
+                    </Link>
                   </div>
                 </div>
                 

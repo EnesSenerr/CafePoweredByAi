@@ -165,7 +165,11 @@ export async function earnPoints(token: string, amount: number, description?: st
 }
 
 export async function redeemPoints(token: string, rewardId: string) {
-  const res = await fetch(`${API_BASE_URL}/api/points/redeem`, {
+  const url = process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:5000/api/points/redeem' 
+    : `${API_BASE_URL}/api/points/redeem`;
+
+  const res = await fetch(url, {
     method: 'POST',
     headers: getAuthHeaders(token),
     body: JSON.stringify({ rewardId }),
@@ -183,7 +187,11 @@ export async function getPointHistory(token: string) {
 
 // Rewards APIs
 export async function getRewards() {
-  const res = await fetch(`${API_BASE_URL}/api/rewards`, {
+  const url = process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:5000/api/rewards' 
+    : `${API_BASE_URL}/api/rewards`;
+
+  const res = await fetch(url, {
     method: 'GET',
     headers: getAuthHeaders(),
   });
@@ -191,7 +199,11 @@ export async function getRewards() {
 }
 
 export async function getReward(rewardId: string) {
-  const res = await fetch(`${API_BASE_URL}/api/rewards/${rewardId}`, {
+  const url = process.env.NODE_ENV === 'development' 
+    ? `http://localhost:5000/api/rewards/${rewardId}` 
+    : `${API_BASE_URL}/api/rewards/${rewardId}`;
+
+  const res = await fetch(url, {
     method: 'GET',
     headers: getAuthHeaders(),
   });
