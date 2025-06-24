@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, SafeAreaView, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { useNavigation } from '@react-navigation/native';
 import PointsBalance from '../components/dashboard/PointsBalance';
 import TransactionHistory from '../components/dashboard/TransactionHistory';
 import RewardsList from '../components/dashboard/RewardsList';
 import { useAuth } from '../contexts/AuthContext';
 import { getRewards, getPointHistory, redeemPoints } from '../services/api';
-import { RootStackParamList } from '../navigation/AppNavigator';
+import { TabParamList } from '../navigation/AppNavigator';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Dashboard'>;
+type Props = BottomTabScreenProps<TabParamList, 'Dashboard'>;
 
 const DashboardScreen = ({ navigation }: Props) => {
+  const parentNavigation = useNavigation<any>();
   const [points, setPoints] = useState(0);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [rewards, setRewards] = useState<any[]>([]);
@@ -22,7 +24,7 @@ const DashboardScreen = ({ navigation }: Props) => {
       try {
         // Auth kontrolü
         if (!isAuthenticated || !token) {
-          navigation.replace('Login');
+          parentNavigation.replace('Login');
           return;
         }
 
@@ -172,7 +174,7 @@ const DashboardScreen = ({ navigation }: Props) => {
             </TouchableOpacity>
             <TouchableOpacity 
               style={styles.quickActionButton}
-              onPress={() => navigation.navigate('Profile')}
+              onPress={() => {}}
             >
               <Text style={styles.quickActionIcon}>👤</Text>
               <Text style={styles.quickActionText}>Profil</Text>

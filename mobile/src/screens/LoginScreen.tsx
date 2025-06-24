@@ -27,8 +27,8 @@ const LoginScreen = ({ navigation }: Props) => {
       // AuthContext ile login
       await login(data.user, data.token);
       
-      // Dashboard'a yönlendir
-      navigation.replace('Dashboard');
+              // MainTabs'a yönlendir
+        navigation.replace('MainTabs');
     } catch (error: any) {
       Alert.alert('Giriş Hatası', error.message || 'Giriş yapılırken bir hata oluştu');
     } finally {

@@ -41,7 +41,7 @@ const RegisterScreen = ({ navigation }: Props) => {
       await login(data.user, data.token);
       
       Alert.alert('Başarılı', 'Hesabınız başarıyla oluşturuldu!', [
-        { text: 'Tamam', onPress: () => navigation.replace('Dashboard') }
+        { text: 'Tamam', onPress: () => navigation.replace('MainTabs') }
       ]);
     } catch (error: any) {
       console.error('RegisterScreen Error:', error);
