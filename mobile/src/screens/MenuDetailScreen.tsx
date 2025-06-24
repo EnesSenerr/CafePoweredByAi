@@ -14,6 +14,7 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useAuth } from '../contexts/AuthContext';
+import { useCart } from '../contexts/CartContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'MenuDetail'>;
 
@@ -38,6 +39,7 @@ interface MenuItem {
 const MenuDetailScreen = ({ route, navigation }: Props) => {
   const { itemId } = route.params;
   const { user, token } = useAuth();
+  const { addItem } = useCart();
   const [item, setItem] = useState<MenuItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -97,9 +99,22 @@ const MenuDetailScreen = ({ route, navigation }: Props) => {
       return;
     }
 
+    if (!item) return;
+
+    // Add item to cart
+    addItem({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      category: item.category,
+      image: item.image,
+      available: item.available,
+      quantity,
+    });
+
     Alert.alert(
       'Sepete Eklendi',
-      `${quantity} adet ${item?.name} sepetinize eklendi`,
+      `${quantity} adet ${item.name} sepetinize eklendi`,
       [
         { text: 'Devam Et', style: 'default' },
         { 

@@ -12,11 +12,13 @@ import {
   Image,
   FlatList,
 } from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../navigation/AppNavigator';
+import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { useNavigation } from '@react-navigation/native';
+import { TabParamList } from '../navigation/AppNavigator';
 import { getMenuItems } from '../services/api';
+import { useCart } from '../contexts/CartContext';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Menu'>;
+type Props = BottomTabScreenProps<TabParamList, 'Menu'>;
 
 interface MenuItem {
   id: string;
@@ -30,6 +32,8 @@ interface MenuItem {
 }
 
 const MenuScreen = ({ navigation }: Props) => {
+  const parentNavigation = useNavigation<any>();
+  const { state } = useCart();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [filteredItems, setFilteredItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -92,7 +96,7 @@ const MenuScreen = ({ navigation }: Props) => {
   };
 
   const handleItemPress = (item: MenuItem) => {
-    navigation.navigate('MenuDetail', { itemId: item.id });
+    parentNavigation.navigate('MenuDetail', { itemId: item.id });
   };
 
   const renderMenuItem = ({ item }: { item: MenuItem }) => (

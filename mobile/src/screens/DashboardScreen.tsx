@@ -5,7 +5,9 @@ import { useNavigation } from '@react-navigation/native';
 import PointsBalance from '../components/dashboard/PointsBalance';
 import TransactionHistory from '../components/dashboard/TransactionHistory';
 import RewardsList from '../components/dashboard/RewardsList';
+import LoyaltyLevel from '../components/dashboard/LoyaltyLevel';
 import { useAuth } from '../contexts/AuthContext';
+import { useCart } from '../contexts/CartContext';
 import { getRewards, getPointHistory, redeemPoints } from '../services/api';
 import { TabParamList } from '../navigation/AppNavigator';
 
@@ -13,11 +15,20 @@ type Props = BottomTabScreenProps<TabParamList, 'Dashboard'>;
 
 const DashboardScreen = ({ navigation }: Props) => {
   const parentNavigation = useNavigation<any>();
+  const { state: cartState } = useCart();
   const [points, setPoints] = useState(0);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [rewards, setRewards] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const { user, token, isAuthenticated, refreshUser, logout } = useAuth();
+
+  // Seviye sistemi hesaplamaları
+  const calculateLoyaltyLevel = (points: number) => {
+    if (points >= 5000) return { level: 'Platinum', current: 5000, next: 5000 };
+    if (points >= 2000) return { level: 'Gold', current: 2000, next: 5000 };
+    if (points >= 500) return { level: 'Silver', current: 500, next: 2000 };
+    return { level: 'Bronze', current: 0, next: 500 };
+  };
 
   useEffect(() => {
     const initializeDashboard = async () => {
@@ -158,7 +169,12 @@ const DashboardScreen = ({ navigation }: Props) => {
         </View>
 
         <View style={styles.section}>
-          <PointsBalance points={points} />
+          <LoyaltyLevel
+            points={points}
+            level={calculateLoyaltyLevel(points).level}
+            nextLevelPoints={calculateLoyaltyLevel(points).next}
+            currentLevelPoints={calculateLoyaltyLevel(points).current}
+          />
         </View>
 
         {/* Quick Actions */}
@@ -174,10 +190,12 @@ const DashboardScreen = ({ navigation }: Props) => {
             </TouchableOpacity>
             <TouchableOpacity 
               style={styles.quickActionButton}
-              onPress={() => {}}
+              onPress={() => parentNavigation.navigate('Cart')}
             >
-              <Text style={styles.quickActionIcon}>👤</Text>
-              <Text style={styles.quickActionText}>Profil</Text>
+              <Text style={styles.quickActionIcon}>🛒</Text>
+              <Text style={styles.quickActionText}>
+                Sepet {cartState.itemCount > 0 && `(${cartState.itemCount})`}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
