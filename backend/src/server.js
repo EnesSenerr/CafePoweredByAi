@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 
 // Ortam değişkenlerini yükle
 dotenv.config();
@@ -18,6 +19,9 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Static dosyalar için middleware - profil resimleri
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // API yolları
 app.get('/', (req, res) => {
@@ -39,6 +43,9 @@ app.use('/api/menu', require('./routes/menu'));
 
 // Order API'leri - JWT korumalı
 app.use('/api/orders', require('./routes/orders'));
+
+// Stock API'leri - JWT korumalı
+app.use('/api/stock', require('./routes/stock'));
 
 // Report API'leri - JWT korumalı
 app.use('/api/reports', require('./routes/reports'));

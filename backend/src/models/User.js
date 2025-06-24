@@ -21,6 +21,26 @@ const UserSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    birthDate: {
+      type: Date,
+    },
+    profileImage: {
+      type: String,
+    },
+    preferences: {
+      newsletter: {
+        type: Boolean,
+        default: true,
+      },
+      smsNotifications: {
+        type: Boolean,
+        default: false,
+      },
+      pushNotifications: {
+        type: Boolean,
+        default: true,
+      },
+    },
     password: {
       type: String,
       required: [true, 'Şifre zorunludur'],

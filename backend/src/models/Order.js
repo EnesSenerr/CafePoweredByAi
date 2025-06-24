@@ -69,9 +69,15 @@ const orderSchema = new mongoose.Schema({
 
 // Generate order number before saving
 orderSchema.pre('save', async function(next) {
-  if (this.isNew) {
-    const count = await mongoose.model('Order').countDocuments();
-    this.orderNumber = `ORD${String(count + 1).padStart(6, '0')}`;
+  if (this.isNew && !this.orderNumber) {
+    try {
+      const count = await this.constructor.countDocuments();
+      this.orderNumber = `ORD${String(count + 1).padStart(6, '0')}`;
+    } catch (error) {
+      console.error('OrderNumber generation error:', error);
+      // Fallback to timestamp-based order number
+      this.orderNumber = `ORD${Date.now()}`;
+    }
   }
   next();
 });

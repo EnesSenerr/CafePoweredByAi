@@ -13,7 +13,15 @@ import {
   createOrder,
   getOrders,
   updateOrderStatus,
-  downloadReport
+  downloadReport,
+  getStockItems,
+  getStockCategories,
+  createStockItem,
+  updateStockItem,
+  updateStock,
+  deleteStockItem,
+  getCriticalStock,
+  checkMenuAvailability
 } from '../api';
 
 interface MenuItem {
@@ -34,16 +42,39 @@ interface MenuItem {
   updatedAt?: string;
   createdBy?: string;
   updatedBy?: string;
+  requiredIngredients?: Array<{
+    stockItem: {
+      _id: string;
+      name: string;
+      currentStock: number;
+      unit: string;
+      category: string;
+      stockStatus: string;
+    };
+    quantity: number;
+    unit: string;
+  }>;
+  ingredientAvailability?: 'available' | 'partially_available' | 'unavailable';
 }
 
 interface StockItem {
-  id: number;
+  _id: string;
   name: string;
   category: string;
   currentStock: number;
   minStock: number;
   unit: string;
+  price?: number;
+  supplier?: string;
+  description?: string;
+  isActive: boolean;
   lastUpdated: string;
+  stockStatus?: string;
+  stockColor?: string;
+  updatedBy?: {
+    name: string;
+    email: string;
+  };
 }
 
 interface Order {
@@ -92,12 +123,7 @@ export default function EmployeePage() {
     allergens: ''
   });
 
-  const [stockItems, setStockItems] = useState<StockItem[]>([
-    { id: 1, name: 'Kahve Çekirdeği', category: 'İçecek', currentStock: 25, minStock: 10, unit: 'kg', lastUpdated: '2024-01-15' },
-    { id: 2, name: 'Süt', category: 'İçecek', currentStock: 8, minStock: 5, unit: 'litre', lastUpdated: '2024-01-15' },
-    { id: 3, name: 'Un', category: 'Atıştırmalık', currentStock: 3, minStock: 5, unit: 'kg', lastUpdated: '2024-01-14' },
-    { id: 4, name: 'Mascarpone', category: 'Tatlı', currentStock: 2, minStock: 3, unit: 'kg', lastUpdated: '2024-01-13' }
-  ]);
+  const [stockItems, setStockItems] = useState<StockItem[]>([]);
 
   // Order states
   const [orders, setOrders] = useState<Order[]>([]);
@@ -137,6 +163,7 @@ export default function EmployeePage() {
     loadMenuItems();
     loadCategories();
     loadOrders();
+    loadStockItems();
     setIsLoading(false);
   }, [user, authLoading, router]);
 
@@ -167,6 +194,18 @@ export default function EmployeePage() {
       setOrders(response.data || []);
     } catch (error) {
       console.error('Siparişler yüklenirken hata:', error);
+    }
+  };
+
+  const loadStockItems = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+      
+      const response = await getStockItems(token, { limit: 50 });
+      setStockItems(response.data || []);
+    } catch (error) {
+      console.error('Stok öğeleri yüklenirken hata:', error);
     }
   };
 
@@ -254,12 +293,18 @@ export default function EmployeePage() {
     }
   };
 
-  const updateStock = (id: number, newStock: number) => {
-    setStockItems(items =>
-      items.map(item =>
-        item.id === id ? { ...item, currentStock: newStock, lastUpdated: new Date().toISOString().split('T')[0] } : item
-      )
-    );
+  const handleStockUpdate = async (id: string, quantity: number, type: 'in' | 'out', notes?: string) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+      
+      await updateStock(token, id, { quantity, type, notes });
+      loadStockItems(); // Stok listesini yenile
+      alert(`Stok ${type === 'in' ? 'girişi' : 'çıkışı'} başarıyla yapıldı!`);
+    } catch (error) {
+      console.error('Stok güncelleme hatası:', error);
+      alert('Stok güncellenirken hata oluştu!');
+    }
   };
 
   // Order functions
@@ -428,18 +473,49 @@ export default function EmployeePage() {
           <div className="max-w-6xl mx-auto">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-gray-900">Menü Yönetimi</h2>
-              <button 
-                onClick={handleNewItem}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Yeni Ürün Ekle
-              </button>
+              <div className="flex space-x-3">
+                <button 
+                  onClick={async () => {
+                    try {
+                      const token = localStorage.getItem('authToken');
+                      if (!token) return;
+                      
+                      const response = await checkMenuAvailability(token);
+                      const unavailableItems = response.data.filter((item: any) => !item.canMake);
+                      
+                      if (unavailableItems.length === 0) {
+                        alert('Tüm menü öğeleri için malzemeler yeterli! 🎉');
+                      } else {
+                        const message = `${unavailableItems.length} ürün için malzemeler yetersiz:\n\n` +
+                          unavailableItems.map((item: any) => 
+                            `• ${item.name}: ${item.unavailableIngredients.map((ing: any) => 
+                              `${ing.name} (${ing.shortage || (ing.required - ing.available)} ${ing.unit} eksik)`
+                            ).join(', ')}`
+                          ).join('\n');
+                        alert(message);
+                      }
+                    } catch (error) {
+                      console.error('Malzeme kontrolü hatası:', error);
+                      alert('Malzeme kontrolü yapılırken hata oluştu!');
+                    }
+                  }}
+                  className="bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 transition-colors"
+                >
+                  🔍 Malzeme Kontrolü
+                </button>
+                <button 
+                  onClick={handleNewItem}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Yeni Ürün Ekle
+                </button>
+              </div>
             </div>
 
             <div className="grid gap-6">
               {menuItems.map((item) => (
                 <div key={item._id} className="bg-white rounded-xl shadow-lg p-6">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-4">
                       <div className={`w-4 h-4 rounded-full ${item.available ? 'bg-green-500' : 'bg-red-500'}`}></div>
                       <div>
@@ -454,6 +530,17 @@ export default function EmployeePage() {
                           }`}>
                             Stok: {item.stock}
                           </span>
+                          {item.ingredientAvailability && (
+                            <span className={`text-sm px-2 py-1 rounded ${
+                              item.ingredientAvailability === 'available' ? 'bg-green-100 text-green-800' :
+                              item.ingredientAvailability === 'partially_available' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {item.ingredientAvailability === 'available' ? 'Malzemeler Uygun' :
+                               item.ingredientAvailability === 'partially_available' ? 'Kısmi Malzeme' :
+                               'Malzeme Eksik'}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -484,6 +571,97 @@ export default function EmployeePage() {
                       )}
                     </div>
                   </div>
+                  
+                  {/* Malzeme Bilgileri */}
+                  {item.requiredIngredients && item.requiredIngredients.length > 0 && (
+                    <div className="border-t pt-4">
+                      <h4 className="text-sm font-medium text-gray-900 mb-3">Gerekli Malzemeler:</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {item.requiredIngredients.map((ingredient, index) => (
+                          <div key={index} className="bg-gray-50 rounded-lg p-3">
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1">
+                                <p className="text-sm font-medium text-gray-900">
+                                  {ingredient.stockItem?.name || 'Bilinmeyen malzeme'}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {ingredient.stockItem?.category}
+                                </p>
+                              </div>
+                              <div className={`w-2 h-2 rounded-full ml-2 ${
+                                ingredient.stockItem?.currentStock >= ingredient.quantity 
+                                  ? 'bg-green-500' 
+                                  : 'bg-red-500'
+                              }`}></div>
+                            </div>
+                            <div className="mt-2 flex items-center justify-between text-xs">
+                              <span className="text-gray-600">
+                                Gerekli: <strong>{ingredient.quantity} {ingredient.unit}</strong>
+                              </span>
+                              <span className={`${
+                                (function() {
+                                  // Basit birim çevirimi kontrolü
+                                  const weightUnits = ['gram', 'kg'];
+                                  const volumeUnits = ['ml', 'litre'];
+                                  
+                                  let available = ingredient.stockItem?.currentStock || 0;
+                                  let required = ingredient.quantity;
+                                  
+                                  // Birim çevirimi
+                                  if (weightUnits.includes(ingredient.unit) && weightUnits.includes(ingredient.stockItem?.unit)) {
+                                    if (ingredient.stockItem?.unit === 'kg') available *= 1000;
+                                    if (ingredient.unit === 'kg') required *= 1000;
+                                  } else if (volumeUnits.includes(ingredient.unit) && volumeUnits.includes(ingredient.stockItem?.unit)) {
+                                    if (ingredient.stockItem?.unit === 'litre') available *= 1000;
+                                    if (ingredient.unit === 'litre') required *= 1000;
+                                  }
+                                  
+                                  return available >= required ? 'text-green-600' : 'text-red-600';
+                                })()
+                              }`}>
+                                Mevcut: <strong>{ingredient.stockItem?.currentStock || 0} {ingredient.stockItem?.unit}</strong>
+                              </span>
+                            </div>
+                            {(function() {
+                              // Basit birim çevirimi ile eksik hesaplama
+                              const weightUnits = ['gram', 'kg'];
+                              const volumeUnits = ['ml', 'litre'];
+                              
+                              let available = ingredient.stockItem?.currentStock || 0;
+                              let required = ingredient.quantity;
+                              let displayUnit = ingredient.unit;
+                              
+                              // Birim çevirimi
+                              if (weightUnits.includes(ingredient.unit) && weightUnits.includes(ingredient.stockItem?.unit)) {
+                                if (ingredient.stockItem?.unit === 'kg') available *= 1000;
+                                if (ingredient.unit === 'kg') required *= 1000;
+                                displayUnit = 'gram';
+                              } else if (volumeUnits.includes(ingredient.unit) && volumeUnits.includes(ingredient.stockItem?.unit)) {
+                                if (ingredient.stockItem?.unit === 'litre') available *= 1000;
+                                if (ingredient.unit === 'litre') required *= 1000;
+                                displayUnit = 'ml';
+                              }
+                              
+                              const shortage = Math.max(0, required - available);
+                              
+                              return available < required ? (
+                                <div className="mt-1 text-xs text-red-600 bg-red-50 px-2 py-1 rounded">
+                                  {shortage} {displayUnit} eksik
+                                </div>
+                              ) : null;
+                            })()}
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {/* Eski ingredients field varsa göster */}
+                      {item.ingredients && item.ingredients.length > 0 && (
+                        <div className="mt-3 text-sm text-gray-600">
+                          <strong>Ek Bilgiler:</strong> {item.ingredients.join(', ')}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -495,14 +673,20 @@ export default function EmployeePage() {
           <div className="max-w-6xl mx-auto">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-gray-900">Stok Kontrolü</h2>
-              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+              <button 
+                onClick={() => {
+                  // Basit stok girişi için - daha gelişmiş modal eklenebilir
+                  alert('Yeni stok öğesi eklemek için menu yönetimi kullanın veya mevcut stokları + / - butonlarıyla güncelleyin.');
+                }}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              >
                 Stok Girişi Yap
               </button>
             </div>
 
             <div className="grid gap-6">
               {stockItems.map((item) => (
-                <div key={item.id} className="bg-white rounded-xl shadow-lg p-6">
+                <div key={item._id} className="bg-white rounded-xl shadow-lg p-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
                       <div className={`w-4 h-4 rounded-full ${
@@ -525,16 +709,28 @@ export default function EmployeePage() {
                       </div>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <input
-                        type="number"
-                        min="0"
-                        value={item.currentStock}
-                        onChange={(e) => updateStock(item.id, parseInt(e.target.value) || 0)}
-                        className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center"
-                      />
-                      <span className="text-gray-600">{item.unit}</span>
-                      <button className="bg-blue-100 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors">
-                        Güncelle
+                      <span className="text-gray-600 font-medium">{item.currentStock} {item.unit}</span>
+                      <button 
+                        onClick={() => {
+                          const quantity = prompt('Eklenecek miktar:');
+                          if (quantity && !isNaN(Number(quantity))) {
+                            handleStockUpdate(item._id, Number(quantity), 'in');
+                          }
+                        }}
+                        className="bg-green-100 text-green-600 px-3 py-1 rounded-lg hover:bg-green-200 transition-colors text-sm"
+                      >
+                        + Ekle
+                      </button>
+                      <button 
+                        onClick={() => {
+                          const quantity = prompt('Çıkarılacak miktar:');
+                          if (quantity && !isNaN(Number(quantity))) {
+                            handleStockUpdate(item._id, Number(quantity), 'out');
+                          }
+                        }}
+                        className="bg-red-100 text-red-600 px-3 py-1 rounded-lg hover:bg-red-200 transition-colors text-sm"
+                      >
+                        - Çıkar
                       </button>
                     </div>
                   </div>

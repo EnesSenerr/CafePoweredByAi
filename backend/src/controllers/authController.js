@@ -102,32 +102,148 @@ exports.login = async (req, res) => {
 // Kullanıcı profilini getir (korumalı route için)
 exports.getProfile = async (req, res) => {
   try {
-    console.log('=== GET PROFILE DEBUG ===');
-    console.log('req.user:', req.user);
-    console.log('req.user.id:', req.user.id);
-    
     const user = await User.findById(req.user.id);
-    console.log('Database user:', user);
     
     if (!user) {
       return res.status(404).json({ message: 'Kullanıcı bulunamadı.' });
     }
     
     const response = {
-      user: { 
-        id: user._id, 
-        name: user.name, 
-        email: user.email, 
-        role: user.role, 
-        points: user.points 
-      },
+      id: user._id,
+      name: user.name, 
+      email: user.email, 
+      role: user.role, 
+      points: user.points,
+      phone: user.phone,
+      birthDate: user.birthDate,
+      profileImage: user.profileImage,
+      preferences: user.preferences || {
+        newsletter: true,
+        smsNotifications: false,
+        pushNotifications: true
+      }
     };
     
-    console.log('Response data:', response);
     res.status(200).json(response);
   } catch (error) {
     console.error('Profile error:', error);
     res.status(500).json({ message: 'Profil getirilirken hata oluştu.', error: error.message });
+  }
+};
+
+// Kullanıcı profili güncelleme
+exports.updateProfile = async (req, res) => {
+  try {
+    const { name, email, phone, birthDate, preferences } = req.body;
+    
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'Kullanıcı bulunamadı.' });
+    }
+
+    // E-posta değişikliği kontrolü
+    if (email && email !== user.email) {
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({ message: 'Bu e-posta adresi zaten kullanılıyor.' });
+      }
+    }
+
+    // Güncellenecek alanları ayarla
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (phone !== undefined) user.phone = phone;
+    if (birthDate !== undefined) user.birthDate = birthDate;
+    if (preferences) user.preferences = { ...user.preferences, ...preferences };
+
+    user.updatedAt = new Date();
+    await user.save();
+
+    res.status(200).json({
+      message: 'Profil başarıyla güncellendi.',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        points: user.points,
+        phone: user.phone,
+        birthDate: user.birthDate,
+        profileImage: user.profileImage,
+        preferences: user.preferences
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Profil güncellenirken hata oluştu.', error: error.message });
+  }
+};
+
+// Profil resmi yükleme
+exports.uploadProfileImage = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'Resim dosyası bulunamadı.' });
+    }
+
+    console.log('Profil resmi yükleme - req.file:', req.file);
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'Kullanıcı bulunamadı.' });
+    }
+
+    // Dosya yolunu kaydet (multer tarafından ayarlanır)
+    const profileImageUrl = `/uploads/profiles/${req.file.filename}`;
+    console.log('Profil resmi URL oluşturuldu:', profileImageUrl);
+    
+    user.profileImage = profileImageUrl;
+    user.updatedAt = new Date();
+    await user.save();
+
+    console.log('Kullanıcı profil resmi kaydedildi:', user.profileImage);
+
+    res.status(200).json({
+      message: 'Profil resmi başarıyla güncellendi.',
+      profileImageUrl
+    });
+  } catch (error) {
+    console.error('Profil resmi yükleme hatası:', error);
+    res.status(500).json({ message: 'Profil resmi yüklenirken hata oluştu.', error: error.message });
+  }
+};
+
+// Şifre değiştirme
+exports.changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Mevcut şifre ve yeni şifre zorunludur.' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: 'Yeni şifre en az 6 karakter olmalıdır.' });
+    }
+
+    const user = await User.findById(req.user.id).select('+password');
+    if (!user) {
+      return res.status(404).json({ message: 'Kullanıcı bulunamadı.' });
+    }
+
+    // Mevcut şifre kontrolü
+    const isMatch = await user.matchPassword(currentPassword);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Mevcut şifre yanlış.' });
+    }
+
+    // Yeni şifreyi kaydet
+    user.password = newPassword;
+    user.updatedAt = new Date();
+    await user.save();
+
+    res.status(200).json({ message: 'Şifre başarıyla değiştirildi.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Şifre değiştirilirken hata oluştu.', error: error.message });
   }
 };
 

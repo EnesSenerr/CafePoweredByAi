@@ -10,6 +10,10 @@ exports.createOrder = async (req, res) => {
       return res.status(400).json({ message: 'Sipariş öğeleri gerekli' });
     }
 
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: 'Kullanıcı oturumu geçersiz' });
+    }
+
     // Menü öğelerini kontrol et ve fiyatları al
     const orderItems = [];
     let total = 0;
@@ -52,8 +56,14 @@ exports.createOrder = async (req, res) => {
       tableNumber,
       notes,
       total,
-      createdBy: req.user._id
+      createdBy: req.user.id
     });
+
+    // Manuel orderNumber generation (backup)
+    if (!order.orderNumber) {
+      const count = await Order.countDocuments();
+      order.orderNumber = `ORD${String(count + 1).padStart(6, '0')}`;
+    }
 
     await order.save();
 
@@ -173,7 +183,7 @@ exports.updateOrderStatus = async (req, res) => {
     }
 
     order.status = status;
-    order.updatedBy = req.user._id;
+    order.updatedBy = req.user.id;
     await order.save();
 
     await order.populate('items.menuItem');

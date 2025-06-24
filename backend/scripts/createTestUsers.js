@@ -5,9 +5,6 @@ require('dotenv').config();
 // User model'i import et
 const User = require('../src/models/User');
 
-// MongoDB bağlantı string'i
-const MONGODB_URI = process.env.MONGODB_URI;
-
 // Test kullanıcıları
 const testUsers = [
   {
@@ -42,7 +39,7 @@ const testUsers = [
 async function createTestUsers() {
   try {
     console.log('MongoDB\'ye bağlanılıyor...');
-    await mongoose.connect(MONGODB_URI);
+    await mongoose.connect(process.env.MONGODB_URI);
     console.log('MongoDB bağlantısı başarılı!');
 
     console.log('\nMevcut test kullanıcıları temizleniyor...');
@@ -86,12 +83,18 @@ async function createTestUsers() {
   } catch (error) {
     console.error('Test kullanıcıları oluşturulurken hata:', error);
   } finally {
-    console.log('\nMongoDB bağlantısı kapatılıyor...');
-    await mongoose.connection.close();
-    console.log('Bağlantı kapatıldı');
-    process.exit(0);
+    if (require.main === module) {
+      console.log('\nMongoDB bağlantısı kapatılıyor...');
+      await mongoose.disconnect();
+      console.log('Bağlantı kapatıldı');
+      process.exit(0);
+    }
   }
 }
 
-// Script'i çalıştır
-createTestUsers(); 
+// Script doğrudan çalıştırılırsa
+if (require.main === module) {
+  createTestUsers();
+}
+
+module.exports = { createTestUsers, testUsers }; 

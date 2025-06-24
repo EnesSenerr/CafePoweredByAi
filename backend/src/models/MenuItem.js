@@ -1,5 +1,63 @@
 const mongoose = require('mongoose');
 
+// Birim çevirimi için helper fonksiyon
+function convertToBaseUnit(value, unit) {
+  switch (unit) {
+    case 'kg':
+      return value * 1000; // gram'a çevir
+    case 'litre':
+      return value * 1000; // ml'ye çevir
+    case 'paket':
+    case 'kutu':
+    case 'adet':
+    case 'gram':
+    case 'ml':
+      return value; // Zaten base unit
+    default:
+      return value;
+  }
+}
+
+// İki birimi karşılaştırmak için normalize et
+function normalizeUnits(requiredAmount, requiredUnit, availableAmount, availableUnit) {
+  // Aynı birim grubuna mı ait kontrol et
+  const weightUnits = ['gram', 'kg'];
+  const volumeUnits = ['ml', 'litre'];
+  const countUnits = ['adet', 'paket', 'kutu'];
+  
+  // Eğer aynı birim grubundaysa çevir
+  if (weightUnits.includes(requiredUnit) && weightUnits.includes(availableUnit)) {
+    return {
+      required: convertToBaseUnit(requiredAmount, requiredUnit),
+      available: convertToBaseUnit(availableAmount, availableUnit),
+      unit: 'gram'
+    };
+  }
+  
+  if (volumeUnits.includes(requiredUnit) && volumeUnits.includes(availableUnit)) {
+    return {
+      required: convertToBaseUnit(requiredAmount, requiredUnit),
+      available: convertToBaseUnit(availableAmount, availableUnit),
+      unit: 'ml'
+    };
+  }
+  
+  if (countUnits.includes(requiredUnit) && countUnits.includes(availableUnit)) {
+    return {
+      required: requiredAmount,
+      available: availableAmount,
+      unit: requiredUnit
+    };
+  }
+  
+  // Farklı birim grubundaysa çeviremez, olduğu gibi dön
+  return {
+    required: requiredAmount,
+    available: availableAmount,
+    unit: requiredUnit
+  };
+}
+
 const menuItemSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -38,6 +96,26 @@ const menuItemSchema = new mongoose.Schema({
     type: String,
     default: null // Ürün resmi URL'i (opsiyonel)
   },
+  // Malzeme listesi - stok referansları ile
+  requiredIngredients: [{
+    stockItem: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'StockItem',
+      required: true
+    },
+    quantity: {
+      type: Number,
+      required: true,
+      min: [0.1, 'Miktar en az 0.1 olmalı']
+    },
+    unit: {
+      type: String,
+      required: true,
+      enum: ['kg', 'gram', 'litre', 'ml', 'adet', 'paket', 'kutu'],
+      default: 'gram'
+    }
+  }],
+  // Eski metin tabanlı malzeme listesi - geriye uyumluluk için
   ingredients: [{
     type: String,
     trim: true
@@ -87,7 +165,37 @@ menuItemSchema.virtual('stockStatus').get(function() {
   return 'in_stock';
 });
 
+// Virtual field - malzeme uygunluk durumu (birim çevirimi ile)
+menuItemSchema.virtual('ingredientAvailability').get(function() {
+  if (!this.requiredIngredients || this.requiredIngredients.length === 0) {
+    return 'available';
+  }
+  
+  // Bu hesaplama populate edilmiş veriler için çalışır
+  const unavailableIngredients = this.requiredIngredients.filter(ingredient => {
+    if (!ingredient.stockItem) return true;
+    
+    // Birim çevirimi yap
+    const normalized = normalizeUnits(
+      ingredient.quantity,
+      ingredient.unit,
+      ingredient.stockItem.currentStock,
+      ingredient.stockItem.unit
+    );
+    
+    return normalized.available < normalized.required;
+  });
+  
+  if (unavailableIngredients.length === 0) return 'available';
+  if (unavailableIngredients.length === this.requiredIngredients.length) return 'unavailable';
+  return 'partially_available';
+});
+
 // JSON serialize edilirken virtual field'ları dahil et
 menuItemSchema.set('toJSON', { virtuals: true });
+
+// Export helper functions
+menuItemSchema.statics.normalizeUnits = normalizeUnits;
+menuItemSchema.statics.convertToBaseUnit = convertToBaseUnit;
 
 module.exports = mongoose.model('MenuItem', menuItemSchema); 

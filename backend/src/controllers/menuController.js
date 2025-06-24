@@ -1,4 +1,5 @@
 const MenuItem = require('../models/MenuItem');
+const StockItem = require('../models/StockItem');
 
 // Tüm menü öğelerini getir
 exports.getAllMenuItems = async (req, res) => {
@@ -18,6 +19,7 @@ exports.getAllMenuItems = async (req, res) => {
     const menuItems = await MenuItem.find(query)
       .populate('createdBy', 'name email')
       .populate('updatedBy', 'name email')
+      .populate('requiredIngredients.stockItem', 'name currentStock unit category stockStatus')
       .sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -40,7 +42,8 @@ exports.getMenuItem = async (req, res) => {
   try {
     const menuItem = await MenuItem.findById(req.params.id)
       .populate('createdBy', 'name email')
-      .populate('updatedBy', 'name email');
+      .populate('updatedBy', 'name email')
+      .populate('requiredIngredients.stockItem', 'name currentStock unit category stockStatus minStock');
 
     if (!menuItem) {
       return res.status(404).json({
@@ -72,12 +75,26 @@ exports.createMenuItem = async (req, res) => {
       updatedBy: req.user.id
     };
 
+    // Gerekli malzemelerin varlığını kontrol et
+    if (menuItemData.requiredIngredients && menuItemData.requiredIngredients.length > 0) {
+      const stockItemIds = menuItemData.requiredIngredients.map(ing => ing.stockItem);
+      const stockItems = await StockItem.find({ _id: { $in: stockItemIds } });
+      
+      if (stockItems.length !== stockItemIds.length) {
+        return res.status(400).json({
+          success: false,
+          message: 'Bazı malzemeler stok sisteminde bulunamadı'
+        });
+      }
+    }
+
     const menuItem = await MenuItem.create(menuItemData);
     
     // Populate edilmiş versiyonu getir
     const populatedMenuItem = await MenuItem.findById(menuItem._id)
       .populate('createdBy', 'name email')
-      .populate('updatedBy', 'name email');
+      .populate('updatedBy', 'name email')
+      .populate('requiredIngredients.stockItem', 'name currentStock unit category stockStatus');
 
     res.status(201).json({
       success: true,
@@ -122,6 +139,19 @@ exports.updateMenuItem = async (req, res) => {
       updatedBy: req.user.id
     };
 
+    // Gerekli malzemelerin varlığını kontrol et
+    if (updateData.requiredIngredients && updateData.requiredIngredients.length > 0) {
+      const stockItemIds = updateData.requiredIngredients.map(ing => ing.stockItem);
+      const stockItems = await StockItem.find({ _id: { $in: stockItemIds } });
+      
+      if (stockItems.length !== stockItemIds.length) {
+        return res.status(400).json({
+          success: false,
+          message: 'Bazı malzemeler stok sisteminde bulunamadı'
+        });
+      }
+    }
+
     const updatedMenuItem = await MenuItem.findByIdAndUpdate(
       req.params.id,
       updateData,
@@ -130,7 +160,8 @@ exports.updateMenuItem = async (req, res) => {
         runValidators: true
       }
     ).populate('createdBy', 'name email')
-     .populate('updatedBy', 'name email');
+     .populate('updatedBy', 'name email')
+     .populate('requiredIngredients.stockItem', 'name currentStock unit category stockStatus');
 
     res.status(200).json({
       success: true,

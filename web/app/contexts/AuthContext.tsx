@@ -7,14 +7,25 @@ interface User {
   name: string;
   email: string;
   role: 'customer' | 'employee' | 'admin';
+  points?: number;
+  phone?: string;
+  birthDate?: string;
+  profileImage?: string;
+  preferences?: {
+    newsletter: boolean;
+    smsNotifications: boolean;
+    pushNotifications: boolean;
+  };
 }
 
 interface AuthContextType {
   user: User | null;
+  token: string | null;
   isLoading: boolean;
   setUser: (user: User | null) => void;
   logout: () => void;
   refreshAuth: () => void;
+  refreshUser: () => Promise<void>;
   login: (userData: User, token: string) => void;
 }
 
@@ -22,6 +33,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -51,39 +63,65 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const checkAuthStatus = async () => {
     try {
-      const token = localStorage.getItem('authToken');
+      const authToken = localStorage.getItem('authToken');
       
-      if (!token) {
+      if (!authToken) {
+        setToken(null);
+        setUser(null);
         setIsLoading(false);
         return;
       }
 
+      setToken(authToken);
+
       const response = await fetch('/api/auth/me', {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${authToken}`,
         },
       });
 
       if (response.ok) {
         const userData = await response.json();
-        console.log('AuthContext received user data:', userData);
         setUser(userData);
       } else {
         // Token geçersiz, localStorage'dan temizle
         localStorage.removeItem('authToken');
+        setToken(null);
         setUser(null);
       }
     } catch (error) {
       console.error('Auth check failed:', error);
       localStorage.removeItem('authToken');
+      setToken(null);
       setUser(null);
     } finally {
       setIsLoading(false);
     }
   };
 
+  const refreshUser = async () => {
+    const authToken = token || localStorage.getItem('authToken');
+    if (!authToken) return;
+
+    try {
+      const response = await fetch('/api/auth/me', {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        },
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData);
+      }
+    } catch (error) {
+      console.error('Refresh user failed:', error);
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('authToken');
+    setToken(null);
     setUser(null);
     window.location.href = '/';
   };
@@ -92,14 +130,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkAuthStatus();
   };
 
-  const login = (userData: User, token: string) => {
-    localStorage.setItem('authToken', token);
+  const login = (userData: User, authToken: string) => {
+    localStorage.setItem('authToken', authToken);
+    setToken(authToken);
     setUser(userData);
     window.dispatchEvent(new CustomEvent('authChanged'));
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, setUser, logout, refreshAuth, login }}>
+    <AuthContext.Provider value={{ user, token, isLoading, setUser, logout, refreshAuth, refreshUser, login }}>
       {children}
     </AuthContext.Provider>
   );

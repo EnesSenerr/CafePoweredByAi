@@ -96,6 +96,64 @@ export async function resetPassword(token: string, password: string) {
   return handleResponse(res);
 }
 
+// Profile APIs
+export async function updateProfile(token: string, profileData: {
+  name?: string;
+  email?: string;
+  phone?: string;
+  birthDate?: string;
+  preferences?: {
+    newsletter?: boolean;
+    smsNotifications?: boolean;
+    pushNotifications?: boolean;
+  };
+}) {
+  const url = process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:5000/api/auth/update-profile' 
+    : `${API_BASE_URL}/api/auth/update-profile`;
+    
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(profileData),
+  });
+  return handleResponse(res);
+}
+
+export async function uploadProfileImage(token: string, imageFile: File) {
+  const formData = new FormData();
+  formData.append('profileImage', imageFile);
+  
+  const url = process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:5000/api/auth/upload-profile-image' 
+    : `${API_BASE_URL}/api/auth/upload-profile-image`;
+  
+  const headers: HeadersInit = {};
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  
+  const res = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: formData,
+  });
+  return handleResponse(res);
+}
+
+export async function changePassword(token: string, currentPassword: string, newPassword: string) {
+  const url = process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:5000/api/auth/change-password' 
+    : `${API_BASE_URL}/api/auth/change-password`;
+    
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: getAuthHeaders(token),
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+  return handleResponse(res);
+}
+
 // Points APIs
 export async function earnPoints(token: string, amount: number, description?: string) {
   const res = await fetch(`${API_BASE_URL}/api/points/earn`, {
@@ -474,4 +532,151 @@ export async function downloadReport(token: string, reportType: string, filters:
   }
 
   return res.blob();
+}
+
+// Stock APIs
+export async function getStockItems(token: string, filters: { 
+  category?: string; 
+  status?: string; 
+  search?: string;
+  limit?: number;
+  skip?: number;
+} = {}) {
+  const queryParams = new URLSearchParams();
+  if (filters.category) queryParams.append('category', filters.category);
+  if (filters.status) queryParams.append('status', filters.status);
+  if (filters.search) queryParams.append('search', filters.search);
+  if (filters.limit) queryParams.append('limit', filters.limit.toString());
+  if (filters.skip) queryParams.append('skip', filters.skip.toString());
+
+  const url = process.env.NODE_ENV === 'development' 
+    ? `http://localhost:5000/api/stock${queryParams.toString() ? '?' + queryParams.toString() : ''}` 
+    : `${API_BASE_URL}/api/stock${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+export async function getStockItem(token: string, id: string) {
+  const url = process.env.NODE_ENV === 'development' 
+    ? `http://localhost:5000/api/stock/${id}` 
+    : `${API_BASE_URL}/api/stock/${id}`;
+
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+export async function createStockItem(token: string, stockData: {
+  name: string;
+  category: string;
+  currentStock: number;
+  minStock: number;
+  unit: string;
+  price?: number;
+  supplier?: string;
+  description?: string;
+}) {
+  const url = process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:5000/api/stock' 
+    : `${API_BASE_URL}/api/stock`;
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(stockData),
+  });
+  return handleResponse(res);
+}
+
+export async function updateStockItem(token: string, id: string, stockData: {
+  name?: string;
+  category?: string;
+  currentStock?: number;
+  minStock?: number;
+  unit?: string;
+  price?: number;
+  supplier?: string;
+  description?: string;
+}) {
+  const url = process.env.NODE_ENV === 'development' 
+    ? `http://localhost:5000/api/stock/${id}` 
+    : `${API_BASE_URL}/api/stock/${id}`;
+
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(stockData),
+  });
+  return handleResponse(res);
+}
+
+export async function updateStock(token: string, id: string, stockUpdate: {
+  quantity: number;
+  type: 'in' | 'out';
+  notes?: string;
+}) {
+  const url = process.env.NODE_ENV === 'development' 
+    ? `http://localhost:5000/api/stock/${id}/update` 
+    : `${API_BASE_URL}/api/stock/${id}/update`;
+
+  const res = await fetch(url, {
+    method: 'PATCH',
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(stockUpdate),
+  });
+  return handleResponse(res);
+}
+
+export async function deleteStockItem(token: string, id: string) {
+  const url = process.env.NODE_ENV === 'development' 
+    ? `http://localhost:5000/api/stock/${id}` 
+    : `${API_BASE_URL}/api/stock/${id}`;
+
+  const res = await fetch(url, {
+    method: 'DELETE',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+export async function getCriticalStock(token: string) {
+  const url = process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:5000/api/stock/critical' 
+    : `${API_BASE_URL}/api/stock/critical`;
+
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+export async function getStockCategories(token: string) {
+  const url = process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:5000/api/stock/categories' 
+    : `${API_BASE_URL}/api/stock/categories`;
+
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+export async function checkMenuAvailability(token: string) {
+  const url = process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:5000/api/stock/menu-availability' 
+    : `${API_BASE_URL}/api/stock/menu-availability`;
+
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
 } 

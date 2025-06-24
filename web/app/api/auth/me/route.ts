@@ -27,15 +27,26 @@ export async function GET(request: NextRequest) {
 
     const userData = await response.json();
     
-    // Backend'in farklı response formatlarını handle et
-    const user = userData.user || userData.data || userData;
+    // Backend'den dönen data direkt kullanıcı objesi, wrapper yok
+    const user = userData;
     
-    return NextResponse.json({
+    const responseData = {
       id: user.id || user._id,
       name: user.name || user.username,
       email: user.email,
       role: user.role || 'customer',
-    });
+      points: user.points || 0,
+      phone: user.phone,
+      birthDate: user.birthDate,
+      profileImage: user.profileImage,
+      preferences: user.preferences || {
+        newsletter: true,
+        smsNotifications: false,
+        pushNotifications: true
+      }
+    };
+    
+    return NextResponse.json(responseData);
     
   } catch (error) {
     console.error('Auth me error:', error);

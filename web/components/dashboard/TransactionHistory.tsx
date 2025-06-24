@@ -17,61 +17,66 @@ export default function TransactionHistory({ transactions }: TransactionHistoryP
   if (safeTransactions.length === 0) {
     return (
       <div className="text-center py-8">
-        <div className="w-16 h-16 mx-auto bg-coffee-100 rounded-full flex items-center justify-center mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-coffee-500" viewBox="0 0 24 24" fill="currentColor">
+        <div className="w-16 h-16 mx-auto bg-gradient-to-r from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-500" viewBox="0 0 24 24" fill="currentColor">
             <path d="M13 2.05v3.03c3.39.49 6 3.39 6 6.92 0 .9-.18 1.75-.5 2.54l2.62 1.53c.56-1.24.88-2.62.88-4.07 0-5.18-3.95-9.45-9-9.95M12 19c-3.87 0-7-3.13-7-7 0-3.53 2.61-6.43 6-6.92V2.05c-5.06.5-9 4.76-9 9.95 0 5.52 4.47 10 9.99 10 3.31 0 6.24-1.61 8.06-4.09l-2.6-1.53C16.17 17.98 14.21 19 12 19Z" />
           </svg>
         </div>
-        <p className="text-gray-900 font-semibold mb-1">Henüz işlem geçmişiniz yok</p>
-        <p className="text-gray-700 text-sm">Kahve siparişi vererek puan kazanmaya başlayın</p>
+        <p className="text-gray-900 font-bold mb-1">Henüz işlem geçmişiniz yok</p>
+        <p className="text-gray-600 text-sm">Kahve siparişi vererek puan kazanmaya başlayın</p>
       </div>
     );
   }
 
   return (
-    <div className="divide-y divide-coffee-100">
+    <div className="space-y-3">
       {safeTransactions.map((transaction) => (
-        <div key={transaction.id} className="py-4 flex justify-between items-center">
-          <div className="flex items-center">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-3 ${
-              transaction.type === 'earn' 
-                ? 'bg-green-100 text-green-600' 
-                : 'bg-amber-100 text-amber-600'
-            }`}>
-              {transaction.type === 'earn' ? (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-12h2v6h-2zm0 8h2v2h-2z" />
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 12c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm0-10c-4.2 0-8 3.22-8 8.2 0 3.32 2.67 7.25 8 11.8 5.33-4.55 8-8.48 8-11.8C20 5.22 16.2 2 12 2z" />
-                </svg>
-              )}
+        <div 
+          key={transaction.id} 
+          className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-4 hover:from-gray-100 hover:to-gray-200 transition-all duration-200 border border-gray-200/50"
+        >
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-4">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg ${
+                transaction.type === 'earn' 
+                  ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' 
+                  : 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
+              }`}>
+                {transaction.type === 'earn' ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M2 21v-2h18v2H2ZM7 17q-1.25 0-2.125-.875T4 14V6q0-1.25.875-2.125T7 3h10q1.25 0 2.125.875T20 6v1h1q.825 0 1.413.588T23 9v2q0 .825-.588 1.413T21 13h-1v1q0 1.25-.875 2.125T17 17H7Z" />
+                  </svg>
+                )}
+              </div>
+              
+              <div>
+                <p className="font-bold text-gray-900">{transaction.description}</p>
+                <p className="text-sm text-gray-600 font-medium">
+                  {new Date(transaction.date).toLocaleDateString('tr-TR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </p>
+              </div>
             </div>
             
-            <div>
-              <p className="font-medium text-gray-900">{transaction.description}</p>
-              <p className="text-sm text-gray-600">
-                {new Date(transaction.date).toLocaleDateString('tr-TR', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })}
-              </p>
+            <div className={`font-bold text-lg ${
+              transaction.type === 'earn' ? 'text-green-600' : 'text-orange-600'
+            }`}>
+              {transaction.type === 'earn' ? '+' : ''}{transaction.points} Puan
             </div>
-          </div>
-          
-          <div className={`font-semibold ${
-            transaction.type === 'earn' ? 'text-green-600' : 'text-amber-600'
-          }`}>
-            {transaction.type === 'earn' ? '+' : ''}{transaction.points} Puan
           </div>
         </div>
       ))}
       
       {safeTransactions.length > 0 && (
         <div className="pt-4 text-center">
-          <button className="text-coffee-700 hover:text-coffee-900 text-sm font-medium">
+          <button className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-200 font-semibold shadow-lg">
             Tüm İşlem Geçmişi
           </button>
         </div>
