@@ -403,6 +403,26 @@ const ProfileScreen = ({ navigation }: Props) => {
             <Text style={styles.securityArrow}>›</Text>
           </TouchableOpacity>
         </View>
+
+        {/* Settings Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Uygulama</Text>
+          <TouchableOpacity
+            style={styles.securityButton}
+            onPress={() => navigation.navigate('Settings')}
+          >
+            <View style={styles.securityLeft}>
+              <Text style={styles.securityIcon}>⚙️</Text>
+              <View>
+                <Text style={styles.securityTitle}>Uygulama Ayarları</Text>
+                <Text style={styles.securitySubtitle}>
+                  Bildirimler, dil ve diğer uygulama ayarları
+                </Text>
+              </View>
+            </View>
+            <Text style={styles.securityArrow}>›</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
 
       {/* Password Change Modal */}

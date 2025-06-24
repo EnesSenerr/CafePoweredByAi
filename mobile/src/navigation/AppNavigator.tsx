@@ -13,6 +13,10 @@ import FavoritesScreen from '../screens/FavoritesScreen';
 import MenuDetailScreen from '../screens/MenuDetailScreen';
 import CartScreen from '../screens/CartScreen';
 import OrderHistoryScreen from '../screens/OrderHistoryScreen';
+import OrderDetailScreen from '../screens/OrderDetailScreen';
+import SettingsScreen from '../screens/SettingsScreen';
+import AuthGuard from './AuthGuard';
+import { useAuth } from '../contexts/AuthContext';
 
 // Navigation stack tiplerini tanımla
 export type RootStackParamList = {
@@ -23,7 +27,9 @@ export type RootStackParamList = {
   MenuDetail: { itemId: string };
   Cart: undefined;
   OrderHistory: undefined;
+  OrderDetail: { orderId: string };
   Profile: undefined;
+  Settings: undefined;
 };
 
 export type TabParamList = {
@@ -94,18 +100,27 @@ const MainTabs = () => {
 };
 
 const AppNavigator = () => {
-  // TODO: Auth durumuna göre yönlendirme yapılacak (şimdilik Login ile başlatıyoruz)
+  const { isAuthenticated } = useAuth();
+
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
-        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
-        <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="MenuDetail" component={MenuDetailScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Cart" component={CartScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="OrderHistory" component={OrderHistoryScreen} options={{ headerShown: false }} />
+      <Stack.Navigator 
+        initialRouteName={isAuthenticated ? "MainTabs" : "Login"}
+        screenOptions={{ headerShown: false }}
+      >
+        {/* Auth Screens - Herkese açık */}
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Register" component={RegisterScreen} />
+        <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+        
+        {/* Protected Screens - Auth gerekli */}
+        <Stack.Screen name="MainTabs" component={MainTabs} />
+        <Stack.Screen name="Profile" component={ProfileScreen} />
+        <Stack.Screen name="MenuDetail" component={MenuDetailScreen} />
+        <Stack.Screen name="Cart" component={CartScreen} />
+        <Stack.Screen name="OrderHistory" component={OrderHistoryScreen} />
+        <Stack.Screen name="OrderDetail" component={OrderDetailScreen} />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
