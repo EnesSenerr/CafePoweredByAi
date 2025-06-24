@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { loginUser } from '../services/api';
-import { AuthTokenManager } from '../services/auth';
+import { useAuth } from '../contexts/AuthContext';
 import { RootStackParamList } from '../navigation/AppNavigator';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
@@ -11,6 +11,7 @@ const LoginScreen = ({ navigation }: Props) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -23,8 +24,8 @@ const LoginScreen = ({ navigation }: Props) => {
     try {
       const data = await loginUser(email, password);
       
-      // Token'ı AsyncStorage'a kaydet
-      await AuthTokenManager.setToken(data.token);
+      // AuthContext ile login
+      await login(data.user, data.token);
       
       // Dashboard'a yönlendir
       navigation.replace('Dashboard');
@@ -61,6 +62,9 @@ const LoginScreen = ({ navigation }: Props) => {
       <TouchableOpacity onPress={() => navigation.navigate('Register')} style={styles.linkContainer}>
         <Text style={styles.link}>Hesabın yok mu? Kayıt Ol</Text>
       </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')} style={styles.linkContainer}>
+        <Text style={styles.forgotPasswordLink}>Şifremi Unuttum</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -96,6 +100,10 @@ const styles = StyleSheet.create({
   link: {
     color: '#2563eb',
     fontWeight: 'bold',
+  },
+  forgotPasswordLink: {
+    color: '#6b7280',
+    fontSize: 14,
   },
 });
 

@@ -3,7 +3,7 @@ import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Alert, Act
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { registerUser } from '../services/api';
-import { AuthTokenManager } from '../services/auth';
+import { useAuth } from '../contexts/AuthContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
@@ -14,6 +14,7 @@ const RegisterScreen = ({ navigation }: Props) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
 
   const handleRegister = async () => {
     if (!name || !email || !password || !confirmPassword) {
@@ -36,8 +37,8 @@ const RegisterScreen = ({ navigation }: Props) => {
     try {
       const data = await registerUser(name, email, password, phone);
       
-      // Token'ı AsyncStorage'a kaydet
-      await AuthTokenManager.setToken(data.token);
+      // AuthContext ile login
+      await login(data.user, data.token);
       
       Alert.alert('Başarılı', 'Hesabınız başarıyla oluşturuldu!', [
         { text: 'Tamam', onPress: () => navigation.replace('Dashboard') }

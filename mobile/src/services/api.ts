@@ -115,4 +115,139 @@ export async function getReward(rewardId: string) {
     headers: getAuthHeaders(),
   });
   return handleResponse(res);
+}
+
+// Forgot Password API
+export async function forgotPassword(email: string) {
+  const res = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ email }),
+  });
+  return handleResponse(res);
+}
+
+// Reset Password API
+export async function resetPassword(token: string, password: string) {
+  const res = await fetch(`${API_BASE_URL}/api/auth/reset-password/${token}`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ password }),
+  });
+  return handleResponse(res);
+}
+
+// Profile APIs
+export async function updateProfile(token: string, profileData: {
+  name?: string;
+  email?: string;
+  phone?: string;
+  birthDate?: string;
+  preferences?: {
+    newsletter?: boolean;
+    smsNotifications?: boolean;
+    pushNotifications?: boolean;
+  };
+}) {
+  const res = await fetch(`${API_BASE_URL}/api/auth/update-profile`, {
+    method: 'PUT',
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(profileData),
+  });
+  return handleResponse(res);
+}
+
+export async function uploadProfileImage(token: string, imageFile: File | any) {
+  const formData = new FormData();
+  formData.append('profileImage', imageFile);
+  
+  const headers: HeadersInit = {};
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  
+  const res = await fetch(`${API_BASE_URL}/api/auth/upload-profile-image`, {
+    method: 'POST',
+    headers,
+    body: formData,
+  });
+  return handleResponse(res);
+}
+
+export async function changePassword(token: string, currentPassword: string, newPassword: string) {
+  const res = await fetch(`${API_BASE_URL}/api/auth/change-password`, {
+    method: 'POST',
+    headers: getAuthHeaders(token),
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+  return handleResponse(res);
+}
+
+// Menu APIs
+export async function getMenuItems(filters: { category?: string; available?: boolean; search?: string } = {}) {
+  const queryParams = new URLSearchParams();
+  if (filters.category) queryParams.append('category', filters.category);
+  if (filters.available !== undefined) queryParams.append('available', filters.available.toString());
+  if (filters.search) queryParams.append('search', filters.search);
+  
+  const queryString = queryParams.toString();
+  const url = `${API_BASE_URL}/api/menu${queryString ? `?${queryString}` : ''}`;
+  
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+  });
+  return handleResponse(res);
+}
+
+export async function getMenuItem(id: string) {
+  const res = await fetch(`${API_BASE_URL}/api/menu/${id}`, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+  });
+  return handleResponse(res);
+}
+
+// Orders APIs
+export async function createOrder(token: string, orderData: {
+  items: Array<{
+    menuItemId: string;
+    quantity: number;
+    notes?: string;
+  }>;
+  customerName?: string;
+  customerPhone?: string;
+  tableNumber?: number;
+  notes?: string;
+}) {
+  const res = await fetch(`${API_BASE_URL}/api/orders`, {
+    method: 'POST',
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(orderData),
+  });
+  return handleResponse(res);
+}
+
+export async function getOrders(token: string, filters: { 
+  status?: string; 
+  startDate?: string; 
+  endDate?: string;
+  limit?: number;
+  skip?: number;
+} = {}) {
+  const queryParams = new URLSearchParams();
+  if (filters.status) queryParams.append('status', filters.status);
+  if (filters.startDate) queryParams.append('startDate', filters.startDate);
+  if (filters.endDate) queryParams.append('endDate', filters.endDate);
+  if (filters.limit) queryParams.append('limit', filters.limit.toString());
+  if (filters.skip) queryParams.append('skip', filters.skip.toString());
+  
+  const queryString = queryParams.toString();
+  const url = `${API_BASE_URL}/api/orders${queryString ? `?${queryString}` : ''}`;
+  
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
 } 

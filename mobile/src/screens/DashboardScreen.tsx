@@ -4,8 +4,8 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import PointsBalance from '../components/dashboard/PointsBalance';
 import TransactionHistory from '../components/dashboard/TransactionHistory';
 import RewardsList from '../components/dashboard/RewardsList';
-import { AuthHelpers, AuthTokenManager } from '../services/auth';
-import { getUserProfile, getRewards, getPointHistory, redeemPoints } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
+import { getRewards, getPointHistory, redeemPoints } from '../services/api';
 import { RootStackParamList } from '../navigation/AppNavigator';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Dashboard'>;
@@ -14,39 +14,30 @@ const DashboardScreen = ({ navigation }: Props) => {
   const [points, setPoints] = useState(0);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [rewards, setRewards] = useState<any[]>([]);
-  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const { user, token, isAuthenticated, refreshUser, logout } = useAuth();
 
   useEffect(() => {
     const initializeDashboard = async () => {
       try {
         // Auth kontrolü
-        const isAuth = await AuthHelpers.isAuthenticated();
-        if (!isAuth) {
-          navigation.replace('Login');
-          return;
-        }
-
-        const token = await AuthTokenManager.getToken();
-        const currentUser = await AuthHelpers.getCurrentUser();
-        
-        if (!token || !currentUser) {
+        if (!isAuthenticated || !token) {
           navigation.replace('Login');
           return;
         }
 
         setLoading(true);
         
+        // Kullanıcı verilerini ayarla
+        if (user) {
+          setPoints(user.points || 0);
+        }
+        
         // Paralel API çağrıları
-        const [profileData, rewardsData] = await Promise.all([
-          getUserProfile(token),
+        const [rewardsData] = await Promise.all([
           getRewards()
         ]);
 
-        // Kullanıcı bilgilerini güncelle
-        setUser(profileData.user);
-        setPoints(profileData.user.points || 0);
-        
         // Ödülleri güncelle
         setRewards(rewardsData.data || []);
 
@@ -68,7 +59,6 @@ const DashboardScreen = ({ navigation }: Props) => {
         
         // Token geçersizse login'e yönlendir
         if (error.message?.includes('401') || error.message?.includes('token')) {
-          await AuthHelpers.logout();
           navigation.replace('Login');
         }
       } finally {
@@ -77,13 +67,10 @@ const DashboardScreen = ({ navigation }: Props) => {
     };
 
     initializeDashboard();
-  }, [navigation]);
+  }, [navigation, user, token, isAuthenticated]);
 
   const handleRedeemReward = async (rewardId: number) => {
-    const token = await AuthTokenManager.getToken();
-    const currentUser = await AuthHelpers.getCurrentUser();
-    
-    if (!token || !currentUser) {
+    if (!token || !user) {
       Alert.alert('Hata', 'Lütfen tekrar giriş yapın');
       return;
     }
@@ -107,11 +94,14 @@ const DashboardScreen = ({ navigation }: Props) => {
         { 
           text: 'Kullan', 
           onPress: async () => {
-                         try {
-               const result = await redeemPoints(token, rewardId.toString());
+            try {
+              const result = await redeemPoints(token, rewardId.toString());
                
-               // Başarılı ise puan bakiyesini güncelle
-               setPoints(result.data.currentBalance);
+              // Başarılı ise puan bakiyesini güncelle
+              setPoints(result.data.currentBalance);
+              
+              // Kullanıcı verilerini yenile
+              await refreshUser();
               
               Alert.alert('Başarılı', `${reward.name} ödülünüz başarıyla kullanıldı!`);
             } catch (err: any) {
@@ -132,7 +122,7 @@ const DashboardScreen = ({ navigation }: Props) => {
         { 
           text: 'Çıkış Yap', 
           onPress: async () => {
-            await AuthHelpers.logout();
+            await logout();
             navigation.replace('Login');
           }
         },
@@ -153,15 +143,41 @@ const DashboardScreen = ({ navigation }: Props) => {
     <SafeAreaView style={styles.container}>
       <ScrollView>
         <View style={styles.header}>
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Text style={styles.logoutText}>Çıkış Yap</Text>
-          </TouchableOpacity>
+          <View style={styles.headerTop}>
+            <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate('Profile')}>
+              <Text style={styles.profileButtonText}>👤</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+              <Text style={styles.logoutText}>Çıkış Yap</Text>
+            </TouchableOpacity>
+          </View>
           <Text style={styles.headerText}>Hoş Geldiniz{user ? `, ${user.name}` : ''}</Text>
           <Text style={styles.subtitle}>Sadakat programınızda bugün neler var?</Text>
         </View>
 
         <View style={styles.section}>
           <PointsBalance points={points} />
+        </View>
+
+        {/* Quick Actions */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Hızlı İşlemler</Text>
+          <View style={styles.quickActions}>
+            <TouchableOpacity 
+              style={styles.quickActionButton}
+              onPress={() => navigation.navigate('Menu')}
+            >
+              <Text style={styles.quickActionIcon}>🍽️</Text>
+              <Text style={styles.quickActionText}>Menü</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.quickActionButton}
+              onPress={() => navigation.navigate('Profile')}
+            >
+              <Text style={styles.quickActionIcon}>👤</Text>
+              <Text style={styles.quickActionText}>Profil</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View style={styles.section}>
@@ -196,6 +212,23 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#2563eb',
   },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  profileButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 25,
+    width: 50,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  profileButtonText: {
+    fontSize: 24,
+  },
   headerText: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -217,9 +250,6 @@ const styles = StyleSheet.create({
     color: '#1a1a1a', // Koyu renk ile okunabilirlik artırıldı
   },
   logoutButton: {
-    position: 'absolute',
-    top: 20,
-    right: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -229,6 +259,33 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 14,
     fontWeight: 'bold',
+  },
+  quickActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 16,
+  },
+  quickActionButton: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 20,
+    alignItems: 'center',
+    flex: 1,
+    marginHorizontal: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  quickActionIcon: {
+    fontSize: 32,
+    marginBottom: 8,
+  },
+  quickActionText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#374151',
   },
 });
 
