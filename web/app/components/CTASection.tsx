@@ -67,13 +67,13 @@ export default function CTASection({
             // Kullanıcı giriş yapmamış
             <>
               <Link
-                href="/auth/register"
+                href="/kayit"
                 className="px-8 py-3 bg-cream-400 text-coffee-800 rounded-lg hover:bg-cream-300 transition-colors font-semibold"
               >
                 Üye Ol
               </Link>
               <Link
-                href="/auth/login"
+                href="/giris"
                 className="px-8 py-3 border-2 border-white text-white rounded-lg hover:bg-white hover:text-coffee-800 transition-colors font-semibold"
               >
                 Giriş Yap

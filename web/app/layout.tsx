@@ -70,7 +70,7 @@ export default function RootLayout({
                   <li><a href="/hakkimizda" className="text-coffee-200 hover:text-white">Hakkımızda</a></li>
                   <li><a href="/sadakat-programi" className="text-coffee-200 hover:text-white">Sadakat Programı</a></li>
                   <li><a href="/iletisim" className="text-coffee-200 hover:text-white">İletişim</a></li>
-                  <li><a href="/auth/register" className="text-coffee-200 hover:text-white">Üye Ol</a></li>
+                  <li><a href="/kayit" className="text-coffee-200 hover:text-white">Üye Ol</a></li>
                 </ul>
               </div>
               <div>

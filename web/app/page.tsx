@@ -147,7 +147,7 @@ export default function HomePage() {
               </Link>
             ) : (
               <Link 
-                href="/auth/register" 
+                href="/kayit" 
                 className="px-10 py-4 bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white rounded-2xl hover:bg-white/30 transition-all duration-300 text-lg font-bold shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
               >
                 🚀 AI Deneyimini Başlat
@@ -381,7 +381,7 @@ export default function HomePage() {
                 </div>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link 
-                    href="/auth/register" 
+                    href="/kayit" 
                     className="px-8 py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-300 text-center font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-1"
                   >
                     🚀 Hemen Üye Ol
@@ -480,7 +480,7 @@ export default function HomePage() {
                 ☕ Kahve Keşfine Başla
               </Link>
               <Link
-                href="/auth/register"
+                href="/kayit"
                 className="bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white px-10 py-4 rounded-2xl hover:bg-white/30 transition-all duration-300 font-bold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
               >
                 🎁 Ücretsiz Üye Ol

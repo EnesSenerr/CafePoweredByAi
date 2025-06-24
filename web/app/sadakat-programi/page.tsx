@@ -451,7 +451,7 @@ export default function LoyaltyProgramPage() {
             </div>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a 
-                href="/auth/register" 
+                href="/kayit" 
                 className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-4 rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1"
               >
                 🎁 Ücretsiz Üye Ol

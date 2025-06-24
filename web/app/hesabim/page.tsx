@@ -86,7 +86,7 @@ export default function HesabimPage() {
       
       if (!user && !hasStorageToken) {
         // Kesinlikle auth yok, redirect et
-        router.push('/auth/login');
+        router.push('/giris');
         return;
       }
       
@@ -94,7 +94,7 @@ export default function HesabimPage() {
         // Token var ama user yok, AuthContext henüz yüklenmiş olabilir - biraz bekle
         const timeoutId = setTimeout(() => {
           if (!user) {
-            router.push('/auth/login');
+            router.push('/giris');
           }
         }, 1500);
         
@@ -390,7 +390,7 @@ export default function HesabimPage() {
                   </div>
                   <div className="p-6 space-y-4">
                     <Link 
-                      href="/hesabim/profile" 
+                      href="/hesabim/profil" 
                       className="group flex items-center p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl hover:from-orange-100 hover:to-red-100 transition-all duration-200 border border-transparent hover:border-orange-200 hover:shadow-md"
                     >
                       <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center text-white mr-4 group-hover:scale-110 transition-transform shadow-lg">
@@ -405,7 +405,7 @@ export default function HesabimPage() {
                     </Link>
                     
                     <Link 
-                      href="/hesabim/favorites" 
+                      href="/hesabim/favoriler" 
                       className="group flex items-center p-4 bg-gradient-to-r from-pink-50 to-rose-50 rounded-2xl hover:from-pink-100 hover:to-rose-100 transition-all duration-200 border border-transparent hover:border-pink-200 hover:shadow-md"
                     >
                       <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 flex items-center justify-center text-white mr-4 group-hover:scale-110 transition-transform shadow-lg">
@@ -420,7 +420,7 @@ export default function HesabimPage() {
                     </Link>
                     
                     <Link 
-                      href="/hesabim/orders" 
+                      href="/hesabim/siparisler" 
                       className="group flex items-center p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl hover:from-blue-100 hover:to-indigo-100 transition-all duration-200 border border-transparent hover:border-blue-200 hover:shadow-md"
                     >
                       <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white mr-4 group-hover:scale-110 transition-transform shadow-lg">
@@ -435,7 +435,7 @@ export default function HesabimPage() {
                     </Link>
                     
                     <Link 
-                      href="/hesabim/rewards" 
+                      href="/hesabim/oduller" 
                       className="group flex items-center p-4 bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl hover:from-purple-100 hover:to-violet-100 transition-all duration-200 border border-transparent hover:border-purple-200 hover:shadow-md"
                     >
                       <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-violet-600 flex items-center justify-center text-white mr-4 group-hover:scale-110 transition-transform shadow-lg">

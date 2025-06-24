@@ -55,12 +55,12 @@ export default function Navigation() {
                   Hesabım
                 </Link>
                 {canAccessEmployee() && (
-                  <Link href="/employee" className="text-blue-600 hover:text-blue-700 transition-colors font-medium">
+                  <Link href="/calisan" className="text-blue-600 hover:text-blue-700 transition-colors font-medium">
                     Çalışan Paneli
                   </Link>
                 )}
                 {canAccessAdmin() && (
-                  <Link href="/admin" className="text-red-600 hover:text-red-700 transition-colors font-medium">
+                  <Link href="/yonetici" className="text-red-600 hover:text-red-700 transition-colors font-medium">
                     Admin Paneli
                   </Link>
                 )}
@@ -74,12 +74,12 @@ export default function Navigation() {
             ) : (
               // Kullanıcı giriş yapmamış
               <>
-                <Link href="/auth/login" className="text-coffee-800 hover:text-coffee-600 transition-colors">
-                  Giriş Yap
-                </Link>
-                <Link href="/auth/register" className="px-4 py-2 bg-coffee-700 text-white rounded-lg hover:bg-coffee-800 transition-colors">
-                  Üye Ol
-                </Link>
+                            <Link href="/giris" className="text-coffee-800 hover:text-coffee-600 transition-colors">
+              Giriş Yap
+            </Link>
+            <Link href="/kayit" className="px-4 py-2 bg-coffee-700 text-white rounded-lg hover:bg-coffee-800 transition-colors">
+              Üye Ol
+            </Link>
               </>
             )}
           </div>

@@ -35,7 +35,7 @@ export default function PointsBalance({ points }: PointsBalanceProps) {
             </div>
             <div className="flex-shrink-0">
               <a 
-                href="/hesabim/rewards" 
+                href="/hesabim/oduller" 
                 className="inline-flex items-center px-6 py-3 bg-white text-orange-600 rounded-xl hover:bg-orange-50 transition-colors font-semibold shadow-lg"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
