@@ -12,6 +12,7 @@ import MenuScreen from '../screens/MenuScreen';
 import FavoritesScreen from '../screens/FavoritesScreen';
 import MenuDetailScreen from '../screens/MenuDetailScreen';
 import CartScreen from '../screens/CartScreen';
+import OrderHistoryScreen from '../screens/OrderHistoryScreen';
 
 // Navigation stack tiplerini tanımla
 export type RootStackParamList = {
@@ -104,6 +105,7 @@ const AppNavigator = () => {
         <Stack.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }} />
         <Stack.Screen name="MenuDetail" component={MenuDetailScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Cart" component={CartScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="OrderHistory" component={OrderHistoryScreen} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -250,4 +250,69 @@ export async function getOrders(token: string, filters: {
     headers: getAuthHeaders(token),
   });
   return handleResponse(res);
-} 
+}
+
+// Favorites API calls
+export const getFavorites = async (token: string) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/favorites`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Favoriler yüklenemedi');
+    }
+
+    return await response.json();
+  } catch (error: any) {
+    console.error('Get favorites hatası:', error);
+    throw error;
+  }
+};
+
+export const addToFavorites = async (token: string, menuItemId: string) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/favorites`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ menuItemId }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Favorilere eklenemedi');
+    }
+
+    return await response.json();
+  } catch (error: any) {
+    console.error('Add to favorites hatası:', error);
+    throw error;
+  }
+};
+
+export const removeFromFavorites = async (token: string, menuItemId: string) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/favorites/${menuItemId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Favorilerden çıkarılamadı');
+    }
+
+    return await response.json();
+  } catch (error: any) {
+    console.error('Remove from favorites hatası:', error);
+    throw error;
+  }
+}; 

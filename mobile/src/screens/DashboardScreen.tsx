@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, ActivityIndicator, Alert, TouchableOpacity, RefreshControl } from 'react-native';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { useNavigation } from '@react-navigation/native';
 import PointsBalance from '../components/dashboard/PointsBalance';
@@ -72,7 +72,7 @@ const DashboardScreen = ({ navigation }: Props) => {
         
         // Token geçersizse login'e yönlendir
         if (error.message?.includes('401') || error.message?.includes('token')) {
-          navigation.replace('Login');
+          parentNavigation.replace('Login');
         }
       } finally {
         setLoading(false);
@@ -136,7 +136,7 @@ const DashboardScreen = ({ navigation }: Props) => {
           text: 'Çıkış Yap', 
           onPress: async () => {
             await logout();
-            navigation.replace('Login');
+            parentNavigation.replace('Login');
           }
         },
       ]
@@ -154,10 +154,53 @@ const DashboardScreen = ({ navigation }: Props) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={loading}
+            onRefresh={() => {
+              setLoading(true);
+              // Dashboard verilerini yeniden yükle
+              const initializeDashboard = async () => {
+                try {
+                  if (!isAuthenticated || !token) return;
+                  
+                  if (user) {
+                    setPoints(user.points || 0);
+                  }
+                  
+                  const [rewardsData] = await Promise.all([
+                    getRewards()
+                  ]);
+
+                  setRewards(rewardsData.data || []);
+
+                  try {
+                    const historyData = await getPointHistory(token);
+                    if (historyData?.data?.transactions) {
+                      setTransactions(historyData.data.transactions);
+                    }
+                  } catch (historyError) {
+                    setTransactions([]);
+                  }
+
+                } catch (error: any) {
+                  console.error('Dashboard refresh hatası:', error);
+                  Alert.alert('Hata', 'Veriler yüklenirken hata oluştu');
+                } finally {
+                  setLoading(false);
+                }
+              };
+              initializeDashboard();
+            }}
+            colors={['#f97316']}
+            tintColor="#f97316"
+          />
+        }
+      >
         <View style={styles.header}>
           <View style={styles.headerTop}>
-            <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate('Profile')}>
+            <TouchableOpacity style={styles.profileButton} onPress={() => parentNavigation.navigate('Profile')}>
               <Text style={styles.profileButtonText}>👤</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -187,6 +230,13 @@ const DashboardScreen = ({ navigation }: Props) => {
             >
               <Text style={styles.quickActionIcon}>🍽️</Text>
               <Text style={styles.quickActionText}>Menü</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.quickActionButton}
+              onPress={() => parentNavigation.navigate('OrderHistory')}
+            >
+              <Text style={styles.quickActionIcon}>📦</Text>
+              <Text style={styles.quickActionText}>Siparişlerim</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={styles.quickActionButton}

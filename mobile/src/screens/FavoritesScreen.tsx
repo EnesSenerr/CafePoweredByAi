@@ -9,12 +9,16 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  RefreshControl,
 } from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../navigation/AppNavigator';
+import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { useNavigation } from '@react-navigation/native';
+import { TabParamList } from '../navigation/AppNavigator';
 import { useAuth } from '../contexts/AuthContext';
+import { useFavorites } from '../contexts/FavoritesContext';
+import { getMenuItems } from '../services/api';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Favorites'>;
+type Props = BottomTabScreenProps<TabParamList, 'Favorites'>;
 
 interface FavoriteItem {
   id: string;
@@ -27,8 +31,10 @@ interface FavoriteItem {
 }
 
 const FavoritesScreen = ({ navigation }: Props) => {
+  const parentNavigation = useNavigation<any>();
   const { user } = useAuth();
-  const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
+  const { favorites: favoriteIds, loading: favoritesLoading, toggleFavorite, refreshFavorites } = useFavorites();
+  const [favoriteItems, setFavoriteItems] = useState<FavoriteItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Geçici dummy data - gerçek implementasyonda API'den gelecek
@@ -39,30 +45,22 @@ const FavoritesScreen = ({ navigation }: Props) => {
   const loadFavorites = async () => {
     try {
       setLoading(true);
-      // TODO: Gerçek API çağrısı yapılacak
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulated delay
       
-      // Dummy data
-      const dummyFavorites: FavoriteItem[] = [
-        {
-          id: '1',
-          name: 'Türk Kahvesi',
-          description: 'Geleneksel Türk kahvesi, orta şekerli',
-          price: 25,
-          category: 'Sıcak İçecekler',
-          available: true,
-        },
-        {
-          id: '2',
-          name: 'Cappuccino',
-          description: 'Kremsi süt köpüğü ile servis edilen espresso',
-          price: 35,
-          category: 'Espresso Bazlı',
-          available: true,
-        },
-      ];
+      if (favoriteIds.length === 0) {
+        setFavoriteItems([]);
+        return;
+      }
+
+      // Tüm menü öğelerini al
+      const menuResponse = await getMenuItems();
+      const allMenuItems = menuResponse.data || [];
       
-      setFavorites(dummyFavorites);
+      // Favori ID'lere göre filtrele
+      const favoriteMenuItems = allMenuItems.filter((item: any) => 
+        favoriteIds.includes(item.id)
+      );
+      
+      setFavoriteItems(favoriteMenuItems);
     } catch (error) {
       console.error('Favoriler yüklenirken hata:', error);
       Alert.alert('Hata', 'Favoriler yüklenirken bir hata oluştu');
@@ -90,7 +88,7 @@ const FavoritesScreen = ({ navigation }: Props) => {
   };
 
   const handleItemPress = (item: FavoriteItem) => {
-    navigation.navigate('MenuDetail', { itemId: item.id });
+    parentNavigation.navigate('MenuDetail', { itemId: item.id });
   };
 
   const formatPrice = (price: number) => {

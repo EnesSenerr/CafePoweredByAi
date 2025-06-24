@@ -17,6 +17,7 @@ import { useNavigation } from '@react-navigation/native';
 import { TabParamList } from '../navigation/AppNavigator';
 import { getMenuItems } from '../services/api';
 import { useCart } from '../contexts/CartContext';
+import { useFavorites } from '../contexts/FavoritesContext';
 
 type Props = BottomTabScreenProps<TabParamList, 'Menu'>;
 
@@ -34,6 +35,7 @@ interface MenuItem {
 const MenuScreen = ({ navigation }: Props) => {
   const parentNavigation = useNavigation<any>();
   const { state } = useCart();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [filteredItems, setFilteredItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -118,6 +120,14 @@ const MenuScreen = ({ navigation }: Props) => {
             <Text style={styles.unavailableText}>Stokta Yok</Text>
           </View>
         )}
+        <TouchableOpacity
+          style={styles.favoriteButton}
+          onPress={() => toggleFavorite(item.id)}
+        >
+          <Text style={styles.favoriteIcon}>
+            {isFavorite(item.id) ? '❤️' : '🤍'}
+          </Text>
+        </TouchableOpacity>
       </View>
       
       <View style={styles.menuContent}>
@@ -453,6 +463,25 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingHorizontal: 40,
     lineHeight: 24,
+  },
+  favoriteButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 20,
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  favoriteIcon: {
+    fontSize: 16,
   },
 });
 
