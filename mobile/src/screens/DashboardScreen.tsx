@@ -23,6 +23,7 @@ import { useCart } from '../contexts/CartContext';
 import { getRewards, getPointHistory, redeemPoints } from '../services/api';
 import { TabParamList } from '../navigation/AppNavigator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import HomeScreen from './HomeScreen';
 
 type Props = BottomTabScreenProps<TabParamList, 'Dashboard'>;
 
@@ -84,7 +85,8 @@ const DashboardScreen = ({ navigation }: Props) => {
       const token = await AsyncStorage.getItem('authToken');
       
       if (!token) {
-        Alert.alert('Hata', 'Oturum bilgisi bulunamadı');
+        // Giriş yapılmamışsa sadece bilgilendirme göster
+        setLoading(false);
         return;
       }
 
@@ -181,6 +183,10 @@ const DashboardScreen = ({ navigation }: Props) => {
         <Text style={styles.loadingText}>Dashboard yükleniyor...</Text>
       </SafeAreaView>
     );
+  }
+
+  if (!token) {
+    return <HomeScreen />;
   }
 
   return (

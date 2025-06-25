@@ -59,13 +59,13 @@ app.use('/api/stock', require('./routes/stock'));
 app.use('/api/reports', require('./routes/reports'));
 
 // Point API'leri - JWT korumalı
-app.use('/api/points', protect, require('../../src/routes/point.routes'));
+app.use('/api/points', protect, require('./routes/point.routes'));
 
 // Reward API'leri - GET request'ler herkese açık, POST/PUT/DELETE korumalı
-app.use('/api/rewards', require('../../src/routes/reward.routes'));
+app.use('/api/rewards', require('./routes/reward.routes'));
 
 // Admin API'leri - JWT korumalı
-app.use('/api/admin', protect, require('../../src/routes/admin.routes'));
+app.use('/api/admin', protect, require('./routes/admin.routes'));
 
 // Port ayarı
 const PORT = process.env.PORT || 5000;

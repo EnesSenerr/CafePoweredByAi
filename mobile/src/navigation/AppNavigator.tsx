@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { Text } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { Text, View, TouchableOpacity, ScrollView, StyleSheet, Image, Linking } from 'react-native';
+import { NavigationContainer, LinkingOptions } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import DashboardScreen from '../screens/DashboardScreen';
@@ -24,6 +24,7 @@ import AuthGuard from './AuthGuard';
 import { useAuth } from '../contexts/AuthContext';
 import { useRole } from '../hooks/useRole';
 import { AndroidBackHandler } from '../components/PlatformSpecific';
+import AboutScreen from '../screens/AboutScreen';
 
 // Navigation stack tiplerini tanımla - Web ile uyumlu
 export type RootStackParamList = {
@@ -86,6 +87,8 @@ export type TabParamList = {
   Menu: undefined;
   Favorites: undefined;
   More: undefined;
+  AdminDashboard?: undefined;
+  EmployeeDashboard?: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -108,9 +111,170 @@ const SmartDashboard = () => {
 const PlaceholderScreen = () => <NotificationsScreen navigation={{} as any} route={{} as any} />;
 
 // More Screen Component
-const MoreScreen = () => {
-  return <ProfileScreen navigation={{} as any} route={{} as any} />;
+const MoreScreen = ({ navigation }: any) => {
+  const { logout } = useAuth();
+  return (
+    <ScrollView style={moreStyles.container} contentContainerStyle={moreStyles.content}>
+      <Text style={moreStyles.header}>Daha Fazla</Text>
+      <View style={moreStyles.section}>
+        <Text style={moreStyles.sectionTitle}>Sayfalar</Text>
+        <View style={moreStyles.cardList}>
+          <TouchableOpacity style={moreStyles.card} onPress={() => navigation.navigate('About')}>
+            <Text style={moreStyles.cardIcon}>🏢</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={moreStyles.cardText}>Hakkımızda</Text>
+              <Text style={moreStyles.cardDesc}>Markamız ve hikayemiz</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity style={moreStyles.card} onPress={() => navigation.navigate('OrderHistory')}>
+            <Text style={moreStyles.cardIcon}>🧾</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={moreStyles.cardText}>Siparişlerim</Text>
+              <Text style={moreStyles.cardDesc}>Geçmiş siparişleriniz</Text>
+            </View>
+          </TouchableOpacity>
+          {/* Diğer sayfalar: Sadakat Programı, İletişim, Ödüller, vs. buraya eklenebilir */}
+        </View>
+      </View>
+      <View style={moreStyles.section}>
+        <Text style={moreStyles.sectionTitle}>İletişim</Text>
+        <View style={moreStyles.contactRow}>
+          <Text style={moreStyles.contactIcon}>📍</Text>
+          <Text style={moreStyles.contactText}>Bağdat Caddesi No:123, Kadıköy, İstanbul</Text>
+        </View>
+        <View style={moreStyles.contactRow}>
+          <Text style={moreStyles.contactIcon}>📞</Text>
+          <Text style={moreStyles.contactText}>0216 123 45 67</Text>
+        </View>
+        <View style={moreStyles.contactRow}>
+          <Text style={moreStyles.contactIcon}>✉️</Text>
+          <Text style={[moreStyles.contactText, { textDecorationLine: 'underline' }]} onPress={() => Linking.openURL('mailto:info@aicafe.com')}>info@aicafe.com</Text>
+        </View>
+        <View style={moreStyles.socialRow}>
+          <TouchableOpacity onPress={() => Linking.openURL('https://facebook.com/aicafe')} style={moreStyles.socialIcon}><Text style={{ fontSize: 22 }}>📘</Text></TouchableOpacity>
+          <TouchableOpacity onPress={() => Linking.openURL('https://instagram.com/aicafe')} style={moreStyles.socialIcon}><Text style={{ fontSize: 22 }}>📸</Text></TouchableOpacity>
+          <TouchableOpacity onPress={() => Linking.openURL('https://twitter.com/aicafe')} style={moreStyles.socialIcon}><Text style={{ fontSize: 22 }}>🐦</Text></TouchableOpacity>
+        </View>
+      </View>
+      <TouchableOpacity
+        style={moreStyles.logoutButton}
+        onPress={async () => {
+          await logout();
+          navigation.replace('Login');
+        }}
+      >
+        <Text style={moreStyles.logoutButtonText}>Çıkış Yap</Text>
+      </TouchableOpacity>
+      <Text style={moreStyles.footer}>© 2024 AI Cafe. Tüm hakları saklıdır.</Text>
+    </ScrollView>
+  );
 };
+
+const moreStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFAF0', // Webdeki gibi açık krem
+  },
+  content: {
+    padding: 0,
+    paddingBottom: 32,
+  },
+  header: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#ea580c',
+    fontFamily: 'serif',
+    marginTop: 32,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  section: {
+    marginBottom: 28,
+    paddingHorizontal: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#42301D',
+    marginBottom: 12,
+    fontFamily: 'serif',
+  },
+  cardList: {
+    gap: 12,
+  },
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 18,
+    padding: 16,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.07,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  cardIcon: {
+    fontSize: 28,
+    marginRight: 16,
+  },
+  cardText: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: '#1e293b',
+  },
+  cardDesc: {
+    color: '#64748b',
+    fontSize: 13,
+  },
+  contactRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  contactIcon: {
+    fontSize: 18,
+    marginRight: 8,
+    color: '#997049',
+  },
+  contactText: {
+    color: '#42301D',
+    fontSize: 15,
+  },
+  socialRow: {
+    flexDirection: 'row',
+    marginTop: 10,
+    marginBottom: 4,
+  },
+  socialIcon: {
+    marginRight: 16,
+  },
+  footer: {
+    textAlign: 'center',
+    color: '#bfae9c',
+    fontSize: 13,
+    marginTop: 16,
+    marginBottom: 12,
+  },
+  logoutButton: {
+    backgroundColor: '#f97316',
+    borderRadius: 18,
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+    alignItems: 'center',
+    marginHorizontal: 32,
+    marginTop: 16,
+    marginBottom: 8,
+    elevation: 2,
+  },
+  logoutButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+    letterSpacing: 1,
+  },
+});
 
 // Tab Navigator Component
 const MainTabs = () => {
@@ -166,12 +330,55 @@ const MainTabs = () => {
           tabBarIcon: ({ color }) => <Text style={{ fontSize: 24, color }}>⚙️</Text>,
         }}
       />
+      {isAdmin() && (
+        <Tab.Screen
+          name="AdminDashboard"
+          component={AdminDashboardScreen}
+          options={{
+            tabBarLabel: 'Admin Panel',
+            tabBarIcon: ({ color }) => <Text style={{ fontSize: 24, color }}>👨‍💼</Text>,
+          }}
+        />
+      )}
+      {isEmployee() && (
+        <Tab.Screen
+          name="EmployeeDashboard"
+          component={EmployeeDashboardScreen}
+          options={{
+            tabBarLabel: 'Çalışan Panel',
+            tabBarIcon: ({ color }) => <Text style={{ fontSize: 24, color }}>👩‍💻</Text>,
+          }}
+        />
+      )}
     </Tab.Navigator>
   );
 };
 
+const linking: LinkingOptions<any> = {
+  prefixes: ['cafepoweredbyai://', 'https://cafepoweredbyai.com'],
+  config: {
+    screens: {
+      Login: 'login',
+      Register: 'register',
+      ForgotPassword: 'forgot-password',
+      Dashboard: 'dashboard',
+      Menu: 'menu',
+      Favorites: 'favorites',
+      Profile: 'profile',
+      MenuDetail: 'menu/:itemId',
+      OrderDetail: 'order/:orderId',
+      RewardsDetail: 'rewards/:rewardId',
+      Settings: 'settings',
+      Notifications: 'notifications',
+      Reports: 'reports',
+      StockManagement: 'stock',
+      // Diğer route'lar da eklenebilir
+    },
+  },
+};
+
 const AppNavigator = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isLoading } = useAuth();
 
   if (isLoading) {
     // Loading screen could be added here
@@ -179,48 +386,39 @@ const AppNavigator = () => {
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       <AndroidBackHandler />
       <Stack.Navigator 
         screenOptions={{ headerShown: false }}
       >
-        {!isAuthenticated ? (
-          // Auth Screens - Giriş yapmamış kullanıcılar
-          <>
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="Register" component={RegisterScreen} />
-            <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
-          </>
-        ) : (
-          // Protected Screens - Giriş yapmış kullanıcılar
-          <>
-            <Stack.Screen name="MainTabs" component={MainTabs} />
-            <Stack.Screen name="Dashboard" component={DashboardScreen} />
-            <Stack.Screen name="Menu" component={MenuScreen} />
-            <Stack.Screen name="Favorites" component={FavoritesScreen} />
-            <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />
-            <Stack.Screen name="EmployeeDashboard" component={EmployeeDashboardScreen} />
-            <Stack.Screen name="Profile" component={ProfileScreen} />
-            <Stack.Screen name="MenuDetail" component={MenuDetailScreen} />
-            <Stack.Screen name="Cart" component={CartScreen} />
-            <Stack.Screen name="OrderHistory" component={OrderHistoryScreen} />
-            <Stack.Screen name="OrderDetail" component={OrderDetailScreen} />
-            <Stack.Screen name="Settings" component={SettingsScreen} />
-            <Stack.Screen name="RewardsDetail" component={RewardsDetailScreen} />
-            <Stack.Screen name="Notifications" component={NotificationsScreen} />
-            <Stack.Screen name="TransactionDetail" component={TransactionDetailScreen} />
-            
-            {/* Placeholder screens for future implementation */}
-            <Stack.Screen name="UserManagement" component={PlaceholderScreen} />
-            <Stack.Screen name="MenuManagement" component={PlaceholderScreen} />
-            <Stack.Screen name="OrderManagement" component={PlaceholderScreen} />
-            <Stack.Screen name="Reports" component={PlaceholderScreen} />
-            <Stack.Screen name="StockManagement" component={PlaceholderScreen} />
-            <Stack.Screen name="OrderProcessing" component={PlaceholderScreen} />
-            <Stack.Screen name="PaymentProcessing" component={PlaceholderScreen} />
-            <Stack.Screen name="CustomerService" component={PlaceholderScreen} />
-          </>
-        )}
+        <Stack.Screen name="MainTabs" component={MainTabs} />
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Register" component={RegisterScreen} />
+        <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+        <Stack.Screen name="Dashboard" component={DashboardScreen} />
+        <Stack.Screen name="Menu" component={MenuScreen} />
+        <Stack.Screen name="Favorites" component={FavoritesScreen} />
+        <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />
+        <Stack.Screen name="EmployeeDashboard" component={EmployeeDashboardScreen} />
+        <Stack.Screen name="Profile" component={ProfileScreen} />
+        <Stack.Screen name="MenuDetail" component={MenuDetailScreen} />
+        <Stack.Screen name="Cart" component={CartScreen} />
+        <Stack.Screen name="OrderHistory" component={OrderHistoryScreen} />
+        <Stack.Screen name="OrderDetail" component={OrderDetailScreen} />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
+        <Stack.Screen name="RewardsDetail" component={RewardsDetailScreen} />
+        <Stack.Screen name="Notifications" component={NotificationsScreen} />
+        <Stack.Screen name="TransactionDetail" component={TransactionDetailScreen} />
+        {/* Placeholder screens for future implementation */}
+        <Stack.Screen name="UserManagement" component={PlaceholderScreen} />
+        <Stack.Screen name="MenuManagement" component={PlaceholderScreen} />
+        <Stack.Screen name="OrderManagement" component={PlaceholderScreen} />
+        <Stack.Screen name="Reports" component={PlaceholderScreen} />
+        <Stack.Screen name="StockManagement" component={PlaceholderScreen} />
+        <Stack.Screen name="OrderProcessing" component={PlaceholderScreen} />
+        <Stack.Screen name="PaymentProcessing" component={PlaceholderScreen} />
+        <Stack.Screen name="CustomerService" component={PlaceholderScreen} />
+        <Stack.Screen name="About" component={AboutScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

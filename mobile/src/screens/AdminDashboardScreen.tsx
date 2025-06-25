@@ -14,7 +14,7 @@ import { AdminGuard } from '../components/navigation/RoleGuard';
 import { CustomCard, LoadingState } from '../components/ui';
 import { useRole } from '../hooks/useRole';
 import { lightHaptic } from '../utils/haptics';
-import { getAdminDashboardStats } from '../services/api';
+import { getAdminDashboardStats, getAllUsers, getAllStockItems, getAllOrders } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
 const { width } = Dimensions.get('window');
@@ -58,21 +58,48 @@ const AdminDashboardScreen: React.FC = () => {
       setLoading(true);
       setError(null);
       if (!token) throw new Error('Yetkilendirme hatası: Token bulunamadı');
-      const response = await getAdminDashboardStats(token);
-      // API'den dönen veri ile stats state'ini güncelle
+
+      // Paralel API çağrıları
+      const [usersRes, statsRes, stockRes, completedOrdersRes] = await Promise.all([
+        getAllUsers(token),
+        getAdminDashboardStats(token),
+        getAllStockItems(token),
+        getAllOrders(token, { status: 'completed', limit: 100 }),
+      ]);
+
+      // Kullanıcılar
+      const users = usersRes && Array.isArray(usersRes.data) ? usersRes.data : [];
+      const today = new Date().toISOString().slice(0, 10);
+      const newUsersToday = users.filter((u: any) => (u.createdAt || '').slice(0, 10) === today).length;
+
+      // Sipariş ve ciro
+      const statsData = statsRes && typeof statsRes.data === 'object' ? statsRes.data : {};
+      const totalOrders = statsData.totalOrders || 0;
+      const totalRevenue = statsData.totalRevenue || 0;
+      const pendingOrders = Array.isArray(statsData.statusBreakdown) ? (statsData.statusBreakdown.find((s: any) => s.status === 'pending')?.count || 0) : 0;
+      const revenueToday = statsData.revenueToday || 0;
+
+      // Tamamlanan siparişler
+      const completedOrdersArr = completedOrdersRes && Array.isArray(completedOrdersRes.data) ? completedOrdersRes.data : [];
+      const completedOrdersToday = completedOrdersArr.filter((o: any) => (o.createdAt || '').slice(0, 10) === today).length;
+
+      // Düşük stok
+      const stockArr = stockRes && Array.isArray(stockRes.data) ? stockRes.data : [];
+      const lowStockItems = stockArr.filter((item: any) => item.quantity <= 5).length;
+
       setStats({
-        totalUsers: response.totalUsers || 0,
-        totalOrders: response.totalOrders || 0,
-        totalRevenue: response.totalRevenue || 0,
-        pendingOrders: response.pendingOrders || 0,
-        lowStockItems: response.lowStockItems || 0,
-        newUsersToday: response.newUsersToday || 0,
-        completedOrdersToday: response.completedOrdersToday || 0,
-        revenueToday: response.revenueToday || 0,
+        totalUsers: users.length,
+        totalOrders,
+        totalRevenue,
+        pendingOrders,
+        lowStockItems,
+        newUsersToday,
+        completedOrdersToday,
+        revenueToday,
       });
     } catch (err: any) {
       setError(err.message || 'Dashboard verileri yüklenemedi');
-      console.error('Error loading dashboard data:', err);
+      console.error('[AdminDashboardScreen] Dashboard yüklenemedi:', err);
     } finally {
       setLoading(false);
       setRefreshing(false);

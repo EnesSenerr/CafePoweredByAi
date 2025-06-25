@@ -12,7 +12,9 @@ import {
   ScrollView,
   Keyboard,
   TouchableWithoutFeedback,
-  Dimensions
+  Dimensions,
+  Modal,
+  Pressable
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -35,6 +37,7 @@ const RegisterScreen = ({ navigation }: Props) => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const { login } = useAuth();
 
   const handleRegister = async () => {
@@ -61,9 +64,7 @@ const RegisterScreen = ({ navigation }: Props) => {
       // AuthContext ile login
       await login(data.user, data.token);
       
-      Alert.alert('Başarılı', 'Hesabınız başarıyla oluşturuldu!', [
-        { text: 'Tamam', onPress: () => navigation.replace('MainTabs') }
-      ]);
+      setShowSuccessModal(true);
     } catch (error: any) {
       console.error('RegisterScreen Error:', error);
       let errorMessage = 'Kayıt olurken bir hata oluştu';
@@ -246,8 +247,33 @@ const RegisterScreen = ({ navigation }: Props) => {
         </KeyboardAvoidingView>
       </View>
     </TouchableWithoutFeedback>
-    </SafeAreaView>
-  );
+    <Modal
+      visible={showSuccessModal}
+      transparent
+      animationType="fade"
+      onRequestClose={() => setShowSuccessModal(false)}
+    >
+      <View style={modalStyles.overlay}>
+        <View style={modalStyles.modalCard}>
+          <View style={modalStyles.iconCircle}>
+            <Text style={modalStyles.icon}>✅</Text>
+          </View>
+          <Text style={modalStyles.title}>Başarılı</Text>
+          <Text style={modalStyles.message}>Hesabınız başarıyla oluşturuldu!</Text>
+          <Pressable
+            style={modalStyles.button}
+            onPress={() => {
+              setShowSuccessModal(false);
+              navigation.replace('Dashboard');
+            }}
+          >
+            <Text style={modalStyles.buttonText}>TAMAM</Text>
+          </Pressable>
+        </View>
+      </View>
+    </Modal>
+  </SafeAreaView>
+);
 };
 
 const styles = StyleSheet.create({
@@ -388,6 +414,66 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.coffee[600],
     fontWeight: 'bold',
+  },
+});
+
+const modalStyles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalCard: {
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    padding: 32,
+    alignItems: 'center',
+    width: 300,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  iconCircle: {
+    backgroundColor: '#22c55e22',
+    borderRadius: 48,
+    width: 72,
+    height: 72,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  icon: {
+    fontSize: 40,
+    color: '#22c55e',
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#22c55e',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  message: {
+    fontSize: 15,
+    color: '#374151',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  button: {
+    backgroundColor: '#f97316',
+    borderRadius: 18,
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    marginTop: 8,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+    letterSpacing: 1,
   },
 });
 

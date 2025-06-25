@@ -357,12 +357,18 @@ export const removeFromFavorites = async (token: string, menuItemId: string) => 
 
 // 1. Admin Dashboard İstatistikleri
 export async function getAdminDashboardStats(token: string) {
-  // Sipariş istatistikleri endpointi kullanılıyor
-  const res = await fetch(`${API_BASE_URL}/api/orders/stats`, {
-    method: 'GET',
-    headers: getAuthHeaders(token),
-  });
-  return handleResponse(res);
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/orders/stats`, {
+      method: 'GET',
+      headers: getAuthHeaders(token),
+    });
+    const data = await handleResponse(res);
+    console.log('[DASHBOARD API]', data); // API yanıtını logla
+    return data;
+  } catch (err) {
+    console.error('[DASHBOARD API ERROR]', err);
+    throw err;
+  }
 }
 
 // 2. Kullanıcı Listesi (Admin)
@@ -443,4 +449,124 @@ export async function deleteOrder(token: string, orderId: string) {
     headers: getAuthHeaders(token),
   });
   return handleResponse(res);
+}
+
+// Menü Yönetimi (CRUD) Fonksiyonları
+export async function createMenuItem(token: string, itemData: any) {
+  const res = await fetch(`${API_BASE_URL}/api/menu`, {
+    method: 'POST',
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(itemData),
+  });
+  return handleResponse(res);
+}
+
+export async function updateMenuItem(token: string, menuItemId: string, itemData: any) {
+  const res = await fetch(`${API_BASE_URL}/api/menu/${menuItemId}`, {
+    method: 'PUT',
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(itemData),
+  });
+  return handleResponse(res);
+}
+
+export async function deleteMenuItem(token: string, menuItemId: string) {
+  const res = await fetch(`${API_BASE_URL}/api/menu/${menuItemId}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+export async function toggleMenuItemAvailability(token: string, menuItemId: string) {
+  const res = await fetch(`${API_BASE_URL}/api/menu/${menuItemId}/toggle-availability`, {
+    method: 'PATCH',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+// Stok Yönetimi (CRUD) Fonksiyonları
+export async function createStockItem(token: string, itemData: any) {
+  const res = await fetch(`${API_BASE_URL}/api/stock`, {
+    method: 'POST',
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(itemData),
+  });
+  return handleResponse(res);
+}
+
+export async function updateStockItem(token: string, stockItemId: string, itemData: any) {
+  const res = await fetch(`${API_BASE_URL}/api/stock/${stockItemId}`, {
+    method: 'PUT',
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(itemData),
+  });
+  return handleResponse(res);
+}
+
+export async function updateStock(token: string, stockItemId: string, updateData: any) {
+  const res = await fetch(`${API_BASE_URL}/api/stock/${stockItemId}/update`, {
+    method: 'PATCH',
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(updateData),
+  });
+  return handleResponse(res);
+}
+
+export async function deleteStockItem(token: string, stockItemId: string) {
+  const res = await fetch(`${API_BASE_URL}/api/stock/${stockItemId}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+export async function getCriticalStock(token: string) {
+  const res = await fetch(`${API_BASE_URL}/api/stock/critical`, {
+    method: 'GET',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+// Raporlama Fonksiyonları
+export async function getSalesReport(token: string, filters: { startDate?: string; endDate?: string } = {}) {
+  const queryParams = new URLSearchParams();
+  if (filters.startDate) queryParams.append('startDate', filters.startDate);
+  if (filters.endDate) queryParams.append('endDate', filters.endDate);
+  const queryString = queryParams.toString();
+  const url = `${API_BASE_URL}/api/reports/sales${queryString ? `?${queryString}` : ''}`;
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+export async function getInventoryReport(token: string, filters: { startDate?: string; endDate?: string } = {}) {
+  const queryParams = new URLSearchParams();
+  if (filters.startDate) queryParams.append('startDate', filters.startDate);
+  if (filters.endDate) queryParams.append('endDate', filters.endDate);
+  const queryString = queryParams.toString();
+  const url = `${API_BASE_URL}/api/reports/inventory${queryString ? `?${queryString}` : ''}`;
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+export async function downloadReport(token: string, type: 'sales' | 'inventory', filters: { startDate?: string; endDate?: string } = {}) {
+  const queryParams = new URLSearchParams();
+  if (filters.startDate) queryParams.append('startDate', filters.startDate);
+  if (filters.endDate) queryParams.append('endDate', filters.endDate);
+  const queryString = queryParams.toString();
+  const url = `${API_BASE_URL}/api/reports/${type}/download${queryString ? `?${queryString}` : ''}`;
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: getAuthHeaders(token),
+  });
+  if (!res.ok) throw new Error('Rapor indirilemedi');
+  return res.blob();
 } 

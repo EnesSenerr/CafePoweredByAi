@@ -199,7 +199,7 @@ const ProfileScreen = ({ navigation }: Props) => {
               console.log('[ProfileScreen] Logout button pressed, calling logout...');
               await logout();
               console.log('[ProfileScreen] Logout completed successfully');
-              // AuthContext'te logout sonrası navigation otomatik olarak LoginScreen'e yönlendirilecek
+              navigation.replace('MainTabs');
             } catch (error) {
               console.error('[ProfileScreen] Çıkış yapılırken hata:', error);
               Alert.alert('Hata', 'Çıkış yapılırken bir hata oluştu.');

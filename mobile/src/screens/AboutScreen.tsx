@@ -8,8 +8,11 @@ import {
   Image,
   TouchableOpacity,
   Linking,
+  Dimensions,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+
+const { width } = Dimensions.get('window');
 
 const AboutScreen = () => {
   const navigation = useNavigation<any>();
@@ -32,22 +35,43 @@ const AboutScreen = () => {
     }
   ];
 
-  const team = [
+  const teamMembers = [
     {
       name: 'Ahmet Yılmaz',
-      position: 'Kurucular',
-      experience: '15+ yıl kahve deneyimi'
+      role: 'Kurucu & Baş Barista',
+      description: '15 yıllık deneyimi ile kahve kültürünün öncülerinden',
+      icon: '👨‍💼',
     },
     {
-      name: 'Ayşe Kaya',
-      position: 'Baş Barista',
-      experience: 'Dünya şampiyonu'
+      name: 'Ayşe Demir',
+      role: 'Operasyon Müdürü',
+      description: 'Müşteri deneyimi konusunda uzman, ekip lideri',
+      icon: '👩‍💼',
     },
     {
-      name: 'Mehmet Demir',
-      position: 'AI Uzmanı',
-      experience: 'Teknoloji lideri'
-    }
+      name: 'Mehmet Kaya',
+      role: 'AI Teknoloji Uzmanı',
+      description: 'AI destekli sistemlerin geliştiricisi ve teknik sorumlu',
+      icon: '👨‍💻',
+    },
+  ];
+
+  const values = [
+    {
+      title: 'Premium Kalite',
+      description: 'En iyi kahve çekirdeklerini seçiyor, her adımda kalite kontrolü yapıyoruz. Mükemmellik standardımızdan asla ödün vermiyoruz.',
+      icon: '⭐',
+    },
+    {
+      title: 'Sürdürülebilirlik',
+      description: 'Çevre dostu yaklaşımımızla, adil ticaret kahveleri kullanıyor ve geri dönüştürülebilir ambalajları tercih ediyoruz.',
+      icon: '🌿',
+    },
+    {
+      title: 'AI İnovasyonu',
+      description: 'Yapay zeka destekli sadakat programımız ve modern teknolojiler ile müşteri deneyimini sürekli geliştiriyoruz.',
+      icon: '🤖',
+    },
   ];
 
   return (
@@ -67,87 +91,75 @@ const AboutScreen = () => {
 
         {/* Hero Section */}
         <View style={styles.heroSection}>
-          <Text style={styles.heroTitle}>AI Destekli Kahve Deneyimi</Text>
-          <Text style={styles.heroSubtitle}>
-            Teknoloji ve geleneksel kahve kültürünü harmanlayarak size eşsiz bir deneyim sunuyoruz
-          </Text>
+          <Image source={{ uri: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600&h=400&fit=crop' }} style={styles.heroImage} resizeMode="cover" />
+          <View style={styles.heroOverlay} />
+          <View style={styles.heroContent}>
+            <Text style={styles.heroTitle}>Hakkımızda</Text>
+            <Text style={styles.heroSubtitle}>
+              2015'ten beri, yapay zeka teknolojisi ile desteklenen kaliteli kahve deneyimi ve sıcak atmosfer sunarak kahve severler için öncü bir buluşma noktası oluyoruz.
+            </Text>
+            <View style={styles.heroStatsRow}>
+              <View style={styles.heroStat}><Text style={styles.heroStatIcon}>🎯</Text><Text style={styles.heroStatText}>8+ Yıl Deneyim</Text></View>
+              <View style={styles.heroStat}><Text style={styles.heroStatIcon}>❤️</Text><Text style={styles.heroStatText}>10K+ Mutlu Müşteri</Text></View>
+            </View>
+          </View>
         </View>
 
         {/* Story Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Hikayemiz</Text>
+          <Text style={styles.sectionHeader}>Hikayemiz</Text>
+          <Text style={styles.storyTitle}>Tutkuyla Başlayan Bir Yolculuk</Text>
           <Text style={styles.storyText}>
-            2024 yılında kurulan AI Cafe, geleneksel kahve kültürü ile modern teknolojiyi 
-            birleştirerek benzersiz bir kahve deneyimi yaratma misyonuyla yola çıktı. 
-            Yapay zeka destekli sistemlerimiz sayesinde her müşterimizin tercihlerini 
-            öğreniyor ve kişiselleştirilmiş öneriler sunuyoruz.
+            Cafe PoweredByAi, kahve tutkunu iki arkadaşın hayali ile başladı. 2015 yılında küçük bir dükkanda başlayan yolculuğumuz, bugün şehrin en sevilen ve teknolojik olarak en gelişmiş kahve mekanlarından biri haline geldi.
           </Text>
           <Text style={styles.storyText}>
-            Kahve tutkumuz ve teknoloji aşkımızla birleştirdiğimiz deneyimimiz, 
-            müşterilerimize her ziyarette mükemmel bir kahve deneyimi yaşatmayı hedefliyor.
+            Her sabah, dünyanın farklı köşelerinden özenle seçilmiş en taze kahve çekirdeklerini sanatkarlık anlayışıyla işliyoruz. Amacımız sadece mükemmel kahve sunmak değil, aynı zamanda misafirlerimize sıcak, samimi ve teknolojik bir ortam sağlamak.
+          </Text>
+          <Text style={styles.storyText}>
+            2023 yılında devrim niteliğinde bir adım atarak, yapay zeka teknolojisi ile geleneksel kahve kültürünü birleştirdik. AI destekli sadakat programımızla müşteri deneyimini tamamen yeniden tanımladık.
           </Text>
         </View>
 
-        {/* Features Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Özelliklerimiz</Text>
-          <View style={styles.featuresContainer}>
-            {features.map((feature, index) => (
-              <View key={index} style={styles.featureCard}>
-                <View style={styles.featureIcon}>
-                  <Text style={styles.featureEmoji}>{feature.emoji}</Text>
-                </View>
-                <Text style={styles.featureTitle}>{feature.title}</Text>
-                <Text style={styles.featureDescription}>{feature.description}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        {/* Team Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Ekibimiz</Text>
-          <View style={styles.teamContainer}>
-            {team.map((member, index) => (
-              <View key={index} style={styles.teamCard}>
-                <View style={styles.teamAvatar}>
-                  <Text style={styles.teamAvatarText}>
-                    {member.name.charAt(0)}
-                  </Text>
-                </View>
-                <Text style={styles.teamName}>{member.name}</Text>
-                <Text style={styles.teamPosition}>{member.position}</Text>
-                <Text style={styles.teamExperience}>{member.experience}</Text>
-              </View>
-            ))}
-          </View>
+        {/* Stats Section */}
+        <View style={styles.statsSection}>
+          <View style={styles.statCard}><Text style={styles.statIcon}>☕</Text><Text style={styles.statValue}>500K+</Text><Text style={styles.statLabel}>Servis Edilen Kahve</Text></View>
+          <View style={styles.statCard}><Text style={styles.statIcon}>👥</Text><Text style={styles.statValue}>10K+</Text><Text style={styles.statLabel}>Mutlu Müşteri</Text></View>
+          <View style={styles.statCard}><Text style={styles.statIcon}>🏆</Text><Text style={styles.statValue}>15+</Text><Text style={styles.statLabel}>Kalite Ödülü</Text></View>
+          <View style={styles.statCard}><Text style={styles.statIcon}>🤖</Text><Text style={styles.statValue}>%98</Text><Text style={styles.statLabel}>AI Doğruluk Oranı</Text></View>
         </View>
 
         {/* Values Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Değerlerimiz</Text>
-          <View style={styles.valuesContainer}>
-            <View style={styles.valueItem}>
-              <Text style={styles.valueEmoji}>🌱</Text>
-              <Text style={styles.valueTitle}>Sürdürülebilirlik</Text>
-              <Text style={styles.valueDescription}>Çevre dostu uygulamalar</Text>
+          <Text style={styles.sectionHeader}>Bizi Özel Kılan Değerler</Text>
+          {values.map((value, idx) => (
+            <View key={idx} style={styles.valueCard}>
+              <Text style={styles.valueIcon}>{value.icon}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.valueTitle}>{value.title}</Text>
+                <Text style={styles.valueDesc}>{value.description}</Text>
+              </View>
             </View>
-            <View style={styles.valueItem}>
-              <Text style={styles.valueEmoji}>⭐</Text>
-              <Text style={styles.valueTitle}>Kalite</Text>
-              <Text style={styles.valueDescription}>En iyi malzemeler</Text>
+          ))}
+        </View>
+
+        {/* Team Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionHeader}>Ekibimiz</Text>
+          {teamMembers.map((member, idx) => (
+            <View key={idx} style={styles.teamCard}>
+              <Text style={styles.teamIcon}>{member.icon}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.teamName}>{member.name}</Text>
+                <Text style={styles.teamRole}>{member.role}</Text>
+                <Text style={styles.teamDesc}>{member.description}</Text>
+              </View>
             </View>
-            <View style={styles.valueItem}>
-              <Text style={styles.valueEmoji}>🤝</Text>
-              <Text style={styles.valueTitle}>Müşteri Memnuniyeti</Text>
-              <Text style={styles.valueDescription}>Size özel deneyim</Text>
-            </View>
-          </View>
+          ))}
         </View>
 
         {/* Contact Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>İletişim</Text>
+          <Text style={styles.sectionHeader}>İletişim</Text>
           <View style={styles.contactCard}>
             <View style={styles.contactItem}>
               <Text style={styles.contactIcon}>📍</Text>
@@ -191,7 +203,7 @@ const AboutScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f9fafb',
   },
   header: {
     flexDirection: 'row',
@@ -219,155 +231,34 @@ const styles = StyleSheet.create({
   placeholder: {
     width: 60,
   },
-  heroSection: {
-    backgroundColor: '#f97316',
-    padding: 24,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-    marginBottom: 24,
-  },
-  heroTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    textAlign: 'center',
-    marginBottom: 12,
-  },
-  heroSubtitle: {
-    fontSize: 16,
-    color: '#ffffff',
-    opacity: 0.9,
-    textAlign: 'center',
-    lineHeight: 24,
-  },
-  section: {
-    padding: 20,
-    marginBottom: 8,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1f2937',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  storyText: {
-    fontSize: 16,
-    color: '#374151',
-    lineHeight: 24,
-    marginBottom: 16,
-    textAlign: 'justify',
-  },
-  featuresContainer: {
-    gap: 16,
-  },
-  featureCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    padding: 20,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  featureIcon: {
-    width: 60,
-    height: 60,
-    backgroundColor: '#f97316',
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  featureEmoji: {
-    fontSize: 24,
-  },
-  featureTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1f2937',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  featureDescription: {
-    fontSize: 14,
-    color: '#6b7280',
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  teamContainer: {
-    gap: 16,
-  },
-  teamCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    padding: 20,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  teamAvatar: {
-    width: 60,
-    height: 60,
-    backgroundColor: '#e5e7eb',
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  teamAvatarText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#374151',
-  },
-  teamName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1f2937',
-    marginBottom: 4,
-  },
-  teamPosition: {
-    fontSize: 16,
-    color: '#f97316',
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  teamExperience: {
-    fontSize: 14,
-    color: '#6b7280',
-  },
-  valuesContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
-    gap: 16,
-  },
-  valueItem: {
-    flex: 1,
-    minWidth: 100,
-    alignItems: 'center',
-  },
-  valueEmoji: {
-    fontSize: 32,
-    marginBottom: 8,
-  },
-  valueTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#1f2937',
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  valueDescription: {
-    fontSize: 14,
-    color: '#6b7280',
-    textAlign: 'center',
-  },
+  heroSection: { height: 320, justifyContent: 'center', alignItems: 'center', position: 'relative' },
+  heroImage: { position: 'absolute', width: '100%', height: 320, top: 0, left: 0 },
+  heroOverlay: { position: 'absolute', width: '100%', height: 320, backgroundColor: 'rgba(0,0,0,0.35)', top: 0, left: 0 },
+  heroContent: { zIndex: 2, alignItems: 'center', justifyContent: 'center', width: '100%', paddingHorizontal: 24 },
+  heroTitle: { fontSize: 32, fontWeight: 'bold', color: '#fff', textAlign: 'center', marginBottom: 10, marginTop: 24 },
+  heroSubtitle: { fontSize: 15, color: '#f3f4f6', textAlign: 'center', marginBottom: 16 },
+  heroStatsRow: { flexDirection: 'row', justifyContent: 'center', gap: 16 },
+  heroStat: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff7ed', borderRadius: 16, paddingVertical: 6, paddingHorizontal: 14, marginHorizontal: 4, marginBottom: 4 },
+  heroStatIcon: { fontSize: 18, marginRight: 6 },
+  heroStatText: { color: '#ea580c', fontWeight: 'bold', fontSize: 14 },
+  section: { paddingVertical: 28, paddingHorizontal: 16 },
+  sectionHeader: { fontSize: 22, fontWeight: 'bold', color: '#ea580c', marginBottom: 14, textAlign: 'center' },
+  storyTitle: { fontSize: 18, fontWeight: 'bold', color: '#1e293b', marginBottom: 8, textAlign: 'center' },
+  storyText: { color: '#374151', fontSize: 14, marginBottom: 8, textAlign: 'center' },
+  statsSection: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', paddingHorizontal: 16, marginBottom: 12 },
+  statCard: { width: (width - 48) / 2, alignItems: 'center', padding: 16, backgroundColor: '#fff', borderRadius: 18, marginBottom: 12, elevation: 1 },
+  statIcon: { fontSize: 28, marginBottom: 2 },
+  statValue: { fontSize: 18, fontWeight: 'bold', color: '#ea580c' },
+  statLabel: { color: '#64748b', fontSize: 12, marginTop: 2, textAlign: 'center' },
+  valueCard: { flexDirection: 'row', alignItems: 'flex-start', backgroundColor: '#f3f4f6', borderRadius: 16, padding: 14, marginBottom: 10 },
+  valueIcon: { fontSize: 24, marginRight: 12, marginTop: 2 },
+  valueTitle: { fontWeight: 'bold', fontSize: 15, color: '#1e293b', marginBottom: 2 },
+  valueDesc: { color: '#374151', fontSize: 13 },
+  teamCard: { flexDirection: 'row', alignItems: 'flex-start', backgroundColor: '#fff', borderRadius: 16, padding: 14, marginBottom: 10, elevation: 1 },
+  teamIcon: { fontSize: 24, marginRight: 12, marginTop: 2 },
+  teamName: { fontWeight: 'bold', fontSize: 15, color: '#1e293b', marginBottom: 2 },
+  teamRole: { color: '#ea580c', fontSize: 13, marginBottom: 2 },
+  teamDesc: { color: '#374151', fontSize: 13 },
   contactCard: {
     backgroundColor: '#ffffff',
     borderRadius: 16,

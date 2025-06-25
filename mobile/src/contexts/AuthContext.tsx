@@ -163,4 +163,6 @@ export function useAuth() {
     throw new Error('useAuth sadece AuthProvider içinde kullanılabilir');
   }
   return context;
-} 
+}
+
+export { AuthContext }; 
