@@ -15,6 +15,8 @@ import { AdminGuard } from '../components/navigation/RoleGuard';
 import { CustomCard, CustomButton, LoadingState, EmptyState } from '../components/ui';
 import { useRole } from '../hooks/useRole';
 import { lightHaptic } from '../utils/haptics';
+import { getAllUsers, toggleUserStatus as apiToggleUserStatus, deleteUser as apiDeleteUser } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 interface User {
   id: string;
@@ -33,11 +35,13 @@ interface User {
 const UserManagementScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const { getRoleDisplayName, getRoleColor } = useRole();
+  const { token } = useAuth();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const [searchText, setSearchText] = useState('');
   const [selectedRole, setSelectedRole] = useState<'all' | 'customer' | 'employee' | 'admin'>('all');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadUsers();
@@ -46,67 +50,14 @@ const UserManagementScreen: React.FC = () => {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      // TODO: Implement API call
-      // const response = await api.getUsers();
-      
-      // Mock data for now
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const mockUsers: User[] = [
-        {
-          id: '1',
-          name: 'Ahmet Yılmaz',
-          email: 'ahmet@email.com',
-          phone: '+90 555 123 4567',
-          role: 'customer',
-          isActive: true,
-          createdAt: '2024-01-15',
-          lastLogin: '2024-01-20',
-          totalOrders: 15,
-          totalSpent: 850,
-          loyaltyPoints: 125,
-        },
-        {
-          id: '2',
-          name: 'Fatma Kaya',
-          email: 'fatma@cafepowered.com',
-          role: 'employee',
-          isActive: true,
-          createdAt: '2023-12-01',
-          lastLogin: '2024-01-20',
-          totalOrders: 0,
-          totalSpent: 0,
-          loyaltyPoints: 0,
-        },
-        {
-          id: '3',
-          name: 'Mehmet Öz',
-          email: 'mehmet@email.com',
-          phone: '+90 555 987 6543',
-          role: 'customer',
-          isActive: false,
-          createdAt: '2024-01-10',
-          totalOrders: 3,
-          totalSpent: 120,
-          loyaltyPoints: 15,
-        },
-        {
-          id: '4',
-          name: 'Admin User',
-          email: 'admin@cafepowered.com',
-          role: 'admin',
-          isActive: true,
-          createdAt: '2023-11-01',
-          lastLogin: '2024-01-20',
-          totalOrders: 0,
-          totalSpent: 0,
-          loyaltyPoints: 0,
-        },
-      ];
-      
-      setUsers(mockUsers);
-    } catch (error) {
-      console.error('Error loading users:', error);
+      setError(null);
+      if (!token) throw new Error('Yetkilendirme hatası: Token bulunamadı');
+      const response = await getAllUsers(token);
+      // API'den dönen veri ile users state'ini güncelle
+      setUsers(response.data || []);
+    } catch (err: any) {
+      setError(err.message || 'Kullanıcılar yüklenemedi');
+      console.error('Error loading users:', err);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -120,14 +71,13 @@ const UserManagementScreen: React.FC = () => {
 
   const handleUserAction = async (user: User, action: 'edit' | 'toggle' | 'delete') => {
     await lightHaptic();
-    
     switch (action) {
       case 'edit':
         // TODO: Navigate to user edit screen
         Alert.alert('Düzenle', `${user.name} kullanıcısını düzenle`);
         break;
       case 'toggle':
-        toggleUserStatus(user);
+        await handleToggleUserStatus(user);
         break;
       case 'delete':
         confirmDeleteUser(user);
@@ -135,7 +85,7 @@ const UserManagementScreen: React.FC = () => {
     }
   };
 
-  const toggleUserStatus = (user: User) => {
+  const handleToggleUserStatus = async (user: User) => {
     Alert.alert(
       'Kullanıcı Durumu',
       `${user.name} kullanıcısını ${user.isActive ? 'devre dışı bırak' : 'aktif et'}?`,
@@ -144,12 +94,14 @@ const UserManagementScreen: React.FC = () => {
         {
           text: user.isActive ? 'Devre Dışı Bırak' : 'Aktif Et',
           style: user.isActive ? 'destructive' : 'default',
-          onPress: () => {
-            // TODO: API call to toggle user status
-            const updatedUsers = users.map(u =>
-              u.id === user.id ? { ...u, isActive: !u.isActive } : u
-            );
-            setUsers(updatedUsers);
+          onPress: async () => {
+            try {
+              if (!token) throw new Error('Yetkilendirme hatası: Token bulunamadı');
+              await apiToggleUserStatus(token, user.id);
+              loadUsers();
+            } catch (err: any) {
+              Alert.alert('Hata', err.message || 'Kullanıcı durumu güncellenemedi');
+            }
           }
         }
       ]
@@ -165,10 +117,14 @@ const UserManagementScreen: React.FC = () => {
         {
           text: 'Sil',
           style: 'destructive',
-          onPress: () => {
-            // TODO: API call to delete user
-            const updatedUsers = users.filter(u => u.id !== user.id);
-            setUsers(updatedUsers);
+          onPress: async () => {
+            try {
+              if (!token) throw new Error('Yetkilendirme hatası: Token bulunamadı');
+              await apiDeleteUser(token, user.id);
+              loadUsers();
+            } catch (err: any) {
+              Alert.alert('Hata', err.message || 'Kullanıcı silinemedi');
+            }
           }
         }
       ]
@@ -269,6 +225,17 @@ const UserManagementScreen: React.FC = () => {
 
   if (loading) {
     return <LoadingState message="Kullanıcılar yükleniyor..." />;
+  }
+
+  if (error) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
+        <Text style={{ color: '#dc2626', fontSize: 16, marginBottom: 12 }}>{error}</Text>
+        <TouchableOpacity onPress={loadUsers} style={{ backgroundColor: '#f97316', padding: 12, borderRadius: 8 }}>
+          <Text style={{ color: '#fff', fontWeight: 'bold' }}>Tekrar Dene</Text>
+        </TouchableOpacity>
+      </View>
+    );
   }
 
   return (

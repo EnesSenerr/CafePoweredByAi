@@ -227,6 +227,23 @@ export async function getMenuItem(id: string) {
   return handleResponse(res);
 }
 
+export async function getMenuCategories() {
+  const cacheKey = 'menu_categories';
+  const ttl = 30 * 60 * 1000; // 30 minutes for categories
+  
+  return cacheService.cachedRequest(
+    cacheKey,
+    async () => {
+      const res = await fetch(`${API_BASE_URL}/api/menu/categories`, {
+        method: 'GET',
+        headers: getAuthHeaders(),
+      });
+      return handleResponse(res);
+    },
+    ttl
+  );
+}
+
 // Orders APIs
 export async function createOrder(token: string, orderData: {
   items: Array<{
@@ -334,4 +351,96 @@ export const removeFromFavorites = async (token: string, menuItemId: string) => 
     console.error('Remove from favorites hatası:', error);
     throw error;
   }
-}; 
+};
+
+// --- ADMIN PANEL API'LERİ ---
+
+// 1. Admin Dashboard İstatistikleri
+export async function getAdminDashboardStats(token: string) {
+  // Sipariş istatistikleri endpointi kullanılıyor
+  const res = await fetch(`${API_BASE_URL}/api/orders/stats`, {
+    method: 'GET',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+// 2. Kullanıcı Listesi (Admin)
+export async function getAllUsers(token: string) {
+  const res = await fetch(`${API_BASE_URL}/api/auth/admin/users`, {
+    method: 'GET',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+// 3. Sipariş Listesi (Admin)
+export async function getAllOrders(token: string, filters: any = {}) {
+  // getOrders fonksiyonu zaten var ama burada admin için kullanıyoruz
+  return getOrders(token, filters);
+}
+
+// 4. Menü Listesi (Admin)
+export async function getAllMenuItems(token: string) {
+  const res = await fetch(`${API_BASE_URL}/api/menu`, {
+    method: 'GET',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+// 5. Stok Listesi (Admin)
+export async function getAllStockItems(token: string) {
+  const res = await fetch(`${API_BASE_URL}/api/stock`, {
+    method: 'GET',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+// 6. Ödül Listesi (Admin)
+export async function getAllRewards(token: string) {
+  // src/routes/admin.routes.js -> /api/admin/rewards
+  const res = await fetch(`${API_BASE_URL}/api/admin/rewards`, {
+    method: 'GET',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+// Kullanıcıyı aktif/pasif yap (Admin)
+export async function toggleUserStatus(token: string, userId: string) {
+  const res = await fetch(`${API_BASE_URL}/api/auth/admin/users/${userId}/toggle`, {
+    method: 'PATCH',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+// Kullanıcıyı sil (Admin)
+export async function deleteUser(token: string, userId: string) {
+  const res = await fetch(`${API_BASE_URL}/api/auth/admin/users/${userId}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+// Sipariş durumu güncelle (Admin)
+export async function updateOrderStatus(token: string, orderId: string, newStatus: string) {
+  const res = await fetch(`${API_BASE_URL}/api/orders/${orderId}/status`, {
+    method: 'PATCH',
+    headers: getAuthHeaders(token),
+    body: JSON.stringify({ status: newStatus }),
+  });
+  return handleResponse(res);
+}
+
+// Sipariş sil (Admin)
+export async function deleteOrder(token: string, orderId: string) {
+  const res = await fetch(`${API_BASE_URL}/api/orders/${orderId}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders(token),
+  });
+  return handleResponse(res);
+} 

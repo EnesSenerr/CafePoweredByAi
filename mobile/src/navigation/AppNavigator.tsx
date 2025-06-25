@@ -25,27 +25,47 @@ import { useAuth } from '../contexts/AuthContext';
 import { useRole } from '../hooks/useRole';
 import { AndroidBackHandler } from '../components/PlatformSpecific';
 
-// Navigation stack tiplerini tanımla
+// Navigation stack tiplerini tanımla - Web ile uyumlu
 export type RootStackParamList = {
+  // Auth pages
   Login: undefined;
   Register: undefined;
   ForgotPassword: undefined;
+  
+  // Main structure
   MainTabs: undefined;
   Dashboard: undefined;
   Menu: undefined;
   Favorites: undefined;
   More: undefined;
+  
+  // Role specific dashboards
   AdminDashboard: undefined;
   EmployeeDashboard: undefined;
+  
+  // Menu related
   MenuDetail: { itemId: string };
+  
+  // Order related
   Cart: undefined;
   OrderHistory: undefined;
   OrderDetail: { orderId: string };
+  
+  // Profile related - Web ile uyumlu
   Profile: undefined;
   Settings: undefined;
+  Orders: undefined; // Web: hesabim/siparisler
+  Rewards: undefined; // Web: hesabim/oduller
+  Points: undefined; // Web: hesabim/profil gibi sayfalara uyumlu
+  
+  // Details
   RewardsDetail: { rewardId: string };
-  Notifications: undefined;
   TransactionDetail: { transactionId: string };
+  
+  // Notifications
+  Notifications: undefined;
+  
+  // Admin/Employee features
   UserManagement: undefined;
   MenuManagement: undefined;
   OrderManagement: undefined;
@@ -54,6 +74,11 @@ export type RootStackParamList = {
   OrderProcessing: undefined;
   PaymentProcessing: undefined;
   CustomerService: undefined;
+  
+  // About sections - Web ile uyumlu
+  About: undefined; // Web: hakkimizda
+  Contact: undefined; // Web: iletisim
+  LoyaltyProgram: undefined; // Web: sadakat-programi
 };
 
 export type TabParamList = {
@@ -146,46 +171,56 @@ const MainTabs = () => {
 };
 
 const AppNavigator = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    // Loading screen could be added here
+    return null;
+  }
 
   return (
     <NavigationContainer>
       <AndroidBackHandler />
       <Stack.Navigator 
-        initialRouteName={isAuthenticated ? "MainTabs" : "Login"}
         screenOptions={{ headerShown: false }}
       >
-        {/* Auth Screens - Herkese açık */}
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Register" component={RegisterScreen} />
-        <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
-        
-        {/* Protected Screens - Auth gerekli */}
-        <Stack.Screen name="MainTabs" component={MainTabs} />
-        <Stack.Screen name="Dashboard" component={DashboardScreen} />
-        <Stack.Screen name="Menu" component={MenuScreen} />
-        <Stack.Screen name="Favorites" component={FavoritesScreen} />
-        <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />
-        <Stack.Screen name="EmployeeDashboard" component={EmployeeDashboardScreen} />
-        <Stack.Screen name="Profile" component={ProfileScreen} />
-        <Stack.Screen name="MenuDetail" component={MenuDetailScreen} />
-        <Stack.Screen name="Cart" component={CartScreen} />
-        <Stack.Screen name="OrderHistory" component={OrderHistoryScreen} />
-        <Stack.Screen name="OrderDetail" component={OrderDetailScreen} />
-        <Stack.Screen name="Settings" component={SettingsScreen} />
-        <Stack.Screen name="RewardsDetail" component={RewardsDetailScreen} />
-        <Stack.Screen name="Notifications" component={NotificationsScreen} />
-        <Stack.Screen name="TransactionDetail" component={TransactionDetailScreen} />
-        
-        {/* Placeholder screens for future implementation */}
-        <Stack.Screen name="UserManagement" component={PlaceholderScreen} />
-        <Stack.Screen name="MenuManagement" component={PlaceholderScreen} />
-        <Stack.Screen name="OrderManagement" component={PlaceholderScreen} />
-        <Stack.Screen name="Reports" component={PlaceholderScreen} />
-        <Stack.Screen name="StockManagement" component={PlaceholderScreen} />
-        <Stack.Screen name="OrderProcessing" component={PlaceholderScreen} />
-        <Stack.Screen name="PaymentProcessing" component={PlaceholderScreen} />
-        <Stack.Screen name="CustomerService" component={PlaceholderScreen} />
+        {!isAuthenticated ? (
+          // Auth Screens - Giriş yapmamış kullanıcılar
+          <>
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="Register" component={RegisterScreen} />
+            <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+          </>
+        ) : (
+          // Protected Screens - Giriş yapmış kullanıcılar
+          <>
+            <Stack.Screen name="MainTabs" component={MainTabs} />
+            <Stack.Screen name="Dashboard" component={DashboardScreen} />
+            <Stack.Screen name="Menu" component={MenuScreen} />
+            <Stack.Screen name="Favorites" component={FavoritesScreen} />
+            <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />
+            <Stack.Screen name="EmployeeDashboard" component={EmployeeDashboardScreen} />
+            <Stack.Screen name="Profile" component={ProfileScreen} />
+            <Stack.Screen name="MenuDetail" component={MenuDetailScreen} />
+            <Stack.Screen name="Cart" component={CartScreen} />
+            <Stack.Screen name="OrderHistory" component={OrderHistoryScreen} />
+            <Stack.Screen name="OrderDetail" component={OrderDetailScreen} />
+            <Stack.Screen name="Settings" component={SettingsScreen} />
+            <Stack.Screen name="RewardsDetail" component={RewardsDetailScreen} />
+            <Stack.Screen name="Notifications" component={NotificationsScreen} />
+            <Stack.Screen name="TransactionDetail" component={TransactionDetailScreen} />
+            
+            {/* Placeholder screens for future implementation */}
+            <Stack.Screen name="UserManagement" component={PlaceholderScreen} />
+            <Stack.Screen name="MenuManagement" component={PlaceholderScreen} />
+            <Stack.Screen name="OrderManagement" component={PlaceholderScreen} />
+            <Stack.Screen name="Reports" component={PlaceholderScreen} />
+            <Stack.Screen name="StockManagement" component={PlaceholderScreen} />
+            <Stack.Screen name="OrderProcessing" component={PlaceholderScreen} />
+            <Stack.Screen name="PaymentProcessing" component={PlaceholderScreen} />
+            <Stack.Screen name="CustomerService" component={PlaceholderScreen} />
+          </>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );

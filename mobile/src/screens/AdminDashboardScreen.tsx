@@ -14,6 +14,8 @@ import { AdminGuard } from '../components/navigation/RoleGuard';
 import { CustomCard, LoadingState } from '../components/ui';
 import { useRole } from '../hooks/useRole';
 import { lightHaptic } from '../utils/haptics';
+import { getAdminDashboardStats } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 const { width } = Dimensions.get('window');
 const cardWidth = (width - 60) / 2; // 2 columns with spacing
@@ -32,6 +34,7 @@ interface DashboardStats {
 const AdminDashboardScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const { getRoleDisplayName, getUserRole } = useRole();
+  const { token } = useAuth();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [stats, setStats] = useState<DashboardStats>({
@@ -44,6 +47,7 @@ const AdminDashboardScreen: React.FC = () => {
     completedOrdersToday: 0,
     revenueToday: 0,
   });
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadDashboardData();
@@ -52,24 +56,23 @@ const AdminDashboardScreen: React.FC = () => {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      // TODO: Implement API call to fetch dashboard stats
-      // const response = await api.getAdminDashboardStats();
-      
-      // Mock data for now
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      setError(null);
+      if (!token) throw new Error('Yetkilendirme hatası: Token bulunamadı');
+      const response = await getAdminDashboardStats(token);
+      // API'den dönen veri ile stats state'ini güncelle
       setStats({
-        totalUsers: 1250,
-        totalOrders: 3420,
-        totalRevenue: 125000,
-        pendingOrders: 12,
-        lowStockItems: 5,
-        newUsersToday: 8,
-        completedOrdersToday: 45,
-        revenueToday: 2850,
+        totalUsers: response.totalUsers || 0,
+        totalOrders: response.totalOrders || 0,
+        totalRevenue: response.totalRevenue || 0,
+        pendingOrders: response.pendingOrders || 0,
+        lowStockItems: response.lowStockItems || 0,
+        newUsersToday: response.newUsersToday || 0,
+        completedOrdersToday: response.completedOrdersToday || 0,
+        revenueToday: response.revenueToday || 0,
       });
-    } catch (error) {
-      console.error('Error loading dashboard data:', error);
+    } catch (err: any) {
+      setError(err.message || 'Dashboard verileri yüklenemedi');
+      console.error('Error loading dashboard data:', err);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -137,6 +140,17 @@ const AdminDashboardScreen: React.FC = () => {
 
   if (loading) {
     return <LoadingState message="Dashboard yükleniyor..." />;
+  }
+
+  if (error) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
+        <Text style={{ color: '#dc2626', fontSize: 16, marginBottom: 12 }}>{error}</Text>
+        <TouchableOpacity onPress={loadDashboardData} style={{ backgroundColor: '#f97316', padding: 12, borderRadius: 8 }}>
+          <Text style={{ color: '#fff', fontWeight: 'bold' }}>Tekrar Dene</Text>
+        </TouchableOpacity>
+      </View>
+    );
   }
 
   return (

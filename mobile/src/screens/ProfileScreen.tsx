@@ -36,7 +36,7 @@ interface UserProfile {
 }
 
 const ProfileScreen = ({ navigation }: Props) => {
-  const { user, token, refreshUser } = useAuth();
+  const { user, token, refreshUser, logout } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -180,6 +180,34 @@ const ProfileScreen = ({ navigation }: Props) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Çıkış Yap',
+      'Hesabınızdan çıkış yapmak istediğinizden emin misiniz?',
+      [
+        {
+          text: 'İptal',
+          style: 'cancel',
+        },
+        {
+          text: 'Çıkış Yap',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              console.log('[ProfileScreen] Logout button pressed, calling logout...');
+              await logout();
+              console.log('[ProfileScreen] Logout completed successfully');
+              // AuthContext'te logout sonrası navigation otomatik olarak LoginScreen'e yönlendirilecek
+            } catch (error) {
+              console.error('[ProfileScreen] Çıkış yapılırken hata:', error);
+              Alert.alert('Hata', 'Çıkış yapılırken bir hata oluştu.');
+            }
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -421,6 +449,25 @@ const ProfileScreen = ({ navigation }: Props) => {
               </View>
             </View>
             <Text style={styles.securityArrow}>›</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Logout Section */}
+        <View style={styles.section}>
+          <TouchableOpacity
+            style={styles.logoutButton}
+            onPress={handleLogout}
+          >
+            <View style={styles.logoutLeft}>
+              <Text style={styles.logoutIcon}>🚪</Text>
+              <View>
+                <Text style={styles.logoutTitle}>Çıkış Yap</Text>
+                <Text style={styles.logoutSubtitle}>
+                  Hesabınızdan güvenli bir şekilde çıkış yapın
+                </Text>
+              </View>
+            </View>
+            <Text style={styles.logoutArrow}>›</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -801,6 +848,43 @@ const styles = StyleSheet.create({
   modalSaveText: {
     color: '#ffffff',
     fontWeight: '600',
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    backgroundColor: '#fef2f2',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#fecaca',
+  },
+  logoutLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  logoutIcon: {
+    fontSize: 24,
+    marginRight: 16,
+    width: 40,
+    textAlign: 'center',
+  },
+  logoutTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#dc2626',
+    marginBottom: 2,
+  },
+  logoutSubtitle: {
+    fontSize: 14,
+    color: '#dc2626',
+  },
+  logoutArrow: {
+    fontSize: 24,
+    color: '#dc2626',
+    fontWeight: 'bold',
   },
 });
 

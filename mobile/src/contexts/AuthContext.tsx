@@ -97,12 +97,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
+      console.log('[AuthContext] Logout process started');
       await AuthTokenManager.removeToken();
+      console.log('[AuthContext] Token removed successfully');
       setToken(null);
       setUser(null);
       setIsAuthenticated(false);
+      console.log('[AuthContext] Auth state cleared successfully');
     } catch (error) {
-      console.error('Çıkış yapılırken hata:', error);
+      console.error('[AuthContext] Çıkış yapılırken hata:', error);
+      // Hata olsa bile state'i temizle
+      setToken(null);
+      setUser(null);
+      setIsAuthenticated(false);
     }
   };
 

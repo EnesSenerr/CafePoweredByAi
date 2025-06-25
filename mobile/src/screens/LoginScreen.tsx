@@ -8,11 +8,13 @@ import {
   Alert, 
   ActivityIndicator, 
   Dimensions,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
-  ScrollView
+  ScrollView,
+  Keyboard,
+  TouchableWithoutFeedback
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { loginUser } from '../services/api';
@@ -67,13 +69,20 @@ const LoginScreen = ({ navigation }: Props) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.gradient}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.keyboardAvoid}
-        >
-          <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.gradient}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            style={styles.keyboardAvoid}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+          >
+            <ScrollView 
+              contentContainerStyle={styles.scrollContent} 
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              bounces={false}
+            >
             {/* Header Section */}
             <View style={styles.header}>
               {/* Coffee Cup Icon */}
@@ -180,6 +189,7 @@ const LoginScreen = ({ navigation }: Props) => {
           </ScrollView>
         </KeyboardAvoidingView>
       </View>
+    </TouchableWithoutFeedback>
     </SafeAreaView>
   );
 };
@@ -200,6 +210,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 24,
     paddingVertical: 40,
+    minHeight: height * 0.9,
   },
   header: {
     alignItems: 'center',

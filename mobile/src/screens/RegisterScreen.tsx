@@ -7,11 +7,14 @@ import {
   StyleSheet, 
   Alert, 
   ActivityIndicator,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
-  ScrollView
+  ScrollView,
+  Keyboard,
+  TouchableWithoutFeedback,
+  Dimensions
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -20,6 +23,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { colors } from '../styles/colors';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
+
+const { width, height } = Dimensions.get('window');
 
 const RegisterScreen = ({ navigation }: Props) => {
   const [name, setName] = useState('');
@@ -76,13 +81,20 @@ const RegisterScreen = ({ navigation }: Props) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.gradient}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.keyboardAvoid}
-        >
-          <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.gradient}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            style={styles.keyboardAvoid}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+          >
+            <ScrollView 
+              contentContainerStyle={styles.scrollContent} 
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              bounces={false}
+            >
             {/* Header Section */}
             <View style={styles.header}>
               {/* Coffee Cup Icon */}
@@ -233,6 +245,7 @@ const RegisterScreen = ({ navigation }: Props) => {
           </ScrollView>
         </KeyboardAvoidingView>
       </View>
+    </TouchableWithoutFeedback>
     </SafeAreaView>
   );
 };
@@ -253,6 +266,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 24,
     paddingVertical: 40,
+    minHeight: height * 0.9,
   },
   header: {
     alignItems: 'center',

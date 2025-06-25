@@ -1,7 +1,12 @@
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 
 // Environment types
 export type Environment = 'development' | 'preview' | 'production';
+
+// Device type detection
+const isExpoGo = Constants.appOwnership === 'expo';
+const isAndroidEmulator = Platform.OS === 'android' && !isExpoGo;
 
 // Get current environment
 export const getCurrentEnvironment = (): Environment => {
@@ -17,11 +22,15 @@ export const getCurrentEnvironment = (): Environment => {
 // Environment configuration
 export const ENV_CONFIG = {
   development: {
-    API_BASE_URL: Platform.select({
-      ios: 'http://localhost:5000',
-      android: 'http://192.168.1.102:5000', // Backend gerçek IP adresi
-      default: 'http://192.168.1.102:5000', // Local network IP for Expo Go
-    }),
+    API_BASE_URL: (() => {
+      if (isAndroidEmulator) {
+        return 'http://10.0.2.2:5000'; // Android emulator
+      } else if (isExpoGo || Platform.OS === 'ios') {
+        return 'http://192.168.1.102:5000'; // Expo Go veya iOS Simulator
+      } else {
+        return 'http://localhost:5000'; // Fallback
+      }
+    })(),
     DEBUG_MODE: true,
     CONSOLE_LOGS: true,
     ANALYTICS_ENABLED: false,
