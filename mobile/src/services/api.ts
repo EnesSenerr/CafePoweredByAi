@@ -1,5 +1,6 @@
 // Base URL - Platform bazlı IP seçimi
 import { Platform } from 'react-native';
+import { cacheService, CACHE_KEYS } from './cacheService';
 
 // Geliştirme ortamı için farklı IP'ler
 const getApiBaseUrl = () => {
@@ -66,11 +67,20 @@ export async function registerUser(name: string, email: string, password: string
 }
 
 export async function getUserProfile(token: string) {
-  const res = await fetch(`${API_BASE_URL}/api/auth/me`, {
-    method: 'GET',
-    headers: getAuthHeaders(token),
-  });
-  return handleResponse(res);
+  const cacheKey = CACHE_KEYS.USER_PROFILE;
+  const ttl = 30 * 60 * 1000; // 30 minutes for user profile
+  
+  return cacheService.cachedRequest(
+    cacheKey,
+    async () => {
+      const res = await fetch(`${API_BASE_URL}/api/auth/me`, {
+        method: 'GET',
+        headers: getAuthHeaders(token),
+      });
+      return handleResponse(res);
+    },
+    ttl
+  );
 }
 
 // Points APIs
@@ -100,13 +110,22 @@ export async function getPointHistory(token: string) {
   return handleResponse(res);
 }
 
-// Rewards APIs
+// Rewards APIs with caching
 export async function getRewards() {
-  const res = await fetch(`${API_BASE_URL}/api/rewards`, {
-    method: 'GET',
-    headers: getAuthHeaders(),
-  });
-  return handleResponse(res);
+  const cacheKey = CACHE_KEYS.REWARDS;
+  const ttl = 15 * 60 * 1000; // 15 minutes for rewards
+  
+  return cacheService.cachedRequest(
+    cacheKey,
+    async () => {
+      const res = await fetch(`${API_BASE_URL}/api/rewards`, {
+        method: 'GET',
+        headers: getAuthHeaders(),
+      });
+      return handleResponse(res);
+    },
+    ttl
+  );
 }
 
 export async function getReward(rewardId: string) {
@@ -183,21 +202,31 @@ export async function changePassword(token: string, currentPassword: string, new
   return handleResponse(res);
 }
 
-// Menu APIs
+// Menu APIs with caching
 export async function getMenuItems(filters: { category?: string; available?: boolean; search?: string } = {}) {
-  const queryParams = new URLSearchParams();
-  if (filters.category) queryParams.append('category', filters.category);
-  if (filters.available !== undefined) queryParams.append('available', filters.available.toString());
-  if (filters.search) queryParams.append('search', filters.search);
+  const cacheKey = CACHE_KEYS.MENU_ITEMS;
+  const ttl = 10 * 60 * 1000; // 10 minutes for menu items
   
-  const queryString = queryParams.toString();
-  const url = `${API_BASE_URL}/api/menu${queryString ? `?${queryString}` : ''}`;
-  
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: getAuthHeaders(),
-  });
-  return handleResponse(res);
+  return cacheService.cachedRequest(
+    cacheKey,
+    async () => {
+      const queryParams = new URLSearchParams();
+      if (filters.category) queryParams.append('category', filters.category);
+      if (filters.available !== undefined) queryParams.append('available', filters.available.toString());
+      if (filters.search) queryParams.append('search', filters.search);
+      
+      const queryString = queryParams.toString();
+      const url = `${API_BASE_URL}/api/menu${queryString ? `?${queryString}` : ''}`;
+      
+      const res = await fetch(url, {
+        method: 'GET',
+        headers: getAuthHeaders(),
+      });
+      return handleResponse(res);
+    },
+    ttl,
+    filters
+  );
 }
 
 export async function getMenuItem(id: string) {
