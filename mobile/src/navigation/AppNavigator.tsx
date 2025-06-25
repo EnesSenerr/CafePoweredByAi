@@ -18,8 +18,11 @@ import SettingsScreen from '../screens/SettingsScreen';
 import RewardsDetailScreen from '../screens/RewardsDetailScreen';
 import NotificationsScreen from '../screens/NotificationsScreen';
 import TransactionDetailScreen from '../screens/TransactionDetailScreen';
+import AdminDashboardScreen from '../screens/AdminDashboardScreen';
+import EmployeeDashboardScreen from '../screens/EmployeeDashboardScreen';
 import AuthGuard from './AuthGuard';
 import { useAuth } from '../contexts/AuthContext';
+import { useRole } from '../hooks/useRole';
 
 // Navigation stack tiplerini tanımla
 export type RootStackParamList = {
@@ -27,6 +30,8 @@ export type RootStackParamList = {
   Register: undefined;
   ForgotPassword: undefined;
   MainTabs: undefined;
+  AdminDashboard: undefined;
+  EmployeeDashboard: undefined;
   MenuDetail: { itemId: string };
   Cart: undefined;
   OrderHistory: undefined;
@@ -36,6 +41,14 @@ export type RootStackParamList = {
   RewardsDetail: { rewardId: string };
   Notifications: undefined;
   TransactionDetail: { transactionId: string };
+  UserManagement: undefined;
+  MenuManagement: undefined;
+  OrderManagement: undefined;
+  Reports: undefined;
+  StockManagement: undefined;
+  OrderProcessing: undefined;
+  PaymentProcessing: undefined;
+  CustomerService: undefined;
 };
 
 export type TabParamList = {
@@ -48,11 +61,31 @@ export type TabParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
 
-// More Screen Component (geçici olarak Profile'a yönlendiren)
-const MoreScreen = () => <ProfileScreen navigation={null as any} route={null as any} />;
+// Smart Dashboard Component - Role'e göre doğru dashboard'u gösterir
+const SmartDashboard = () => {
+  const { isAdmin, isEmployee } = useRole();
+  
+  if (isAdmin()) {
+    return <AdminDashboardScreen />;
+  } else if (isEmployee()) {
+    return <EmployeeDashboardScreen />;
+  } else {
+    return <DashboardScreen />;
+  }
+};
+
+// Placeholder component for future screens
+const PlaceholderScreen = () => <NotificationsScreen />;
+
+// More Screen Component
+const MoreScreen = () => {
+  return <ProfileScreen />;
+};
 
 // Tab Navigator Component
 const MainTabs = () => {
+  const { isAdmin, isEmployee } = useRole();
+  
   return (
     <Tab.Navigator
       screenOptions={{
@@ -71,10 +104,12 @@ const MainTabs = () => {
     >
       <Tab.Screen 
         name="Dashboard" 
-        component={DashboardScreen}
+        component={SmartDashboard}
         options={{
-          tabBarLabel: 'Ana Sayfa',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24, color }}>🏠</Text>,
+          tabBarLabel: isAdmin() ? 'Admin Panel' : isEmployee() ? 'Çalışan Panel' : 'Ana Sayfa',
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24, color }}>
+            {isAdmin() ? '👨‍💼' : isEmployee() ? '👩‍💻' : '🏠'}
+          </Text>,
         }}
       />
       <Tab.Screen 
@@ -121,6 +156,8 @@ const AppNavigator = () => {
         
         {/* Protected Screens - Auth gerekli */}
         <Stack.Screen name="MainTabs" component={MainTabs} />
+        <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />
+        <Stack.Screen name="EmployeeDashboard" component={EmployeeDashboardScreen} />
         <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen name="MenuDetail" component={MenuDetailScreen} />
         <Stack.Screen name="Cart" component={CartScreen} />
@@ -130,6 +167,16 @@ const AppNavigator = () => {
         <Stack.Screen name="RewardsDetail" component={RewardsDetailScreen} />
         <Stack.Screen name="Notifications" component={NotificationsScreen} />
         <Stack.Screen name="TransactionDetail" component={TransactionDetailScreen} />
+        
+        {/* Placeholder screens for future implementation */}
+        <Stack.Screen name="UserManagement" component={PlaceholderScreen} />
+        <Stack.Screen name="MenuManagement" component={PlaceholderScreen} />
+        <Stack.Screen name="OrderManagement" component={PlaceholderScreen} />
+        <Stack.Screen name="Reports" component={PlaceholderScreen} />
+        <Stack.Screen name="StockManagement" component={PlaceholderScreen} />
+        <Stack.Screen name="OrderProcessing" component={PlaceholderScreen} />
+        <Stack.Screen name="PaymentProcessing" component={PlaceholderScreen} />
+        <Stack.Screen name="CustomerService" component={PlaceholderScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
