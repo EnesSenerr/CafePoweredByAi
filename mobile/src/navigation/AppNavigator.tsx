@@ -25,6 +25,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { useRole } from '../hooks/useRole';
 import { AndroidBackHandler } from '../components/PlatformSpecific';
 import AboutScreen from '../screens/AboutScreen';
+import LoyaltyProgramScreen from '../screens/LoyaltyProgramScreen';
+import HomeScreen from '../screens/HomeScreen';
+import ContactScreen from '../screens/ContactScreen';
 
 // Navigation stack tiplerini tanımla - Web ile uyumlu
 export type RootStackParamList = {
@@ -83,9 +86,9 @@ export type RootStackParamList = {
 };
 
 export type TabParamList = {
-  Dashboard: undefined;
+  Home: undefined;
   Menu: undefined;
-  Favorites: undefined;
+  LoyaltyProgram: undefined;
   More: undefined;
   AdminDashboard?: undefined;
   EmployeeDashboard?: undefined;
@@ -112,61 +115,68 @@ const PlaceholderScreen = () => <NotificationsScreen navigation={{} as any} rout
 
 // More Screen Component
 const MoreScreen = ({ navigation }: any) => {
-  const { logout, isAuthenticated, isLoading } = useAuth();
+  const { logout, isAuthenticated, isLoading, user } = useAuth();
+  const { isAdmin, isEmployee } = useRole();
   return (
     <ScrollView style={moreStyles.container} contentContainerStyle={moreStyles.content}>
       <Text style={moreStyles.header}>Daha Fazla</Text>
       <View style={moreStyles.section}>
         <Text style={moreStyles.sectionTitle}>Sayfalar</Text>
-        <View style={moreStyles.cardList}>
-          <TouchableOpacity style={moreStyles.card} onPress={() => navigation.navigate('About')}>
-            <Text style={moreStyles.cardIcon}>🏢</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={moreStyles.cardText}>Hakkımızda</Text>
-              <Text style={moreStyles.cardDesc}>Markamız ve hikayemiz</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity style={moreStyles.card} onPress={() => navigation.navigate('OrderHistory')}>
-            <Text style={moreStyles.cardIcon}>🧾</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={moreStyles.cardText}>Siparişlerim</Text>
-              <Text style={moreStyles.cardDesc}>Geçmiş siparişleriniz</Text>
-            </View>
-          </TouchableOpacity>
-          {/* Diğer sayfalar: Sadakat Programı, İletişim, Ödüller, vs. buraya eklenebilir */}
-        </View>
+        {!isAuthenticated && !isLoading && (
+          <>
+            <TouchableOpacity style={moreStyles.card} onPress={() => navigation.navigate('Login')}>
+              <Text style={moreStyles.cardIcon}>🔑</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={moreStyles.cardText}>Giriş Yap</Text>
+                <Text style={moreStyles.cardDesc}>Hesabınıza giriş yapın</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity style={moreStyles.card} onPress={() => navigation.navigate('Register')}>
+              <Text style={moreStyles.cardIcon}>📝</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={moreStyles.cardText}>Kayıt Ol</Text>
+                <Text style={moreStyles.cardDesc}>Yeni hesap oluşturun</Text>
+              </View>
+            </TouchableOpacity>
+          </>
+        )}
+        {isAuthenticated && !isLoading && (
+          <>
+            <TouchableOpacity style={moreStyles.card} onPress={() => navigation.navigate('Profile')}>
+              <Text style={moreStyles.cardIcon}>👤</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={moreStyles.cardText}>Profilim</Text>
+                <Text style={moreStyles.cardDesc}>Hesap bilgilerinizi görüntüleyin</Text>
+              </View>
+            </TouchableOpacity>
+            {isEmployee() && (
+              <TouchableOpacity style={moreStyles.card} onPress={() => navigation.navigate('EmployeeDashboard')}>
+                <Text style={moreStyles.cardIcon}>👩‍💻</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={moreStyles.cardText}>Çalışan Paneli</Text>
+                  <Text style={moreStyles.cardDesc}>Sipariş ve stok yönetimi</Text>
+                </View>
+              </TouchableOpacity>
+            )}
+            {isAdmin() && (
+              <TouchableOpacity style={moreStyles.card} onPress={() => navigation.navigate('AdminDashboard')}>
+                <Text style={moreStyles.cardIcon}>👨‍💼</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={moreStyles.cardText}>Admin Paneli</Text>
+                  <Text style={moreStyles.cardDesc}>Yönetici işlemleri</Text>
+                </View>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity style={moreStyles.card} onPress={async () => { await logout(); navigation.replace('MainTabs'); }}>
+              <Text style={moreStyles.cardIcon}>🚪</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={moreStyles.cardText}>Çıkış Yap</Text>
+                <Text style={moreStyles.cardDesc}>Hesabınızdan çıkış yapın</Text>
+              </View>
+            </TouchableOpacity>
+          </>
+        )}
       </View>
-      <View style={moreStyles.section}>
-        <Text style={moreStyles.sectionTitle}>İletişim</Text>
-        <View style={moreStyles.contactRow}>
-          <Text style={moreStyles.contactIcon}>📍</Text>
-          <Text style={moreStyles.contactText}>Bağdat Caddesi No:123, Kadıköy, İstanbul</Text>
-        </View>
-        <View style={moreStyles.contactRow}>
-          <Text style={moreStyles.contactIcon}>📞</Text>
-          <Text style={moreStyles.contactText}>0216 123 45 67</Text>
-        </View>
-        <View style={moreStyles.contactRow}>
-          <Text style={moreStyles.contactIcon}>✉️</Text>
-          <Text style={[moreStyles.contactText, { textDecorationLine: 'underline' }]} onPress={() => Linking.openURL('mailto:info@aicafe.com')}>info@aicafe.com</Text>
-        </View>
-        <View style={moreStyles.socialRow}>
-          <TouchableOpacity onPress={() => Linking.openURL('https://facebook.com/aicafe')} style={moreStyles.socialIcon}><Text style={{ fontSize: 22 }}>📘</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => Linking.openURL('https://instagram.com/aicafe')} style={moreStyles.socialIcon}><Text style={{ fontSize: 22 }}>📸</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => Linking.openURL('https://twitter.com/aicafe')} style={moreStyles.socialIcon}><Text style={{ fontSize: 22 }}>🐦</Text></TouchableOpacity>
-        </View>
-      </View>
-      {isAuthenticated && !isLoading && (
-        <TouchableOpacity
-          style={moreStyles.logoutButton}
-          onPress={async () => {
-            await logout();
-            navigation.replace('MainTabs');
-          }}
-        >
-          <Text style={moreStyles.logoutButtonText}>Çıkış Yap</Text>
-        </TouchableOpacity>
-      )}
       <Text style={moreStyles.footer}>© 2024 AI Cafe. Tüm hakları saklıdır.</Text>
     </ScrollView>
   );
@@ -280,8 +290,6 @@ const moreStyles = StyleSheet.create({
 
 // Tab Navigator Component
 const MainTabs = () => {
-  const { isAdmin, isEmployee } = useRole();
-  
   return (
     <Tab.Navigator
       screenOptions={{
@@ -299,13 +307,11 @@ const MainTabs = () => {
       }}
     >
       <Tab.Screen 
-        name="Dashboard" 
-        component={SmartDashboard}
+        name="Home" 
+        component={HomeScreen}
         options={{
-          tabBarLabel: isAdmin() ? 'Admin Panel' : isEmployee() ? 'Çalışan Panel' : 'Ana Sayfa',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24, color }}>
-            {isAdmin() ? '👨‍💼' : isEmployee() ? '👩‍💻' : '🏠'}
-          </Text>,
+          tabBarLabel: 'Ana Sayfa',
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24, color }}>🏠</Text>,
         }}
       />
       <Tab.Screen 
@@ -317,11 +323,11 @@ const MainTabs = () => {
         }}
       />
       <Tab.Screen 
-        name="Favorites" 
-        component={FavoritesScreen}
+        name="LoyaltyProgram" 
+        component={LoyaltyProgramScreen}
         options={{
-          tabBarLabel: 'Favoriler',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24, color }}>❤️</Text>,
+          tabBarLabel: 'Sadakat',
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24, color }}>💎</Text>,
         }}
       />
       <Tab.Screen 
@@ -332,26 +338,6 @@ const MainTabs = () => {
           tabBarIcon: ({ color }) => <Text style={{ fontSize: 24, color }}>⚙️</Text>,
         }}
       />
-      {isAdmin() && (
-        <Tab.Screen
-          name="AdminDashboard"
-          component={AdminDashboardScreen}
-          options={{
-            tabBarLabel: 'Admin Panel',
-            tabBarIcon: ({ color }) => <Text style={{ fontSize: 24, color }}>👨‍💼</Text>,
-          }}
-        />
-      )}
-      {isEmployee() && (
-        <Tab.Screen
-          name="EmployeeDashboard"
-          component={EmployeeDashboardScreen}
-          options={{
-            tabBarLabel: 'Çalışan Panel',
-            tabBarIcon: ({ color }) => <Text style={{ fontSize: 24, color }}>👩‍💻</Text>,
-          }}
-        />
-      )}
     </Tab.Navigator>
   );
 };
@@ -421,6 +407,8 @@ const AppNavigator = () => {
         <Stack.Screen name="PaymentProcessing" component={PlaceholderScreen} />
         <Stack.Screen name="CustomerService" component={PlaceholderScreen} />
         <Stack.Screen name="About" component={AboutScreen} />
+        <Stack.Screen name="LoyaltyProgram" component={LoyaltyProgramScreen} />
+        <Stack.Screen name="Contact" component={ContactScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

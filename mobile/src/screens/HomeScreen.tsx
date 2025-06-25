@@ -176,10 +176,10 @@ export default function HomeScreen({ navigation: propNavigation }: any) {
             Her siparişinizde puan kazanın, kişiselleştirilmiş öneriler alın ve özel avantajlardan yararlanın.
           </Text>
           <View style={styles.heroButtons}>
-            <TouchableOpacity style={styles.primaryButton} onPress={() => Linking.openURL('https://cafepoweredbyai.com/kayit')}>
+            <TouchableOpacity style={styles.primaryButton} onPress={() => navigation.navigate('Register')}>
               <Text style={styles.primaryButtonText}>Hemen Üye Ol</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.secondaryButton} onPress={() => Linking.openURL('https://cafepoweredbyai.com/sadakat-programi')}>
+            <TouchableOpacity style={styles.secondaryButton} onPress={() => navigation.navigate('LoyaltyProgram')}>
               <Text style={styles.secondaryButtonText}>Daha Fazla Bilgi</Text>
             </TouchableOpacity>
           </View>
@@ -198,6 +198,20 @@ export default function HomeScreen({ navigation: propNavigation }: any) {
         </ScrollView>
       </View>
 
+      {/* About & Contact Section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionHeader}>Hakkımızda</Text>
+        <Text style={styles.aboutText}>AI Cafe, yapay zeka destekli kahve deneyimiyle kişiselleştirilmiş öneriler ve ödüller sunar. Misyonumuz, kahve keyfini teknolojiyle birleştirerek her müşteriye özel bir deneyim yaşatmaktır.</Text>
+        <TouchableOpacity style={styles.infoButton} onPress={() => navigation.navigate('About')}>
+          <Text style={styles.infoButtonText}>Hakkımızda Sayfasına Git</Text>
+        </TouchableOpacity>
+        <Text style={styles.sectionHeader}>İletişim</Text>
+        <Text style={styles.contactText}>Adres: Bağdat Caddesi No:123, Kadıköy, İstanbul{"\n"}Telefon: 0216 123 45 67{"\n"}E-posta: info@aicafe.com</Text>
+        <TouchableOpacity style={styles.infoButton} onPress={() => navigation.navigate('Contact')}>
+          <Text style={styles.infoButtonText}>İletişim Sayfasına Git</Text>
+        </TouchableOpacity>
+      </View>
+
       {/* Final CTA */}
       <View style={styles.finalCTASection}>
         <Text style={styles.finalCTATitle}>Geleceğin Kahve Deneyimini Bugün Yaşayın</Text>
@@ -205,7 +219,7 @@ export default function HomeScreen({ navigation: propNavigation }: any) {
           AI destekli teknoloji, premium kahve kalitesi ve kişiselleştirilmiş hizmet. Size özel kahve yolculuğunuza hemen başlayın.
         </Text>
         <View style={{ width: '100%', alignItems: 'center' }}>
-          <TouchableOpacity style={styles.finalCTAButton} onPress={() => Linking.openURL('https://cafepoweredbyai.com/menu')}>
+          <TouchableOpacity style={styles.finalCTAButton} onPress={() => navigation.navigate('Register')}>
             <Text style={styles.finalCTAButtonText}>Kahve Keşfine Başla</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.secondaryButton} onPress={() => Linking.openURL('https://cafepoweredbyai.com/kayit')}>
@@ -295,4 +309,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     letterSpacing: 0.2,
   },
+  aboutText: { color: '#374151', fontSize: 15, marginBottom: 18, textAlign: 'center' },
+  contactText: { color: '#64748b', fontSize: 15, marginBottom: 18, textAlign: 'center' },
+  infoButton: { backgroundColor: '#f97316', borderRadius: 22, paddingVertical: 12, paddingHorizontal: 28, alignItems: 'center', marginBottom: 14, marginTop: 2 },
+  infoButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 15 },
 }); 
