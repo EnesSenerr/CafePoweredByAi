@@ -112,7 +112,7 @@ const PlaceholderScreen = () => <NotificationsScreen navigation={{} as any} rout
 
 // More Screen Component
 const MoreScreen = ({ navigation }: any) => {
-  const { logout } = useAuth();
+  const { logout, isAuthenticated, isLoading } = useAuth();
   return (
     <ScrollView style={moreStyles.container} contentContainerStyle={moreStyles.content}>
       <Text style={moreStyles.header}>Daha Fazla</Text>
@@ -156,15 +156,17 @@ const MoreScreen = ({ navigation }: any) => {
           <TouchableOpacity onPress={() => Linking.openURL('https://twitter.com/aicafe')} style={moreStyles.socialIcon}><Text style={{ fontSize: 22 }}>🐦</Text></TouchableOpacity>
         </View>
       </View>
-      <TouchableOpacity
-        style={moreStyles.logoutButton}
-        onPress={async () => {
-          await logout();
-          navigation.replace('Login');
-        }}
-      >
-        <Text style={moreStyles.logoutButtonText}>Çıkış Yap</Text>
-      </TouchableOpacity>
+      {isAuthenticated && !isLoading && (
+        <TouchableOpacity
+          style={moreStyles.logoutButton}
+          onPress={async () => {
+            await logout();
+            navigation.replace('MainTabs');
+          }}
+        >
+          <Text style={moreStyles.logoutButtonText}>Çıkış Yap</Text>
+        </TouchableOpacity>
+      )}
       <Text style={moreStyles.footer}>© 2024 AI Cafe. Tüm hakları saklıdır.</Text>
     </ScrollView>
   );

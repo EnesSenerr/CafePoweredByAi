@@ -108,7 +108,7 @@ export default function HomeScreen({ navigation: propNavigation }: any) {
         <Text style={styles.sectionHeader}>Özellikler</Text>
         <View style={styles.featuresRow}>
           {features.map((feature, idx) => (
-            <View key={idx} style={[styles.featureCard, { backgroundColor: '#fff' }]}> 
+            <View key={idx} style={styles.featureCard}> 
               <Text style={styles.featureEmoji}>{feature.emoji}</Text>
               <Text style={styles.featureTitle}>{feature.title}</Text>
               <Text style={styles.featureDesc}>{feature.description}</Text>
@@ -138,7 +138,7 @@ export default function HomeScreen({ navigation: propNavigation }: any) {
             </View>
           ))}
         </View>
-        <TouchableOpacity style={styles.primaryButton} onPress={() => Linking.openURL('https://cafepoweredbyai.com/menu')}>
+        <TouchableOpacity style={styles.primaryButton} onPress={() => navigation.navigate('Menu')}>
           <Text style={styles.primaryButtonText}>Tüm Menüyü Gör</Text>
         </TouchableOpacity>
       </View>
@@ -204,9 +204,9 @@ export default function HomeScreen({ navigation: propNavigation }: any) {
         <Text style={styles.finalCTADesc}>
           AI destekli teknoloji, premium kahve kalitesi ve kişiselleştirilmiş hizmet. Size özel kahve yolculuğunuza hemen başlayın.
         </Text>
-        <View style={styles.heroButtons}>
-          <TouchableOpacity style={styles.primaryButton} onPress={() => Linking.openURL('https://cafepoweredbyai.com/menu')}>
-            <Text style={styles.primaryButtonText}>Kahve Keşfine Başla</Text>
+        <View style={{ width: '100%', alignItems: 'center' }}>
+          <TouchableOpacity style={styles.finalCTAButton} onPress={() => Linking.openURL('https://cafepoweredbyai.com/menu')}>
+            <Text style={styles.finalCTAButtonText}>Kahve Keşfine Başla</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.secondaryButton} onPress={() => Linking.openURL('https://cafepoweredbyai.com/kayit')}>
             <Text style={styles.secondaryButtonText}>Ücretsiz Üye Ol</Text>
@@ -232,11 +232,20 @@ const styles = StyleSheet.create({
   secondaryButtonText: { color: '#f97316', fontWeight: 'bold', fontSize: 16 },
   section: { paddingVertical: 32, paddingHorizontal: 16 },
   sectionHeader: { fontSize: 24, fontWeight: 'bold', color: '#ea580c', marginBottom: 18, textAlign: 'center' },
-  featuresRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
-  featureCard: { flex: 1, alignItems: 'center', padding: 16, borderRadius: 18, marginHorizontal: 4, elevation: 2 },
+  featuresRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
+  featureCard: { 
+    width: (width - 48) / 3, // 16px sağ/sol padding + 2x8px gap
+    alignItems: 'center', 
+    padding: 12, 
+    borderRadius: 18, 
+    marginHorizontal: 0, 
+    elevation: 2, 
+    backgroundColor: '#fff',
+    minHeight: 150
+  },
   featureEmoji: { fontSize: 32, marginBottom: 8 },
   featureTitle: { fontWeight: 'bold', fontSize: 16, marginBottom: 4, color: '#1e293b', textAlign: 'center' },
-  featureDesc: { color: '#64748b', fontSize: 13, textAlign: 'center' },
+  featureDesc: { color: '#64748b', fontSize: 12, textAlign: 'center', lineHeight: 17 },
   statsSection: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 16, marginBottom: 12 },
   statCard: { flex: 1, alignItems: 'center', padding: 16, backgroundColor: '#f3f4f6', borderRadius: 18, marginHorizontal: 4 },
   statValue: { fontSize: 22, fontWeight: 'bold', color: '#ea580c' },
@@ -266,4 +275,24 @@ const styles = StyleSheet.create({
   finalCTASection: { padding: 32, alignItems: 'center', backgroundColor: '#f97316', borderRadius: 24, margin: 16 },
   finalCTATitle: { fontSize: 22, fontWeight: 'bold', color: '#fff', marginBottom: 8, textAlign: 'center' },
   finalCTADesc: { color: '#fff7ed', fontSize: 15, textAlign: 'center', marginBottom: 14 },
+  finalCTAButton: {
+    backgroundColor: '#fff',
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 28,
+    marginBottom: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 4,
+    minWidth: 220,
+    alignItems: 'center',
+  },
+  finalCTAButtonText: {
+    color: '#f97316',
+    fontWeight: 'bold',
+    fontSize: 18,
+    letterSpacing: 0.2,
+  },
 }); 
