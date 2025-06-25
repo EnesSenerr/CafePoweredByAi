@@ -257,7 +257,11 @@ const DashboardScreen = ({ navigation }: Props) => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Ödül Kataloğu</Text>
-          <RewardsList rewards={rewards} onRedeem={handleRedeemReward} />
+                      <RewardsList 
+              rewards={rewards} 
+              onRedeem={handleRedeemReward}
+              onRewardPress={(rewardId) => navigation.navigate('RewardsDetail', { rewardId })}
+            />
         </View>
       </ScrollView>
     </SafeAreaView>

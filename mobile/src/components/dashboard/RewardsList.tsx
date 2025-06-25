@@ -11,11 +11,15 @@ interface Reward {
 interface RewardsListProps {
   rewards: Reward[];
   onRedeem: (rewardId: number) => void;
+  onRewardPress?: (rewardId: string) => void;
 }
 
-const RewardsList: React.FC<RewardsListProps> = ({ rewards, onRedeem }) => {
+const RewardsList: React.FC<RewardsListProps> = ({ rewards, onRedeem, onRewardPress }) => {
   const renderItem = ({ item }: { item: Reward }) => (
-    <View style={styles.rewardItem}>
+    <TouchableOpacity 
+      style={styles.rewardItem}
+      onPress={() => onRewardPress?.(item.id.toString())}
+    >
       <View style={styles.rewardInfo}>
         <Text style={styles.rewardName}>{item.name}</Text>
         <Text style={styles.rewardDescription}>{item.description}</Text>
@@ -24,12 +28,15 @@ const RewardsList: React.FC<RewardsListProps> = ({ rewards, onRedeem }) => {
         <Text style={styles.pointsRequired}>{item.points} puan</Text>
         <TouchableOpacity 
           style={styles.redeemButton}
-          onPress={() => onRedeem(item.id)}
+          onPress={(e) => {
+            e.stopPropagation();
+            onRedeem(item.id);
+          }}
         >
           <Text style={styles.redeemButtonText}>Kullan</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (

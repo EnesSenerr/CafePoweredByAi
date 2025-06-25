@@ -15,6 +15,9 @@ import CartScreen from '../screens/CartScreen';
 import OrderHistoryScreen from '../screens/OrderHistoryScreen';
 import OrderDetailScreen from '../screens/OrderDetailScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import RewardsDetailScreen from '../screens/RewardsDetailScreen';
+import NotificationsScreen from '../screens/NotificationsScreen';
+import TransactionDetailScreen from '../screens/TransactionDetailScreen';
 import AuthGuard from './AuthGuard';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -30,6 +33,9 @@ export type RootStackParamList = {
   OrderDetail: { orderId: string };
   Profile: undefined;
   Settings: undefined;
+  RewardsDetail: { rewardId: string };
+  Notifications: undefined;
+  TransactionDetail: { transactionId: string };
 };
 
 export type TabParamList = {
@@ -121,6 +127,9 @@ const AppNavigator = () => {
         <Stack.Screen name="OrderHistory" component={OrderHistoryScreen} />
         <Stack.Screen name="OrderDetail" component={OrderDetailScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
+        <Stack.Screen name="RewardsDetail" component={RewardsDetailScreen} />
+        <Stack.Screen name="Notifications" component={NotificationsScreen} />
+        <Stack.Screen name="TransactionDetail" component={TransactionDetailScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
