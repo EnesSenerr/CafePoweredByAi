@@ -7,11 +7,20 @@ import { CartProvider } from './src/contexts/CartContext';
 import { FavoritesProvider } from './src/contexts/FavoritesContext';
 import { BackgroundCacheManager } from './src/utils/cacheInvalidation';
 import { MemoryManager } from './src/utils/performance';
+import { requestAndroidPermissions } from './src/components/PlatformSpecific';
 
 export default function App() {
   useEffect(() => {
-    // Start background cache management
-    BackgroundCacheManager.start();
+    // Initialize platform-specific features
+    const initializePlatform = async () => {
+      // Request Android permissions if needed
+      await requestAndroidPermissions();
+      
+      // Start background cache management
+      BackgroundCacheManager.start();
+    };
+
+    initializePlatform();
 
     // App state change handler
     const handleAppStateChange = (nextAppState: string) => {

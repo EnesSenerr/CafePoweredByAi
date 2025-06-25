@@ -11,35 +11,37 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useCart, CartItem } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
+import { createOrder } from '../services/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Cart'>;
 
 const CartScreen = ({ navigation }: Props) => {
+  const parentNavigation = useNavigation<any>();
   const { state, updateQuantity, removeItem, clearCart } = useCart();
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
 
   const handleQuantityChange = (id: string, change: number) => {
-    const currentItem = state.items.find(item => item.id === id);
-    if (currentItem) {
-      const newQuantity = currentItem.quantity + change;
-      if (newQuantity > 0) {
-        updateQuantity(id, newQuantity);
-      }
+    const item = state.items.find(item => item.id === id);
+    if (item) {
+      const newQuantity = Math.max(1, Math.min(10, item.quantity + change));
+      updateQuantity(id, newQuantity);
     }
   };
 
   const handleRemoveItem = (id: string, name: string) => {
     Alert.alert(
-      'Ürünü Kaldır',
-      `${name} ürününü sepetten kaldırmak istediğinizden emin misiniz?`,
+      'Ürünü Çıkar',
+      `${name} ürününü sepetten çıkarmak istediğinizden emin misiniz?`,
       [
         { text: 'İptal', style: 'cancel' },
         {
-          text: 'Kaldır',
+          text: 'Çıkar',
           style: 'destructive',
           onPress: () => removeItem(id),
         },
@@ -50,7 +52,7 @@ const CartScreen = ({ navigation }: Props) => {
   const handleClearCart = () => {
     Alert.alert(
       'Sepeti Temizle',
-      'Sepetteki tüm ürünleri kaldırmak istediğinizden emin misiniz?',
+      'Sepetteki tüm ürünleri çıkarmak istediğinizden emin misiniz?',
       [
         { text: 'İptal', style: 'cancel' },
         {
@@ -63,32 +65,34 @@ const CartScreen = ({ navigation }: Props) => {
   };
 
   const handleCheckout = async () => {
-    if (!user || !token) {
-      Alert.alert('Giriş Gerekli', 'Sipariş vermek için lütfen giriş yapın', [
-        { text: 'Tamam', onPress: () => navigation.navigate('Login') },
-      ]);
-      return;
-    }
-
-    if (state.items.length === 0) {
-      Alert.alert('Boş Sepet', 'Sepetinizde ürün bulunmuyor');
-      return;
-    }
-
-    setLoading(true);
     try {
-      // TODO: API call to create order
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulated API call
+      setLoading(true);
+      
+      // Token'i AsyncStorage'dan al
+      const token = await AsyncStorage.getItem('authToken');
+      if (!token) {
+        Alert.alert('Hata', 'Oturum bilgisi bulunamadı');
+        return;
+      }
+      
+      const orderData = {
+        items: state.items.map(item => ({
+          menuItemId: item.id,
+          quantity: item.quantity,
+        })),
+      };
+
+      await createOrder(token, orderData);
       
       Alert.alert(
-        'Sipariş Başarılı',
+        'Sipariş Başarılı!',
         `Siparişiniz başarıyla alındı! Toplam: ${state.total.toFixed(2)} ₺`,
         [
           {
             text: 'Tamam',
             onPress: () => {
               clearCart();
-              navigation.navigate('Dashboard');
+              parentNavigation.navigate('Dashboard');
             },
           },
         ]
@@ -184,7 +188,7 @@ const CartScreen = ({ navigation }: Props) => {
           </Text>
           <TouchableOpacity
             style={styles.browseMenuButton}
-            onPress={() => navigation.navigate('Menu')}
+            onPress={() => parentNavigation.navigate('Menu')}
           >
             <Text style={styles.browseMenuText}>🍽️ Menüyü Görüntüle</Text>
           </TouchableOpacity>

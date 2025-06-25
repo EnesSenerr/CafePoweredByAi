@@ -1,29 +1,97 @@
 {
   "expo": {
-    "name": "AI Cafe",
-    "slug": "cafe-mobile",
+    "name": "CafePoweredByAI",
+    "slug": "cafe-powered-by-ai",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#f97316"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.cafepoweredbyai.mobile",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Bu uygulama profil fotoğrafı çekmek için kameraya erişim gerektirir.",
+        "NSPhotoLibraryUsageDescription": "Bu uygulama profil fotoğrafı seçmek için fotoğraf kütüphanesine erişim gerektirir.",
+        "NSUserNotificationsUsageDescription": "Bu uygulama sipariş güncellemeleri ve promosyonlar için bildirim gönderir."
+      },
+      "associatedDomains": [
+        "applinks:cafepoweredbyai.com"
+      ]
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#f97316"
       },
-      "edgeToEdgeEnabled": true
+      "package": "com.cafepoweredbyai.mobile",
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.VIBRATE",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.WAKE_LOCK"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "cafepoweredbyai.com"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
     },
     "web": {
-      "favicon": "./assets/favicon.png"
-    }
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#f97316",
+          "sounds": ["./assets/notification.wav"],
+          "defaultChannel": "default"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Bu uygulama profil fotoğrafı seçmek için fotoğraf kütüphanesine erişim gerektirir.",
+          "cameraPermission": "Bu uygulama profil fotoğrafı çekmek için kameraya erişim gerektirir."
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "cafe-powered-by-ai-mobile"
+      }
+    },
+    "owner": "your-expo-username",
+    "scheme": "cafepoweredbyai",
+    "privacy": "public",
+    "platforms": ["ios", "android", "web"],
+    "githubUrl": "https://github.com/yourusername/CafePoweredByAi2"
   }
 }

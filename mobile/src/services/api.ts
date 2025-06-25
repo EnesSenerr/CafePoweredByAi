@@ -41,11 +41,11 @@ async function handleResponse(response: Response) {
 }
 
 // Auth APIs
-export async function loginUser(email: string, password: string) {
+export async function loginUser(email: string, password: string, rememberMe: boolean = false) {
   const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
     method: 'POST',
     headers: getAuthHeaders(),
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password, rememberMe }),
   });
   return handleResponse(res);
 }

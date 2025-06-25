@@ -79,7 +79,7 @@ const FavoritesScreen = ({ navigation }: Props) => {
           text: 'Çıkar',
           style: 'destructive',
           onPress: () => {
-            setFavorites(prev => prev.filter(item => item.id !== itemId));
+            setFavoriteItems((prev: FavoriteItem[]) => prev.filter((item: FavoriteItem) => item.id !== itemId));
             Alert.alert('Başarılı', 'Ürün favorilerden çıkarıldı');
           },
         },
@@ -156,13 +156,13 @@ const FavoritesScreen = ({ navigation }: Props) => {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Favorilerim</Text>
         <Text style={styles.headerSubtitle}>
-          {favorites.length} favori ürün
+          {favoriteItems.length} favori ürün
         </Text>
       </View>
 
       {/* Favorites List */}
       <FlatList
-        data={favorites}
+        data={favoriteItems}
         renderItem={renderFavoriteItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.favoritesList}

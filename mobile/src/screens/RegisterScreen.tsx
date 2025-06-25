@@ -1,9 +1,23 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { 
+  View, 
+  Text, 
+  TextInput, 
+  TouchableOpacity, 
+  StyleSheet, 
+  Alert, 
+  ActivityIndicator,
+  SafeAreaView,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { registerUser } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { colors } from '../styles/colors';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
@@ -14,6 +28,8 @@ const RegisterScreen = ({ navigation }: Props) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { login } = useAuth();
 
   const handleRegister = async () => {
@@ -60,86 +76,303 @@ const RegisterScreen = ({ navigation }: Props) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Kayıt Ol</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Ad Soyad *"
-        value={name}
-        onChangeText={setName}
-        autoCapitalize="words"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="E-posta *"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Telefon"
-        value={phone}
-        onChangeText={setPhone}
-        keyboardType="phone-pad"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Şifre *"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Şifre Tekrar *"
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        secureTextEntry
-      />
-      {loading ? (
-        <ActivityIndicator size="large" color="#2563eb" style={{ marginVertical: 16 }} />
-      ) : (
-        <Button title="Kayıt Ol" onPress={handleRegister} />
-      )}
-      <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.linkContainer}>
-        <Text style={styles.link}>Zaten hesabın var mı? Giriş Yap</Text>
-      </TouchableOpacity>
-    </View>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.gradient}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.keyboardAvoid}
+        >
+          <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+            {/* Header Section */}
+            <View style={styles.header}>
+              {/* Coffee Cup Icon */}
+              <View style={styles.iconContainer}>
+                <Ionicons name="cafe" size={48} color={colors.cream[50]} />
+              </View>
+              
+              <Text style={styles.title}>AI Cafe'ye Katılın</Text>
+              <Text style={styles.subtitle}>
+                Hesap oluşturun ve kahve sadakat programımızın ayrıcalıklarından faydalanın
+              </Text>
+            </View>
+
+            {/* Form Card */}
+            <View style={styles.formCard}>
+              {/* Name Input */}
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputLabel}>Ad Soyad *</Text>
+                <View style={styles.inputWrapper}>
+                  <Ionicons name="person-outline" size={20} color={colors.coffee[400]} style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Ad Soyad"
+                    placeholderTextColor={colors.coffee[300]}
+                    value={name}
+                    onChangeText={setName}
+                    autoCapitalize="words"
+                    autoComplete="name"
+                  />
+                </View>
+              </View>
+
+              {/* Email Input */}
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputLabel}>Email Adresi *</Text>
+                <View style={styles.inputWrapper}>
+                  <Ionicons name="mail-outline" size={20} color={colors.coffee[400]} style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="kahve@seviyorum.com"
+                    placeholderTextColor={colors.coffee[300]}
+                    value={email}
+                    onChangeText={setEmail}
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                    autoComplete="email"
+                  />
+                </View>
+              </View>
+
+              {/* Phone Input */}
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputLabel}>Telefon</Text>
+                <View style={styles.inputWrapper}>
+                  <Ionicons name="call-outline" size={20} color={colors.coffee[400]} style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="0555 123 45 67"
+                    placeholderTextColor={colors.coffee[300]}
+                    value={phone}
+                    onChangeText={setPhone}
+                    keyboardType="phone-pad"
+                    autoComplete="tel"
+                  />
+                </View>
+              </View>
+
+              {/* Password Input */}
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputLabel}>Şifre *</Text>
+                <View style={styles.inputWrapper}>
+                  <Ionicons name="lock-closed-outline" size={20} color={colors.coffee[400]} style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="••••••••"
+                    placeholderTextColor={colors.coffee[300]}
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry={!showPassword}
+                    autoComplete="new-password"
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowPassword(!showPassword)}
+                    style={styles.eyeIcon}
+                  >
+                    <Ionicons 
+                      name={showPassword ? "eye-off-outline" : "eye-outline"} 
+                      size={20} 
+                      color={colors.coffee[400]} 
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Confirm Password Input */}
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputLabel}>Şifre Tekrar *</Text>
+                <View style={styles.inputWrapper}>
+                  <Ionicons name="lock-closed-outline" size={20} color={colors.coffee[400]} style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="••••••••"
+                    placeholderTextColor={colors.coffee[300]}
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                    secureTextEntry={!showConfirmPassword}
+                    autoComplete="new-password"
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                    style={styles.eyeIcon}
+                  >
+                    <Ionicons 
+                      name={showConfirmPassword ? "eye-off-outline" : "eye-outline"} 
+                      size={20} 
+                      color={colors.coffee[400]} 
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Register Button */}
+              <TouchableOpacity
+                style={[styles.registerButton, loading && styles.registerButtonDisabled]}
+                onPress={handleRegister}
+                disabled={loading}
+              >
+                <View style={styles.registerButtonContent}>
+                  {loading ? (
+                    <View style={styles.loadingContainer}>
+                      <ActivityIndicator size="small" color={colors.cream[50]} style={styles.loadingSpinner} />
+                      <Text style={styles.registerButtonText}>Hesap oluşturuluyor...</Text>
+                    </View>
+                  ) : (
+                    <Text style={styles.registerButtonText}>Kayıt Ol</Text>
+                  )}
+                </View>
+              </TouchableOpacity>
+
+              {/* Login Link */}
+              <View style={styles.loginContainer}>
+                <Text style={styles.loginText}>Zaten hesabın var mı? </Text>
+                <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                  <Text style={styles.loginLink}>Giriş Yap</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  gradient: {
+    flex: 1,
+    backgroundColor: colors.coffee[100],
+  },
+  keyboardAvoid: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: 'center',
-    padding: 24,
-    backgroundColor: '#fff',
+    paddingHorizontal: 24,
+    paddingVertical: 40,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  iconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.coffee[700],
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+    shadowColor: colors.coffee[900],
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 24,
+    color: colors.text.primary,
     textAlign: 'center',
-    color: '#1a1a1a', // Koyu renk ile okunabilirlik artırıldı
+    marginBottom: 8,
+    fontFamily: Platform.OS === 'ios' ? 'System' : 'sans-serif',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: colors.text.secondary,
+    textAlign: 'center',
+    lineHeight: 22,
+    paddingHorizontal: 20,
+  },
+  formCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: colors.coffee[900],
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 10,
+  },
+  inputContainer: {
+    marginBottom: 16,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text.primary,
+    marginBottom: 8,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.coffee[300],
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    paddingHorizontal: 16,
+    height: 52,
+  },
+  inputIcon: {
+    marginRight: 12,
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#d1d5db', // Daha belirgin border rengi
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
+    flex: 1,
     fontSize: 16,
-    color: '#1a1a1a', // Koyu text rengi
-    backgroundColor: '#ffffff',
+    color: colors.text.primary,
+    paddingVertical: 0,
   },
-  linkContainer: {
-    marginTop: 16,
+  eyeIcon: {
+    padding: 4,
+  },
+  registerButton: {
+    borderRadius: 12,
+    overflow: 'hidden',
+    marginTop: 8,
+    marginBottom: 20,
+    shadowColor: colors.coffee[900],
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 6,
+    backgroundColor: colors.coffee[600],
+  },
+  registerButtonDisabled: {
+    opacity: 0.7,
+    backgroundColor: colors.coffee[400],
+  },
+  registerButtonContent: {
+    paddingVertical: 16,
+    paddingHorizontal: 24,
     alignItems: 'center',
   },
-  link: {
-    color: '#2563eb',
+  registerButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.cream[50],
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  loadingSpinner: {
+    marginRight: 12,
+  },
+  loginContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loginText: {
+    fontSize: 14,
+    color: colors.text.secondary,
+  },
+  loginLink: {
+    fontSize: 14,
+    color: colors.coffee[600],
     fontWeight: 'bold',
   },
 });

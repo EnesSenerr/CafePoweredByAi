@@ -12,7 +12,15 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001'],
+  origin: [
+    'http://localhost:3000', 
+    'http://localhost:3001', 
+    'http://127.0.0.1:3000', 
+    'http://127.0.0.1:3001',
+    'http://192.168.1.102:3000',
+    'http://192.168.1.102:3001',
+    'http://192.168.1.102:5000'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -64,14 +72,14 @@ const PORT = process.env.PORT || 5000;
 
 // Veritabanı bağlantısı
 mongoose
-  .connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/cafe-loyalty-system')
+  .connect(process.env.MONGODB_URI || 'mongodb+srv://admin:admin123@cluster0.mongodb.net/cafe-loyalty-system?retryWrites=true&w=majority&appName=Cluster0')
   .then(() => {
     console.log('MongoDB bağlantısı başarılı');
     // Uygulamayı başlat
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`Sunucu ${PORT} numaralı portta çalışıyor`);
       console.log(`Local: http://localhost:${PORT}`);
-      console.log(`Network: http://10.196.3.101:${PORT}`);
+      console.log(`Network: http://192.168.1.102:${PORT}`);
     });
   })
   .catch((err) => {

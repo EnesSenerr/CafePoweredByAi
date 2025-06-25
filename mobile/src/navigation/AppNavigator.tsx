@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -23,6 +23,7 @@ import EmployeeDashboardScreen from '../screens/EmployeeDashboardScreen';
 import AuthGuard from './AuthGuard';
 import { useAuth } from '../contexts/AuthContext';
 import { useRole } from '../hooks/useRole';
+import { AndroidBackHandler } from '../components/PlatformSpecific';
 
 // Navigation stack tiplerini tanımla
 export type RootStackParamList = {
@@ -30,6 +31,10 @@ export type RootStackParamList = {
   Register: undefined;
   ForgotPassword: undefined;
   MainTabs: undefined;
+  Dashboard: undefined;
+  Menu: undefined;
+  Favorites: undefined;
+  More: undefined;
   AdminDashboard: undefined;
   EmployeeDashboard: undefined;
   MenuDetail: { itemId: string };
@@ -70,16 +75,16 @@ const SmartDashboard = () => {
   } else if (isEmployee()) {
     return <EmployeeDashboardScreen />;
   } else {
-    return <DashboardScreen />;
+    return <DashboardScreen navigation={{} as any} route={{} as any} />;
   }
 };
 
 // Placeholder component for future screens
-const PlaceholderScreen = () => <NotificationsScreen />;
+const PlaceholderScreen = () => <NotificationsScreen navigation={{} as any} route={{} as any} />;
 
 // More Screen Component
 const MoreScreen = () => {
-  return <ProfileScreen />;
+  return <ProfileScreen navigation={{} as any} route={{} as any} />;
 };
 
 // Tab Navigator Component
@@ -145,6 +150,7 @@ const AppNavigator = () => {
 
   return (
     <NavigationContainer>
+      <AndroidBackHandler />
       <Stack.Navigator 
         initialRouteName={isAuthenticated ? "MainTabs" : "Login"}
         screenOptions={{ headerShown: false }}
@@ -156,6 +162,9 @@ const AppNavigator = () => {
         
         {/* Protected Screens - Auth gerekli */}
         <Stack.Screen name="MainTabs" component={MainTabs} />
+        <Stack.Screen name="Dashboard" component={DashboardScreen} />
+        <Stack.Screen name="Menu" component={MenuScreen} />
+        <Stack.Screen name="Favorites" component={FavoritesScreen} />
         <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />
         <Stack.Screen name="EmployeeDashboard" component={EmployeeDashboardScreen} />
         <Stack.Screen name="Profile" component={ProfileScreen} />

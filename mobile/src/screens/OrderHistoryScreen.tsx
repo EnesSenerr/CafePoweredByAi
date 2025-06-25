@@ -11,6 +11,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useAuth } from '../contexts/AuthContext';
 import { getOrders } from '../services/api';
@@ -35,6 +36,7 @@ interface Order {
 }
 
 const OrderHistoryScreen = ({ navigation }: Props) => {
+  const parentNavigation = useNavigation<any>();
   const { token } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -96,7 +98,7 @@ const OrderHistoryScreen = ({ navigation }: Props) => {
   };
 
   const handleOrderPress = (order: Order) => {
-    navigation.navigate('OrderDetail', { orderId: order.id });
+    parentNavigation.navigate('OrderDetail', { orderId: order.id });
   };
 
   const renderOrderItem = ({ item: order }: { item: Order }) => (
@@ -181,7 +183,7 @@ const OrderHistoryScreen = ({ navigation }: Props) => {
             </Text>
             <TouchableOpacity
               style={styles.browseMenuButton}
-              onPress={() => navigation.navigate('Menu')}
+              onPress={() => parentNavigation.navigate('Menu')}
             >
               <Text style={styles.browseMenuText}>🍽️ Menüyü Görüntüle</Text>
             </TouchableOpacity>

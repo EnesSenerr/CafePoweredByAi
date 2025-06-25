@@ -10,6 +10,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 import { getRewards, getPointHistory, redeemPoints } from '../services/api';
 import { TabParamList } from '../navigation/AppNavigator';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Props = BottomTabScreenProps<TabParamList, 'Dashboard'>;
 
@@ -20,125 +21,127 @@ const DashboardScreen = ({ navigation }: Props) => {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [rewards, setRewards] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user, token, isAuthenticated, refreshUser, logout } = useAuth();
+  const { user, token, isAuthenticated, refreshUser, logout, refreshAuth } = useAuth();
 
   // Seviye sistemi hesaplamaları
   const calculateLoyaltyLevel = (points: number) => {
-    if (points >= 5000) return { level: 'Platinum', current: 5000, next: 5000 };
-    if (points >= 2000) return { level: 'Gold', current: 2000, next: 5000 };
-    if (points >= 500) return { level: 'Silver', current: 500, next: 2000 };
-    return { level: 'Bronze', current: 0, next: 500 };
+    if (points >= 15000) return { level: 'Platinum', next: null, current: 15000 };
+    if (points >= 5000) return { level: 'Gold', next: 15000, current: 5000 };
+    if (points >= 1000) return { level: 'Silver', next: 5000, current: 1000 };
+    return { level: 'Bronze', next: 1000, current: 0 };
   };
 
   useEffect(() => {
-    const initializeDashboard = async () => {
-      try {
-        // Auth kontrolü
-        if (!isAuthenticated || !token) {
-          parentNavigation.replace('Login');
-          return;
-        }
-
-        setLoading(true);
-        
-        // Kullanıcı verilerini ayarla
-        if (user) {
-          setPoints(user.points || 0);
-        }
-        
-        // Paralel API çağrıları
-        const [rewardsData] = await Promise.all([
-          getRewards()
-        ]);
-
-        // Ödülleri güncelle
-        setRewards(rewardsData.data || []);
-
-        // Point history (eğer varsa)
-        try {
-          const historyData = await getPointHistory(token);
-          if (historyData?.data?.transactions) {
-            setTransactions(historyData.data.transactions);
-          }
-        } catch (historyError) {
-          console.log('Point history hatası:', historyError);
-          // Point history yoksa boş array
-          setTransactions([]);
-        }
-
-      } catch (error: any) {
-        console.error('Dashboard veri yükleme hatası:', error);
-        Alert.alert('Hata', 'Veriler yüklenirken hata oluştu');
-        
-        // Token geçersizse login'e yönlendir
-        if (error.message?.includes('401') || error.message?.includes('token')) {
-          parentNavigation.replace('Login');
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
     initializeDashboard();
-  }, [navigation, user, token, isAuthenticated]);
+  }, []);
+
+  const initializeDashboard = async () => {
+    try {
+      setLoading(true);
+      const token = await AsyncStorage.getItem('authToken');
+      
+      if (!token) {
+        Alert.alert('Hata', 'Oturum bilgisi bulunamadı');
+        return;
+      }
+
+      // Kullanıcı bilgilerini güncelle
+      await refreshAuth();
+      
+      // User güncellendiğinde points'i güncelle
+      if (user) {
+        setPoints(user.points || 0);
+      }
+      
+      const [rewardsData] = await Promise.all([
+        getRewards()
+      ]);
+
+      setRewards(rewardsData.data || []);
+
+      try {
+        const historyData = await getPointHistory(token);
+        if (historyData?.data?.transactions) {
+          setTransactions(historyData.data.transactions);
+        }
+      } catch (historyError) {
+        console.warn('İşlem geçmişi yüklenemedi:', historyError);
+        setTransactions([]);
+      }
+
+    } catch (error: any) {
+      console.error('Dashboard yükleme hatası:', error);
+      Alert.alert('Hata', 'Veriler yüklenirken hata oluştu');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleRedeemReward = async (rewardId: number) => {
-    if (!token || !user) {
-      Alert.alert('Hata', 'Lütfen tekrar giriş yapın');
-      return;
-    }
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      if (!token) {
+        Alert.alert('Hata', 'Oturum bilgisi bulunamadı');
+        return;
+      }
 
-    const reward = rewards.find((r: any) => r.id === rewardId);
-    if (!reward) {
-      Alert.alert('Hata', 'Ödül bulunamadı');
-      return;
-    }
-
-    if (points < reward.points) {
-      Alert.alert('Yetersiz Puan', 'Bu ödül için yeterli puanınız bulunmuyor');
-      return;
-    }
-
-    Alert.alert(
-      'Ödül Kullan',
-      `${reward.name} ödülünü kullanmak istediğinizden emin misiniz? (${reward.points} puan)`,
-      [
-        { text: 'İptal', style: 'cancel' },
-        { 
-          text: 'Kullan', 
-          onPress: async () => {
-            try {
-              const result = await redeemPoints(token, rewardId.toString());
-               
-              // Başarılı ise puan bakiyesini güncelle
-              setPoints(result.data.currentBalance);
-              
-              // Kullanıcı verilerini yenile
-              await refreshUser();
-              
-              Alert.alert('Başarılı', `${reward.name} ödülünüz başarıyla kullanıldı!`);
-            } catch (err: any) {
-              Alert.alert('Hata', err.message || 'Ödül kullanılırken hata oluştu');
+      setLoading(true);
+      
+      // Ödül kullanma işlemi
+      const response = await redeemPoints(token, rewardId.toString());
+      
+      if (response.success) {
+        Alert.alert(
+          'Başarılı!',
+          `Ödül başarıyla kullanıldı! ${response.message || ''}`,
+          [
+            {
+              text: 'Tamam',
+              onPress: () => {
+                // Dashboard'u yenile
+                initializeDashboard();
+              }
             }
-          }
-        },
-      ]
-    );
+          ]
+        );
+      } else {
+        Alert.alert('Hata', response.message || 'Ödül kullanılırken hata oluştu');
+      }
+    } catch (error: any) {
+      console.error('Ödül kullanım hatası:', error);
+      let errorMessage = 'Ödül kullanılırken hata oluştu';
+      
+      if (error.message?.includes('insufficient points')) {
+        errorMessage = 'Yetersiz puan';
+      } else if (error.message?.includes('reward not found')) {
+        errorMessage = 'Ödül bulunamadı';
+      }
+      
+      Alert.alert('Hata', errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLogout = async () => {
     Alert.alert(
       'Çıkış Yap',
-      'Hesabınızdan çıkış yapmak istediğinizden emin misiniz?',
+      'Oturumu kapatmak istediğinizden emin misiniz?',
       [
         { text: 'İptal', style: 'cancel' },
         { 
           text: 'Çıkış Yap', 
+          style: 'destructive',
           onPress: async () => {
-            await logout();
-            parentNavigation.replace('Login');
+            try {
+              await logout();
+              // Navigation otomatik olarak AuthGuard tarafından yönlendirilecek
+            } catch (error) {
+              console.error('Logout hatası:', error);
+              Alert.alert('Hata', 'Çıkış yaparken hata oluştu');
+            }
           }
-        },
+        }
       ]
     );
   };
@@ -146,8 +149,8 @@ const DashboardScreen = ({ navigation }: Props) => {
   if (loading) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]}>
-        <ActivityIndicator size="large" color="#2563eb" />
-        <Text style={styles.loadingText}>Veriler yükleniyor...</Text>
+        <ActivityIndicator size="large" color="#f97316" />
+        <Text style={styles.loadingText}>Dashboard yükleniyor...</Text>
       </SafeAreaView>
     );
   }
@@ -158,40 +161,45 @@ const DashboardScreen = ({ navigation }: Props) => {
         refreshControl={
           <RefreshControl
             refreshing={loading}
-            onRefresh={() => {
-              setLoading(true);
-              // Dashboard verilerini yeniden yükle
-              const initializeDashboard = async () => {
-                try {
-                  if (!isAuthenticated || !token) return;
-                  
-                  if (user) {
-                    setPoints(user.points || 0);
-                  }
-                  
-                  const [rewardsData] = await Promise.all([
-                    getRewards()
-                  ]);
-
-                  setRewards(rewardsData.data || []);
-
-                  try {
-                    const historyData = await getPointHistory(token);
-                    if (historyData?.data?.transactions) {
-                      setTransactions(historyData.data.transactions);
-                    }
-                  } catch (historyError) {
-                    setTransactions([]);
-                  }
-
-                } catch (error: any) {
-                  console.error('Dashboard refresh hatası:', error);
-                  Alert.alert('Hata', 'Veriler yüklenirken hata oluştu');
-                } finally {
-                  setLoading(false);
+            onRefresh={async () => {
+              try {
+                setLoading(true);
+                const token = await AsyncStorage.getItem('authToken');
+                
+                if (!token) {
+                  Alert.alert('Hata', 'Oturum bilgisi bulunamadı');
+                  return;
                 }
-              };
-              initializeDashboard();
+
+                // Kullanıcı bilgilerini güncelle
+                await refreshAuth();
+                
+                // User güncellendiğinde points'i güncelle
+                if (user) {
+                  setPoints(user.points || 0);
+                }
+                
+                const [rewardsData] = await Promise.all([
+                  getRewards()
+                ]);
+
+                setRewards(rewardsData.data || []);
+
+                try {
+                  const historyData = await getPointHistory(token);
+                  if (historyData?.data?.transactions) {
+                    setTransactions(historyData.data.transactions);
+                  }
+                } catch (historyError) {
+                  setTransactions([]);
+                }
+
+              } catch (error: any) {
+                console.error('Dashboard refresh hatası:', error);
+                Alert.alert('Hata', 'Veriler yüklenirken hata oluştu');
+              } finally {
+                setLoading(false);
+              }
             }}
             colors={['#f97316']}
             tintColor="#f97316"
@@ -215,7 +223,7 @@ const DashboardScreen = ({ navigation }: Props) => {
           <LoyaltyLevel
             points={points}
             level={calculateLoyaltyLevel(points).level}
-            nextLevelPoints={calculateLoyaltyLevel(points).next}
+            nextLevelPoints={calculateLoyaltyLevel(points).next || 0}
             currentLevelPoints={calculateLoyaltyLevel(points).current}
           />
         </View>
@@ -257,11 +265,11 @@ const DashboardScreen = ({ navigation }: Props) => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Ödül Kataloğu</Text>
-                      <RewardsList 
-              rewards={rewards} 
-              onRedeem={handleRedeemReward}
-              onRewardPress={(rewardId) => navigation.navigate('RewardsDetail', { rewardId })}
-            />
+          <RewardsList 
+            rewards={rewards} 
+            onRedeem={handleRedeemReward}
+            onRewardPress={(rewardId) => parentNavigation.navigate('RewardsDetail', { rewardId })}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>

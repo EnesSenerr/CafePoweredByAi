@@ -1,100 +1,23 @@
-// Theme Configuration
-export const theme = {
-  colors: {
-    // Primary Colors
-    primary: '#f97316',
-    primaryLight: '#fb923c',
-    primaryDark: '#ea580c',
-    
-    // Secondary Colors
-    secondary: '#6b7280',
-    secondaryLight: '#9ca3af',
-    secondaryDark: '#4b5563',
-    
-    // Status Colors
-    success: '#10b981',
-    successLight: '#34d399',
-    successDark: '#059669',
-    
-    warning: '#f59e0b',
-    warningLight: '#fbbf24',
-    warningDark: '#d97706',
-    
-    error: '#ef4444',
-    errorLight: '#f87171',
-    errorDark: '#dc2626',
-    
-    info: '#3b82f6',
-    infoLight: '#60a5fa',
-    infoDark: '#2563eb',
-    
-    // Neutral Colors
-    white: '#ffffff',
-    black: '#000000',
-    
-    gray50: '#f9fafb',
-    gray100: '#f3f4f6',
-    gray200: '#e5e7eb',
-    gray300: '#d1d5db',
-    gray400: '#9ca3af',
-    gray500: '#6b7280',
-    gray600: '#4b5563',
-    gray700: '#374151',
-    gray800: '#1f2937',
-    gray900: '#111827',
-    
-    // Background Colors
-    background: '#f8fafc',
-    surface: '#ffffff',
-    card: '#ffffff',
-    
-    // Text Colors
-    textPrimary: '#1f2937',
-    textSecondary: '#6b7280',
-    textTertiary: '#9ca3af',
-    textOnPrimary: '#ffffff',
-    textOnSecondary: '#ffffff',
-    
-    // Border Colors
-    border: '#e5e7eb',
-    borderLight: '#f3f4f6',
-    borderDark: '#d1d5db',
-    
-    // Shadow Colors
-    shadow: '#000000',
-  },
-  
-  spacing: {
-    xs: 4,
-    sm: 8,
-    md: 16,
-    lg: 24,
-    xl: 32,
-    xxl: 48,
-    xxxl: 64,
-  },
-  
-  borderRadius: {
-    none: 0,
-    sm: 4,
-    md: 8,
-    lg: 12,
-    xl: 16,
-    xxl: 20,
-    full: 9999,
-  },
-  
+import { colors } from './colors';
+
+// Typography
+export const typography = {
+  // Font sizes
   fontSize: {
     xs: 12,
     sm: 14,
-    md: 16,
+    base: 16,
     lg: 18,
     xl: 20,
-    xxl: 24,
-    xxxl: 32,
+    '2xl': 24,
+    '3xl': 28,
+    '4xl': 32,
+    '5xl': 36,
   },
   
+  // Font weights
   fontWeight: {
+    light: '300',
     normal: '400',
     medium: '500',
     semibold: '600',
@@ -102,106 +25,192 @@ export const theme = {
     extrabold: '800',
   },
   
+  // Line heights
   lineHeight: {
-    none: 1,
-    tight: 1.25,
+    tight: 1.2,
     normal: 1.5,
     relaxed: 1.75,
-    loose: 2,
-  },
-  
-  shadows: {
-    none: {
-      shadowColor: 'transparent',
-      shadowOffset: { width: 0, height: 0 },
-      shadowOpacity: 0,
-      shadowRadius: 0,
-      elevation: 0,
-    },
-    sm: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.05,
-      shadowRadius: 2,
-      elevation: 2,
-    },
-    md: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 3,
-    },
-    lg: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.15,
-      shadowRadius: 8,
-      elevation: 6,
-    },
-    xl: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 0.2,
-      shadowRadius: 16,
-      elevation: 10,
-    },
-  },
-  
-  opacity: {
-    disabled: 0.6,
-    pressed: 0.8,
-    overlay: 0.9,
-  },
-  
-  layout: {
-    headerHeight: 60,
-    tabBarHeight: 80,
-    bottomSafeArea: 34,
-  },
-  
-  animation: {
-    duration: {
-      fast: 150,
-      normal: 300,
-      slow: 500,
-    },
-    easing: {
-      linear: 'linear',
-      easeIn: 'ease-in',
-      easeOut: 'ease-out',
-      easeInOut: 'ease-in-out',
-    },
   },
 };
 
-export type Theme = typeof theme;
+// Spacing
+export const spacing = {
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 20,
+  '2xl': 24,
+  '3xl': 32,
+  '4xl': 40,
+  '5xl': 48,
+  '6xl': 64,
+  '7xl': 80,
+  '8xl': 96,
+};
 
-// Utility functions for theme usage
-export const getColor = (colorPath: string): string => {
-  const keys = colorPath.split('.');
-  let color: any = theme.colors;
+// Border radius
+export const borderRadius = {
+  none: 0,
+  sm: 4,
+  base: 8,
+  md: 12,
+  lg: 16,
+  xl: 20,
+  '2xl': 24,
+  full: 9999,
+};
+
+// Shadows
+export const shadows = {
+  sm: {
+    shadowColor: colors.coffee[900],
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  base: {
+    shadowColor: colors.coffee[900],
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  lg: {
+    shadowColor: colors.coffee[900],
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  xl: {
+    shadowColor: colors.coffee[900],
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.25,
+    shadowRadius: 24,
+    elevation: 12,
+  },
+};
+
+// Component styles
+export const components = {
+  // Card styles
+  card: {
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing['2xl'],
+    ...shadows.base,
+  },
   
-  for (const key of keys) {
-    color = color[key];
-    if (!color) break;
-  }
+  // Button styles
+  button: {
+    primary: {
+      backgroundColor: colors.coffee[600],
+      borderRadius: borderRadius.md,
+      paddingVertical: spacing.lg,
+      paddingHorizontal: spacing['2xl'],
+      ...shadows.sm,
+    },
+    secondary: {
+      backgroundColor: colors.cream[100],
+      borderWidth: 1,
+      borderColor: colors.coffee[300],
+      borderRadius: borderRadius.md,
+      paddingVertical: spacing.lg,
+      paddingHorizontal: spacing['2xl'],
+    },
+  },
   
-  return color || theme.colors.primary;
+  // Input styles
+  input: {
+    borderWidth: 1,
+    borderColor: colors.coffee[300],
+    borderRadius: borderRadius.md,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    backgroundColor: colors.surface,
+    fontSize: typography.fontSize.base,
+    color: colors.text.primary,
+  },
+  
+  // Header styles
+  header: {
+    backgroundColor: colors.coffee[700],
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.xl,
+    ...shadows.sm,
+  },
 };
 
-export const getSpacing = (size: keyof typeof theme.spacing): number => {
-  return theme.spacing[size];
+// Common layout styles
+export const layout = {
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  
+  centered: {
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+  },
+  
+  padding: {
+    horizontal: spacing.xl,
+    vertical: spacing.lg,
+  },
+  
+  margin: {
+    bottom: spacing.lg,
+  },
+  
+  screen: {
+    flex: 1,
+    backgroundColor: colors.background,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.lg,
+  },
+  
+  formContainer: {
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing['2xl'],
+    margin: spacing.lg,
+    ...shadows.base,
+  },
 };
 
-export const getFontSize = (size: keyof typeof theme.fontSize): number => {
-  return theme.fontSize[size];
+// Coffee-themed gradients (for future use when expo-linear-gradient is fixed)
+export const gradients = {
+  coffee: {
+    colors: [colors.coffee[600], colors.coffee[700]],
+    start: { x: 0, y: 0 },
+    end: { x: 1, y: 0 },
+  },
+  
+  cream: {
+    colors: [colors.cream[100], colors.cream[200]],
+    start: { x: 0, y: 0 },
+    end: { x: 1, y: 1 },
+  },
+  
+  warm: {
+    colors: [colors.coffee[100], colors.cream[50], colors.coffee[200]],
+    start: { x: 0, y: 0 },
+    end: { x: 1, y: 1 },
+  },
 };
 
-export const getBorderRadius = (size: keyof typeof theme.borderRadius): number => {
-  return theme.borderRadius[size];
+// Export theme object
+export const theme = {
+  colors,
+  typography,
+  spacing,
+  borderRadius,
+  shadows,
+  components,
+  layout,
+  gradients,
 };
 
-export const getShadow = (size: keyof typeof theme.shadows) => {
-  return theme.shadows[size];
-}; 
+export default theme; 
