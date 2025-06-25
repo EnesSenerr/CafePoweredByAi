@@ -1,22 +1,12 @@
-// Base URL - Platform bazlı IP seçimi
+// Base URL - Environment konfigürasyonunu kullan
 import { Platform } from 'react-native';
 import { cacheService, CACHE_KEYS } from './cacheService';
+import { CONFIG } from '../config/environment';
 
-// Geliştirme ortamı için farklı IP'ler
-const getApiBaseUrl = () => {
-  if (__DEV__) {
-    // Expo Go fiziksel cihazlar için local network IP kullan
-    // Emülatör için 10.0.2.2, Expo Go için local network IP
-    const localNetworkIP = 'http://10.196.3.101:5000'; // Fiziksel cihazlar ve Expo Go
-    
-    console.log(`Platform: ${Platform.OS}, API URL: ${localNetworkIP}`);
-    console.log('Expo Go kullanıyorsanız local network IP kullanılıyor');
-    return localNetworkIP;
-  }
-  return 'https://your-production-api.com'; // Production URL
-};
+const API_BASE_URL = CONFIG.API_BASE_URL;
 
-const API_BASE_URL = getApiBaseUrl();
+console.log(`[API] Platform: ${Platform.OS}, API URL: ${API_BASE_URL}`);
+console.log('[API] Environment config loaded successfully');
 
 // Helper function to get auth headers
 function getAuthHeaders(token?: string): HeadersInit {

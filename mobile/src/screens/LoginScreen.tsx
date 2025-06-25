@@ -41,14 +41,25 @@ const LoginScreen = ({ navigation }: Props) => {
     setLoading(true);
     
     try {
+      console.log('[Login] Login attempt started:', { email, rememberMe });
+      
       const data = await loginUser(email, password, rememberMe);
+      console.log('[Login] API response received:', data);
       
       // AuthContext ile login
+      console.log('[Login] Calling AuthContext login...');
       await login(data.user, data.token);
       
+      console.log('[Login] Successful login, navigating to MainTabs');
       // MainTabs'a yönlendir
       navigation.replace('MainTabs');
     } catch (error: any) {
+      console.error('[Login] Login error:', error);
+      console.error('[Login] Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
       Alert.alert('Giriş Hatası', error.message || 'Giriş yapılırken bir hata oluştu');
     } finally {
       setLoading(false);

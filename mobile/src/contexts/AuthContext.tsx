@@ -112,12 +112,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (userData: User, authToken: string) => {
     try {
+      console.log('[AuthContext] Login function called with:', { 
+        userData: { ...userData, email: userData.email }, 
+        tokenLength: authToken?.length 
+      });
+      
       await AuthTokenManager.setToken(authToken);
+      console.log('[AuthContext] Token saved successfully');
+      
       setToken(authToken);
       setUser(userData);
       setIsAuthenticated(true);
+      
+      console.log('[AuthContext] Login state updated successfully');
     } catch (error) {
-      console.error('Giriş yapılırken hata:', error);
+      console.error('[AuthContext] Login error:', error);
       throw error;
     }
   };

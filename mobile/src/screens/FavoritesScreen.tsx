@@ -37,10 +37,10 @@ const FavoritesScreen = ({ navigation }: Props) => {
   const [favoriteItems, setFavoriteItems] = useState<FavoriteItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Geçici dummy data - gerçek implementasyonda API'den gelecek
+  // Favori ID'ler değiştiğinde favorileri yeniden yükle
   useEffect(() => {
     loadFavorites();
-  }, []);
+  }, [favoriteIds]);
 
   const loadFavorites = async () => {
     try {
@@ -78,9 +78,10 @@ const FavoritesScreen = ({ navigation }: Props) => {
         {
           text: 'Çıkar',
           style: 'destructive',
-          onPress: () => {
+          onPress: async () => {
+            // Hem context'ten hem de local state'ten çıkar
+            await toggleFavorite(itemId);
             setFavoriteItems((prev: FavoriteItem[]) => prev.filter((item: FavoriteItem) => item.id !== itemId));
-            Alert.alert('Başarılı', 'Ürün favorilerden çıkarıldı');
           },
         },
       ]
@@ -164,7 +165,7 @@ const FavoritesScreen = ({ navigation }: Props) => {
       <FlatList
         data={favoriteItems}
         renderItem={renderFavoriteItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
         contentContainerStyle={styles.favoritesList}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={

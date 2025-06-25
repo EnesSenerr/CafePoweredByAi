@@ -218,10 +218,10 @@ const MenuScreen = ({ navigation }: Props) => {
       </ScrollView>
 
       {/* Menu Items */}
-      <FlatList
-        data={filteredItems}
-        renderItem={renderMenuItem}
-        keyExtractor={(item) => item.id}
+              <FlatList
+          data={filteredItems}
+          renderItem={renderMenuItem}
+          keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
         contentContainerStyle={styles.menuList}
         showsVerticalScrollIndicator={false}
         numColumns={2}

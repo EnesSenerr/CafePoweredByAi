@@ -19,7 +19,7 @@ export const ENV_CONFIG = {
   development: {
     API_BASE_URL: Platform.select({
       ios: 'http://localhost:5000',
-      android: 'http://10.0.2.2:5000',
+      android: 'http://192.168.1.102:5000', // Backend gerçek IP adresi
       default: 'http://192.168.1.102:5000', // Local network IP for Expo Go
     }),
     DEBUG_MODE: true,

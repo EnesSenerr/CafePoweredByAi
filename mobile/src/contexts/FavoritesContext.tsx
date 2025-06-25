@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useAuth } from './AuthContext';
 import { getFavorites, addToFavorites, removeFromFavorites } from '../services/api';
 import { Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface FavoritesContextType {
   favorites: string[];
@@ -20,21 +21,34 @@ interface FavoritesProviderProps {
 export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }) => {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-  const { token, isAuthenticated } = useAuth();
+  const { token, isAuthenticated, user } = useAuth();
 
-  // Favorileri yükle
+  // Favorileri yükle (localStorage'dan)
   const loadFavorites = async () => {
-    if (!token || !isAuthenticated) return;
+    if (!isAuthenticated) return;
 
     setLoading(true);
     try {
-      const response = await getFavorites(token);
-      // API'den gelen favori item ID'lerini array olarak ayarla
-      const favoriteIds = response.data?.map((item: any) => item.menuItemId || item.id) || [];
-      setFavorites(favoriteIds);
+      console.log('[Favorites] Loading from localStorage...');
+      const userId = user?.id || 'guest';
+      const storageKey = `favorites_${userId}`;
+      const storedFavorites = await AsyncStorage.getItem(storageKey);
+      
+      if (storedFavorites) {
+        const favoriteIds = JSON.parse(storedFavorites);
+        setFavorites(favoriteIds);
+        console.log('[Favorites] Loaded from localStorage:', favoriteIds);
+      } else {
+        setFavorites([]);
+        console.log('[Favorites] No stored favorites found');
+      }
+      
+      // TODO: Backend endpoint hazır olduğunda aktif edilecek
+      // const response = await getFavorites(token);
+      // const favoriteIds = response.data?.map((item: any) => item.menuItemId || item.id) || [];
+      // setFavorites(favoriteIds);
     } catch (error) {
-      console.error('Favoriler yüklenemedi:', error);
-      // Hata durumunda sessizce devam et
+      console.error('Favorites load error:', error);
       setFavorites([]);
     } finally {
       setLoading(false);
@@ -60,9 +74,21 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
     return favorites.includes(itemId);
   };
 
-  // Favori durumunu değiştir
+  // Favorileri localStorage'a kaydet
+  const saveFavoritesToStorage = async (favoriteIds: string[]) => {
+    try {
+      const userId = user?.id || 'guest';
+      const storageKey = `favorites_${userId}`;
+      await AsyncStorage.setItem(storageKey, JSON.stringify(favoriteIds));
+      console.log('[Favorites] Saved to localStorage:', favoriteIds);
+    } catch (error) {
+      console.error('Favorites save error:', error);
+    }
+  };
+
+  // Favori durumunu değiştir (localStorage ile)
   const toggleFavorite = async (itemId: string): Promise<void> => {
-    if (!token || !isAuthenticated) {
+    if (!isAuthenticated) {
       Alert.alert('Hata', 'Favori eklemek için giriş yapmalısınız');
       return;
     }
@@ -70,17 +96,28 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
     try {
       setLoading(true);
       
+      let newFavorites: string[];
+      
       if (isFavorite(itemId)) {
         // Favorilerden çıkar
-        await removeFromFavorites(token, itemId);
-        setFavorites(prev => prev.filter(id => id !== itemId));
+        newFavorites = favorites.filter(id => id !== itemId);
+        setFavorites(newFavorites);
+        await saveFavoritesToStorage(newFavorites);
         Alert.alert('Başarılı', 'Favorilerden çıkarıldı');
       } else {
         // Favorilere ekle
-        await addToFavorites(token, itemId);
-        setFavorites(prev => [...prev, itemId]);
+        newFavorites = [...favorites, itemId];
+        setFavorites(newFavorites);
+        await saveFavoritesToStorage(newFavorites);
         Alert.alert('Başarılı', 'Favorilere eklendi');
       }
+      
+      // TODO: Backend endpoint hazır olduğunda aktif edilecek
+      // if (isFavorite(itemId)) {
+      //   await removeFromFavorites(token, itemId);
+      // } else {
+      //   await addToFavorites(token, itemId);
+      // }
     } catch (error: any) {
       console.error('Favori işlemi hatası:', error);
       Alert.alert('Hata', error.message || 'Favori işlemi başarısız');

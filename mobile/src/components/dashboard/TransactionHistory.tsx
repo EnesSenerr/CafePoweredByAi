@@ -40,7 +40,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions })
       ) : (
         <FlatList
           data={transactions}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
           renderItem={renderItem}
           scrollEnabled={false}
         />

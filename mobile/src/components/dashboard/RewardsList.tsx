@@ -46,7 +46,7 @@ const RewardsList: React.FC<RewardsListProps> = ({ rewards, onRedeem, onRewardPr
       ) : (
         <FlatList
           data={rewards}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
           renderItem={renderItem}
           scrollEnabled={false}
         />
