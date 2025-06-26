@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
-import { useAuth } from "../contexts/AuthContext";
 
 interface ChatMessage {
   id: string;
@@ -17,7 +16,6 @@ const ChatbotWidget = () => {
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { user } = useAuth();
 
   // Mesajları localStorage'dan yükle
   useEffect(() => {
@@ -96,7 +94,7 @@ const ChatbotWidget = () => {
           },
         ]);
       }
-    } catch (error) {
+    } catch {
       setMessages((prev) => [
         ...prev,
         {

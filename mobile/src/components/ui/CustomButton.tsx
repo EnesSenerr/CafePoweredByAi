@@ -17,7 +17,7 @@ interface CustomButtonProps {
   disabled?: boolean;
   icon?: string;
   fullWidth?: boolean;
-  style?: ViewStyle;
+  style?: ViewStyle | ViewStyle[];
   textStyle?: TextStyle;
 }
 

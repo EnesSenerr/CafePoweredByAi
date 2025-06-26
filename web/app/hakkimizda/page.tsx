@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function AboutPage() {
   const teamMembers = [
@@ -89,10 +90,12 @@ export default function AboutPage() {
               {/* Image */}
               <div className="relative">
                 <div className="bg-gradient-to-br from-orange-100 to-red-100 h-96 rounded-3xl overflow-hidden shadow-2xl">
-                  <img
+                  <Image
                     src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600&h=400&fit=crop"
                     alt="Kafemizin iç görünümü"
                     className="w-full h-full object-cover"
+                    width={200}
+                    height={200}
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.style.display = 'none';
@@ -309,10 +312,12 @@ export default function AboutPage() {
               {/* Innovation Visual */}
               <div className="relative">
                 <div className="bg-gradient-to-br from-blue-100 to-purple-100 h-96 rounded-3xl overflow-hidden shadow-2xl">
-                  <img
+                  <Image
                     src="https://images.unsplash.com/photo-1531973968078-9bb02785f13d?w=600&h=400&fit=crop"
                     alt="AI teknolojisi"
                     className="w-full h-full object-cover"
+                    width={200}
+                    height={200}
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.style.display = 'none';

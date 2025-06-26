@@ -15,12 +15,7 @@ import {
   updateOrderStatus,
   downloadReport,
   getStockItems,
-  getStockCategories,
-  createStockItem,
-  updateStockItem,
   updateStock,
-  deleteStockItem,
-  getCriticalStock,
   checkMenuAvailability
 } from '../api';
 
@@ -99,6 +94,20 @@ interface OrderItem {
   menuItemId: string;
   quantity: number;
   notes?: string;
+}
+
+interface Ingredient {
+  name: string;
+  shortage?: number;
+  required: number;
+  available: number;
+  unit: string;
+}
+
+interface UnavailableItem {
+  name: string;
+  canMake: boolean;
+  unavailableIngredients: Ingredient[];
 }
 
 export default function EmployeePage() {
@@ -481,14 +490,14 @@ export default function EmployeePage() {
                       if (!token) return;
                       
                       const response = await checkMenuAvailability(token);
-                      const unavailableItems = response.data.filter((item: any) => !item.canMake);
+                      const unavailableItems = response.data.filter((item: UnavailableItem) => !item.canMake);
                       
                       if (unavailableItems.length === 0) {
                         alert('Tüm menü öğeleri için malzemeler yeterli! 🎉');
                       } else {
                         const message = `${unavailableItems.length} ürün için malzemeler yetersiz:\n\n` +
-                          unavailableItems.map((item: any) => 
-                            `• ${item.name}: ${item.unavailableIngredients.map((ing: any) => 
+                          unavailableItems.map((item: UnavailableItem) =>
+                            `• ${item.name}: ${item.unavailableIngredients.map((ing: Ingredient) =>
                               `${ing.name} (${ing.shortage || (ing.required - ing.available)} ${ing.unit} eksik)`
                             ).join(', ')}`
                           ).join('\n');

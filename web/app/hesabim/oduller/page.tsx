@@ -75,18 +75,6 @@ export default function RewardsPage() {
 
   const categories = [...new Set(rewards.map(reward => reward.category))];
 
-  const getDiscountText = (reward: Reward) => {
-    if (reward.name.includes('%')) {
-      return reward.name.split(' - ')[0]; // "%20 İndirim" gibi
-    } else if (reward.name.includes('₺')) {
-      return reward.name.split(' - ')[0]; // "10₺ İndirim" gibi
-    } else if (reward.name.includes('Ücretsiz')) {
-      return 'Ücretsiz Ürün';
-    } else {
-      return 'Özel İndirim';
-    }
-  };
-
   const getCategoryIcon = (category: string) => {
     switch (category.toLowerCase()) {
       case 'kahve': return '☕';

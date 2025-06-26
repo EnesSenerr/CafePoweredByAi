@@ -93,6 +93,8 @@ export type RootStackParamList = {
 export type TabParamList = {
   Home: undefined;
   Menu: undefined;
+  Favorites: undefined;
+  Dashboard: undefined;
   LoyaltyProgram: undefined;
   More: undefined;
   AdminDashboard?: undefined;
@@ -325,6 +327,22 @@ const MainTabs = () => {
         options={{
           tabBarLabel: 'Menü',
           tabBarIcon: ({ color }) => <Text style={{ fontSize: 24, color }}>🍽️</Text>,
+        }}
+      />
+      <Tab.Screen 
+        name="Favorites" 
+        component={FavoritesScreen}
+        options={{
+          tabBarLabel: 'Favoriler',
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24, color }}>💖</Text>,
+        }}
+      />
+      <Tab.Screen 
+        name="Dashboard" 
+        component={DashboardScreen}
+        options={{
+          tabBarLabel: 'Dashboard',
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24, color }}>📊</Text>,
         }}
       />
       <Tab.Screen 

@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from './contexts/AuthContext';
 import RecommendationCard from "./components/RecommendationCard";
 import ChatbotWidget from "./components/ChatbotWidget";
+import Image from 'next/image';
 
 const coffeeMenu = [
   { id: 1, name: 'Türk Kahvesi', price: '45 ₺', category: 'Klasik', emoji: '☕' },
@@ -252,10 +253,12 @@ export default function HomePage() {
             {coffeeMenu.map((item, index) => (
               <div key={item.id} className="bg-white rounded-3xl shadow-xl overflow-hidden group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100">
                 <div className="relative h-60 overflow-hidden">
-                  <img
+                  <Image
                     src={getCoffeeImage(index)}
                     alt={item.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    width={200}
+                    height={200}
                     onError={(e) => {
                       e.currentTarget.src = '/images/placeholder-coffee.jpg';
                     }}
@@ -397,10 +400,12 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="relative min-h-[400px]">
-                <img
+                <Image
                   src={getLoyaltyImage()}
                   alt="Sadakat Programı"
                   className="w-full h-full object-cover"
+                  width={600}
+                  height={400}
                   onError={(e) => {
                     e.currentTarget.src = '/images/placeholder-loyalty.jpg';
                   }}
@@ -442,10 +447,12 @@ export default function HomePage() {
                 key={index} 
                 className="aspect-square relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
               >
-                <img
+                <Image
                   src={getInstagramImage(index)}
                   alt={`Instagram Post ${index + 1}`}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  width={300}
+                  height={300}
                   onError={(e) => {
                     e.currentTarget.src = '/images/placeholder-instagram.jpg';
                   }}

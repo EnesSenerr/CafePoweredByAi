@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getMenuItems, getMenuCategories } from '../api';
+import Image from 'next/image';
 
 interface MenuItem {
   _id: string;
@@ -180,10 +181,12 @@ export default function MenuPage() {
               >
                 {/* Image */}
                 <div className="h-48 relative overflow-hidden">
-                  <img
+                  <Image
                     src={item.image || getDefaultImage(item.category, item.name)}
                     alt={item.name}
                     className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                    width={200}
+                    height={200}
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.src = getDefaultImage(item.category, item.name);

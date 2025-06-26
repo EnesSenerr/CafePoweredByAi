@@ -3,6 +3,7 @@
 import { useAuth } from '../../contexts/AuthContext';
 import { useState, useEffect, useRef } from 'react';
 import { updateProfile, uploadProfileImage, changePassword } from '../../api';
+import Image from 'next/image';
 
 interface UserProfile {
   id: string;
@@ -211,10 +212,12 @@ export default function ProfilePage() {
               <div className="flex items-center space-x-6">
                 <div className="relative">
                   {profileImage ? (
-                    <img 
+                    <Image 
                       src={profileImage.startsWith('http') ? profileImage : `http://localhost:5000${profileImage}`} 
                       alt="Profil Resmi" 
                       className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
+                      width={96}
+                      height={96}
                       onError={(e) => {
                         console.error('Profil resmi yüklenemedi:', profileImage);
                         e.currentTarget.style.display = 'none';

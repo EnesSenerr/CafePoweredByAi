@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "../contexts/AuthContext";
+import Image from 'next/image';
 
 interface Recommendation {
   id: string;
@@ -99,7 +100,7 @@ const RecommendationCard = () => {
         <div className="text-center mb-8">
           <div className="inline-flex items-center bg-gradient-to-r from-purple-200 to-blue-200 dark:from-purple-800 dark:to-blue-800 rounded-full px-6 py-3 mb-4 shadow-md border border-purple-300 dark:border-purple-700">
             <span className="text-3xl mr-3">🤖</span>
-            <span className="text-xl font-extrabold text-purple-800 dark:text-purple-200 drop-shadow">AI Barista'dan Sana Özel Kahve Önerileri</span>
+            <span className="text-xl font-extrabold text-purple-800 dark:text-purple-200 drop-shadow">AI Barista&apos;dan Sana Özel Kahve Önerileri</span>
           </div>
           <h3 className="text-4xl font-extrabold text-purple-700 dark:text-purple-200 mb-3 drop-shadow">Senin İçin Seçtiklerimiz</h3>
           <p className="text-lg text-gray-700 dark:text-gray-300 font-medium">Kahve tutkunlarına özel, kafe atmosferinde öneriler</p>
@@ -110,7 +111,7 @@ const RecommendationCard = () => {
               {/* Ürün görseli */}
               <div className="w-full h-36 bg-gray-100 dark:bg-gray-800 rounded-xl mb-3 flex items-center justify-center overflow-hidden">
                 {item.image ? (
-                  <img src={item.image} alt={item.name} className="object-cover w-full h-full" />
+                  <Image src={item.image} alt={item.name} width={200} height={200} className="object-cover w-full h-full" />
                 ) : (
                   <span className="text-5xl text-gray-300 dark:text-gray-700">☕</span>
                 )}
