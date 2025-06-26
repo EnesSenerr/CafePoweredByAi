@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useAuth } from "../contexts/AuthContext";
 import Image from 'next/image';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+
 interface Recommendation {
   id: string;
   name: string;
@@ -40,7 +42,7 @@ const RecommendationCard = () => {
     try {
       const token = localStorage.getItem("authToken");
       console.log("[DEBUG] Token:", token);
-      const res = await fetch("/api/recommendations/collaborative?limit=6", {
+      const res = await fetch(`${API_BASE_URL}/api/recommendations/collaborative?limit=6`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log("[DEBUG] API yanıtı status:", res.status);
