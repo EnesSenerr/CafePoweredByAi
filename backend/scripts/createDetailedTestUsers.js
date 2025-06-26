@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const User = require('../src/models/User');
+const MenuItem = require('../src/models/MenuItem');
 require('dotenv').config();
 
 function randomDate(start, end) {
@@ -78,7 +79,18 @@ async function run() {
   }
 
   // Müşteriler
+  const menuItems = await MenuItem.find({ available: true });
   for (let i = 0; i < 120; i++) {
+    // Favoriler: popüler ürünlerden veya rastgele 2-4 ürün seç
+    let favorites = [];
+    if (menuItems.length > 0) {
+      // Önce popüler ürünleri al, yoksa rastgele seç
+      const popular = menuItems.filter(m => m.isPopular);
+      const pool = popular.length > 0 ? popular : menuItems;
+      const favCount = Math.floor(Math.random() * 3) + 2; // 2-4 favori
+      const shuffled = pool.sort(() => 0.5 - Math.random());
+      favorites = shuffled.slice(0, favCount).map(m => m._id);
+    }
     await new User({
       name: names[i+12] || `Müşteri ${i+1}`,
       email: `customer${i+1}@aicafe.com`,
@@ -88,7 +100,8 @@ async function run() {
       points: Math.floor(Math.random() * 500),
       isActive: Math.random() > 0.05,
       createdAt: randomDate(new Date(2022, 0, 1), new Date()),
-      signupMethod: Math.random() > 0.7 ? 'mobile' : 'email'
+      signupMethod: Math.random() > 0.7 ? 'mobile' : 'email',
+      favorites
     }).save();
   }
 

@@ -68,6 +68,11 @@ const UserSchema = new mongoose.Schema(
     lastLogin: {
       type: Date,
     },
+    favorites: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'MenuItem',
+      default: []
+    }],
     resetPasswordToken: {
       type: String,
     },

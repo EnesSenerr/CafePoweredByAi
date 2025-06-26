@@ -26,7 +26,7 @@ export const ENV_CONFIG = {
       if (isAndroidEmulator) {
         return 'http://10.0.2.2:5000'; // Android emulator
       } else if (isExpoGo || Platform.OS === 'ios') {
-        return 'http://192.168.1.102:5000'; // Expo Go veya iOS Simulator
+        return 'http://10.196.3.101:5000'; // Expo Go veya iOS Simulator
       } else {
         return 'http://localhost:5000'; // Fallback
       }

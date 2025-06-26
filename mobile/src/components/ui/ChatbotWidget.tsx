@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { View, Text, Modal, TouchableOpacity, TextInput, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, ActivityIndicator } from "react-native";
 import { useAuth } from "../../contexts/AuthContext";
+import { CONFIG } from '../../config/environment';
 
 interface ChatMessage {
   id: string;
@@ -15,7 +16,7 @@ const ChatbotWidget = () => {
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
-  const { user } = useAuth();
+  const { user, token } = useAuth();
 
   const handleInitialMessage = () => {
     setMessages([
@@ -46,8 +47,7 @@ const ChatbotWidget = () => {
     setInputMessage("");
     setIsLoading(true);
     try {
-      const token = user?.token;
-      const response = await fetch("/api/chatbot/gemini", {
+      const response = await fetch(`${CONFIG.API_BASE_URL}/api/chatbot/gemini`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

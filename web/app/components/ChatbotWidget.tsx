@@ -9,6 +9,8 @@ interface ChatMessage {
   timestamp: Date;
 }
 
+const LOCAL_STORAGE_KEY = "ai-cafe-chat-messages";
+
 const ChatbotWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -17,9 +19,24 @@ const ChatbotWidget = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
 
+  // Mesajları localStorage'dan yükle
   useEffect(() => {
-    if (isOpen && messages.length === 0) handleInitialMessage();
-  }, [isOpen]);
+    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (stored) {
+      try {
+        setMessages(JSON.parse(stored));
+      } catch {
+        setMessages([]);
+      }
+    } else {
+      handleInitialMessage();
+    }
+  }, []);
+
+  // Mesajlar değişince localStorage'a kaydet
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(messages));
+  }, [messages]);
 
   useEffect(() => { scrollToBottom(); }, [messages]);
   const scrollToBottom = () => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); };
@@ -101,54 +118,62 @@ const ChatbotWidget = () => {
     }
   };
 
+  // Responsive ve modern UI
   return (
     <>
       {/* Chatbot Butonu */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300 z-50"
+        className="fixed bottom-6 right-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:scale-110 transition-transform duration-200 z-50 focus:outline-none focus:ring-4 focus:ring-blue-300"
+        aria-label={isOpen ? "Sohbeti Kapat" : "AI Barista ile Sohbet Et"}
       >
-        {isOpen ? <span className="text-2xl">✕</span> : <span className="text-2xl">☕</span>}
+        {isOpen ? (
+          <svg width="28" height="28" fill="none" viewBox="0 0 24 24"><path stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M18 6L6 18M6 6l12 12"/></svg>
+        ) : (
+          <svg width="28" height="28" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#fff"/><text x="12" y="16" textAnchor="middle" fontSize="14" fill="#7c3aed">☕</text></svg>
+        )}
       </button>
       {/* Chatbot Arayüzü */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 w-96 h-[500px] bg-white rounded-2xl shadow-2xl border border-gray-200 z-50 flex flex-col">
+        <div className="fixed bottom-24 right-4 w-full max-w-md h-[70vh] sm:h-[500px] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 z-50 flex flex-col animate-fadeIn">
           {/* Header */}
-          <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-t-2xl">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <span className="text-2xl mr-3">☕</span>
-                <div>
-                  <h3 className="font-semibold">AI Barista</h3>
-                  <p className="text-sm text-blue-100">Kafe Sohbet Asistanı</p>
-                </div>
+          <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-t-2xl flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">☕</span>
+              <div>
+                <h3 className="font-semibold text-lg">AI Barista</h3>
+                <p className="text-xs text-blue-100">Kafe Sohbet Asistanı</p>
               </div>
-              <button onClick={() => setIsOpen(false)} className="text-white hover:text-gray-200">
-                <span className="text-xl">✕</span>
-              </button>
             </div>
+            <button onClick={() => setIsOpen(false)} className="text-white hover:text-gray-200 focus:outline-none">
+              <svg width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
           </div>
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-800 transition-colors">
             {messages.map((message) => (
               <div key={message.id} className={`flex ${message.type === "user" ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[80%] p-3 rounded-2xl ${message.type === "user" ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white" : "bg-gray-100 text-gray-800"}`}>
-                  <p className="text-sm whitespace-pre-wrap">{message.message}</p>
+                <div className={`max-w-[80%] px-4 py-3 rounded-2xl shadow-sm text-sm whitespace-pre-wrap break-words transition-colors duration-200 ${message.type === "user"
+                  ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-br-md"
+                  : "bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-bl-md border border-gray-200 dark:border-gray-600"}`}
+                >
+                  {message.message}
                 </div>
               </div>
             ))}
             <div ref={messagesEndRef} />
           </div>
           {/* Input */}
-          <div className="p-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl flex items-center space-x-2">
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-b-2xl flex items-center gap-2">
             <input
               type="text"
-              className="flex-1 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
               placeholder="Bir şey sor..."
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyDown={handleKeyPress}
               disabled={isLoading}
+              autoFocus
             />
             <button
               onClick={sendMessage}

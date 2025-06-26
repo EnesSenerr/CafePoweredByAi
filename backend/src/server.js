@@ -70,6 +70,9 @@ app.use('/api/admin', protect, require('./routes/admin.routes'));
 // Chatbot (Gemini) API route'u ekle
 app.use('/api/chatbot', require('./routes/chatbot.routes'));
 
+// Recommendation API route'unu ekle
+app.use('/api/recommendations', require('./routes/recommendation.routes'));
+
 // Ortam değişkenlerini kontrol et ve logla
 console.log('GEMINI_API_URL:', process.env.GEMINI_API_URL ? '[OK]' : '[YOK]');
 console.log('GEMINI_API_KEY:', process.env.GEMINI_API_KEY ? '[OK]' : '[YOK]');

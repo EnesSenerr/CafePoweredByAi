@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigation } from "@react-navigation/native";
+import { CONFIG } from '../../config/environment';
 
 interface Recommendation {
   id: string;
@@ -19,7 +20,7 @@ const RecommendationCard = () => {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const navigation = useNavigation<any>();
 
   useEffect(() => {
@@ -30,8 +31,7 @@ const RecommendationCard = () => {
     setLoading(true);
     setError(null);
     try {
-      const token = user?.token;
-      const res = await fetch("/api/recommendations/collaborative?limit=6", {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/api/recommendations/collaborative?limit=6`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
