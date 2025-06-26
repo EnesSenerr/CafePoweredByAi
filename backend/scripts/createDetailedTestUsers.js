@@ -39,10 +39,6 @@ const names = [
   'Murat Güneş', 'Sena Polat', 'Cansu Arslan', 'Gökhan Koç', 'Beyza Şahin', 'Uğur Aydın', 'Sinem Öz',
   'Eren Yıldız', 'Büşra Çelik', 'Mert Şahin', 'Dilan Yavuz', 'Süleyman Demir', 'Esra Güler',
   'Yasemin Korkmaz', 'Tolga Yavuz', 'Hande Karaca', 'Bora Yıldırım', 'Selin Duran', 'Gökçe Yıldız',
-  'Kerem Şimşek', 'Büşra Kılıç', 'Berkay Yılmaz', 'Tuğba Demir', 'İlker Yıldız', 'Pelin Aksoy',
-  'Murat Güneş', 'Sena Polat', 'Cansu Arslan', 'Gökhan Koç', 'Beyza Şahin', 'Uğur Aydın', 'Sinem Öz',
-  'Eren Yıldız', 'Büşra Çelik', 'Mert Şahin', 'Dilan Yavuz', 'Süleyman Demir', 'Esra Güler',
-  'Yasemin Korkmaz', 'Tolga Yavuz', 'Hande Karaca', 'Bora Yıldırım', 'Selin Duran', 'Gökçe Yıldız',
 ];
 
 const roles = ['customer', 'employee', 'admin'];

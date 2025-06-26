@@ -39,6 +39,10 @@ async function run() {
 
   for (let i = 0; i < 520; i++) {
     const user = users[randomInt(0, users.length - 1)];
+    if (!user) {
+      console.warn('Kullanıcı bulunamadı, puan işlemi kaydı atlanıyor.');
+      continue;
+    }
     const type = types[randomInt(0, types.length - 1)];
     let amount = 0;
     let order = null;

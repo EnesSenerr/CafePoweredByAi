@@ -68,6 +68,44 @@ const menuItemsData = [
   { name: 'Kahvaltı Tabağı', description: 'Peynir, zeytin, domates, salatalık, yumurta ve reçel', price: 120, category: 'Atıştırmalık', stock: 15, preparationTime: 10, calories: 350, isPopular: true, requiredIngredients: ['Peynir', 'Zeytin', 'Domates', 'Salatalık', 'Yumurta', 'Reçel'] },
 ];
 
+function normalizeName(name) {
+  return name ? name.trim().toLocaleLowerCase('tr-TR') : '';
+}
+
+async function ensureAllIngredientsInStockFromMenuData(menuItemsData) {
+  // Menüdeki ürünlerin ingredient isimlerini topla (scriptteki tanımdan)
+  const allIngredients = new Set();
+  menuItemsData.forEach(item => {
+    if (item.ingredients && Array.isArray(item.ingredients)) {
+      item.ingredients.forEach(ing => allIngredients.add(normalizeName(ing)));
+    }
+    if (item.requiredIngredients && Array.isArray(item.requiredIngredients)) {
+      item.requiredIngredients.forEach(ri => {
+        if (typeof ri === 'string') allIngredients.add(normalizeName(ri));
+        if (ri.name) allIngredients.add(normalizeName(ri.name));
+        if (ri.stockItemName) allIngredients.add(normalizeName(ri.stockItemName));
+      });
+    }
+  });
+  const stockItems = await StockItem.find({});
+  const stockNames = new Set(stockItems.map(s => normalizeName(s.name)));
+  for (const ing of allIngredients) {
+    if (ing && !stockNames.has(ing)) {
+      await StockItem.create({
+        name: ing,
+        category: 'Diğer',
+        currentStock: 1000,
+        minStock: 10,
+        unit: 'gram',
+        price: 1,
+        supplier: 'Otomatik',
+        description: 'Otomatik eklenen ingredient'
+      });
+      console.log(`[Otomatik Stok] '${ing}' stoğa eklendi!`);
+    }
+  }
+}
+
 async function run() {
   await mongoose.connect(process.env.MONGODB_URI);
   await MenuItem.deleteMany({});
@@ -75,6 +113,13 @@ async function run() {
   const stockItems = await StockItem.find({});
   const stockMap = {};
   stockItems.forEach(item => { stockMap[item.name] = { id: item._id, unit: item.unit }; });
+
+  if (!adminUser) {
+    console.warn('Admin kullanıcı bulunamadı, menü item kaydı atlanıyor.');
+    return;
+  }
+
+  await ensureAllIngredientsInStockFromMenuData(menuItemsData);
 
   for (const item of menuItemsData) {
     const category = item.category === 'Vegan' ? 'Diğer' : item.category;

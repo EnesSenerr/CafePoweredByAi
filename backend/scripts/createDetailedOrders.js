@@ -44,6 +44,10 @@ async function run() {
     let total = 0;
     for (let j = 0; j < itemCount; j++) {
       const menuItem = menuItems[randomInt(0, menuItems.length - 1)];
+      if (!menuItem) {
+        console.warn('MenuItem bulunamadı, sipariş item kaydı atlanıyor.');
+        continue;
+      }
       const quantity = randomInt(1, 3);
       items.push({ menuItem: menuItem._id, quantity, price: menuItem.price });
       total += menuItem.price * quantity;

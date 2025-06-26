@@ -67,6 +67,16 @@ app.use('/api/rewards', require('./routes/reward.routes'));
 // Admin API'leri - JWT korumalı
 app.use('/api/admin', protect, require('./routes/admin.routes'));
 
+// Chatbot (Gemini) API route'u ekle
+app.use('/api/chatbot', require('./routes/chatbot.routes'));
+
+// Ortam değişkenlerini kontrol et ve logla
+console.log('GEMINI_API_URL:', process.env.GEMINI_API_URL ? '[OK]' : '[YOK]');
+console.log('GEMINI_API_KEY:', process.env.GEMINI_API_KEY ? '[OK]' : '[YOK]');
+if (!process.env.GEMINI_API_URL || !process.env.GEMINI_API_KEY) {
+  console.warn('UYARI: GEMINI_API_URL veya GEMINI_API_KEY ortam değişkeni eksik! LLM tabanlı chatbot çalışmaz.');
+}
+
 // Port ayarı
 const PORT = process.env.PORT || 5000;
 

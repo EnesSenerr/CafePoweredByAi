@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, Image, Dimensions, TouchableOpacity, Linking, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import RecommendationCard from "../components/dashboard/RecommendationCard";
+import ChatbotWidget from "../components/ui/ChatbotWidget";
 
 const { width } = Dimensions.get('window');
 
@@ -227,6 +229,9 @@ export default function HomeScreen({ navigation: propNavigation }: any) {
           </TouchableOpacity>
         </View>
       </View>
+
+      <RecommendationCard />
+      <ChatbotWidget />
     </ScrollView>
   );
 }

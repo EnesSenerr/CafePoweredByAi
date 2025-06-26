@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const StockItem = require('../src/models/StockItem');
+const MenuItem = require('../src/models/MenuItem');
 require('dotenv').config();
 
 const stockItems = [
@@ -79,9 +80,54 @@ const stockItems = [
   { name: 'Reçel', category: 'Diğer', currentStock: 30, minStock: 6, unit: 'kg', price: 45.00, supplier: 'Jam World', description: 'Çeşitli meyve reçelleri' },
 ];
 
+function normalizeName(name) {
+  return name ? name.trim().toLocaleLowerCase('tr-TR') : '';
+}
+
+async function ensureAllIngredientsInStock() {
+  // Menüdeki tüm ürünleri çek
+  const menuItems = await MenuItem.find({});
+  // Tüm ingredient isimlerini topla (normalize ederek)
+  const allIngredients = new Set();
+  menuItems.forEach(item => {
+    // ingredients (dizi)
+    if (item.ingredients && Array.isArray(item.ingredients)) {
+      item.ingredients.forEach(ing => allIngredients.add(normalizeName(ing)));
+    }
+    // requiredIngredients (dizi, name veya stockItemName olabilir)
+    if (item.requiredIngredients && Array.isArray(item.requiredIngredients)) {
+      item.requiredIngredients.forEach(ri => {
+        if (ri.name) allIngredients.add(normalizeName(ri.name));
+        if (ri.stockItemName) allIngredients.add(normalizeName(ri.stockItemName));
+      });
+    }
+  });
+  // Mevcut stokları çek
+  const StockItem = require('../src/models/StockItem');
+  const stockItems = await StockItem.find({});
+  const stockNames = new Set(stockItems.map(s => normalizeName(s.name)));
+  // Eksik olanları ekle
+  for (const ing of allIngredients) {
+    if (ing && !stockNames.has(ing)) {
+      await StockItem.create({
+        name: ing,
+        category: 'Otomatik',
+        currentStock: 1000,
+        minStock: 10,
+        unit: 'gram',
+        price: 1,
+        supplier: 'Otomatik',
+        description: 'Otomatik eklenen ingredient'
+      });
+      console.log(`[Otomatik Stok] '${ing}' stoğa eklendi!`);
+    }
+  }
+}
+
 async function run() {
   await mongoose.connect(process.env.MONGODB_URI);
   await StockItem.deleteMany({});
+  await ensureAllIngredientsInStock();
   for (const item of stockItems) {
     await new StockItem({ ...item, createdAt: new Date(), updatedAt: new Date(), isActive: true }).save();
   }

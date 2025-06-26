@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useAuth } from './contexts/AuthContext';
+import RecommendationCard from "./components/RecommendationCard";
+import ChatbotWidget from "./components/ChatbotWidget";
 
 const coffeeMenu = [
   { id: 1, name: 'Türk Kahvesi', price: '45 ₺', category: 'Klasik', emoji: '☕' },
@@ -503,6 +505,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      <RecommendationCard />
+      <ChatbotWidget />
     </div>
   );
 }
