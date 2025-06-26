@@ -54,7 +54,7 @@ const UserManagementScreen: React.FC = () => {
       if (!token) throw new Error('Yetkilendirme hatası: Token bulunamadı');
       const response = await getAllUsers(token);
       // API'den dönen veri ile users state'ini güncelle
-      setUsers(response.data || []);
+      setUsers(response.users || response.data || []);
     } catch (err: any) {
       setError(err.message || 'Kullanıcılar yüklenemedi');
       console.error('Error loading users:', err);
@@ -139,7 +139,7 @@ const UserManagementScreen: React.FC = () => {
   });
 
   const formatCurrency = (amount: number): string => {
-    return `₺${amount.toLocaleString('tr-TR')}`;
+    return `₺${(amount !== undefined ? amount : 0).toLocaleString('tr-TR')}`;
   };
 
   const formatDate = (dateString: string): string => {
@@ -173,15 +173,15 @@ const UserManagementScreen: React.FC = () => {
       {user.role === 'customer' && (
         <View style={styles.customerStats}>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{user.totalOrders}</Text>
+            <Text style={styles.statValue}>{user.totalOrders !== undefined ? user.totalOrders : 0}</Text>
             <Text style={styles.statLabel}>Sipariş</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{formatCurrency(user.totalSpent)}</Text>
+            <Text style={styles.statValue}>{formatCurrency(user.totalSpent !== undefined ? user.totalSpent : 0)}</Text>
             <Text style={styles.statLabel}>Harcama</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{user.loyaltyPoints}</Text>
+            <Text style={styles.statValue}>{user.loyaltyPoints !== undefined ? user.loyaltyPoints : 0}</Text>
             <Text style={styles.statLabel}>Puan</Text>
           </View>
         </View>

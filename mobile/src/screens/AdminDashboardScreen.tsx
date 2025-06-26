@@ -68,7 +68,7 @@ const AdminDashboardScreen: React.FC = () => {
       ]);
 
       // Kullanıcılar
-      const users = usersRes && Array.isArray(usersRes.data) ? usersRes.data : [];
+      const users = usersRes && Array.isArray(usersRes.users) ? usersRes.users : [];
       const today = new Date().toISOString().slice(0, 10);
       const newUsersToday = users.filter((u: any) => (u.createdAt || '').slice(0, 10) === today).length;
 
@@ -207,18 +207,21 @@ const AdminDashboardScreen: React.FC = () => {
                 value={stats.newUsersToday}
                 icon="👥"
                 color="#22c55e"
+                onPress={() => handleCardPress('UserManagement')}
               />
               <StatCard
                 title="Tamamlanan Siparişler"
                 value={stats.completedOrdersToday}
                 icon="✅"
                 color="#3b82f6"
+                onPress={() => handleCardPress('OrderManagement')}
               />
               <StatCard
                 title="Günlük Ciro"
                 value={formatCurrency(stats.revenueToday)}
                 icon="💰"
                 color="#f59e0b"
+                onPress={() => handleCardPress('Reports')}
               />
               <StatCard
                 title="Bekleyen Siparişler"
@@ -247,6 +250,7 @@ const AdminDashboardScreen: React.FC = () => {
                 value={stats.totalOrders.toLocaleString('tr-TR')}
                 icon="📦"
                 color="#06b6d4"
+                onPress={() => handleCardPress('OrderManagement')}
               />
               <StatCard
                 title="Toplam Ciro"

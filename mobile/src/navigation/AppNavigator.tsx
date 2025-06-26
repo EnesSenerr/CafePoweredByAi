@@ -28,6 +28,11 @@ import AboutScreen from '../screens/AboutScreen';
 import LoyaltyProgramScreen from '../screens/LoyaltyProgramScreen';
 import HomeScreen from '../screens/HomeScreen';
 import ContactScreen from '../screens/ContactScreen';
+import UserManagementScreen from '../screens/UserManagementScreen';
+import MenuManagementScreen from '../screens/MenuManagementScreen';
+import OrderManagementScreen from '../screens/OrderManagementScreen';
+import ReportsScreen from '../screens/ReportsScreen';
+import StockManagementScreen from '../screens/StockManagementScreen';
 
 // Navigation stack tiplerini tanımla - Web ile uyumlu
 export type RootStackParamList = {
@@ -397,12 +402,11 @@ const AppNavigator = () => {
         <Stack.Screen name="RewardsDetail" component={RewardsDetailScreen} />
         <Stack.Screen name="Notifications" component={NotificationsScreen} />
         <Stack.Screen name="TransactionDetail" component={TransactionDetailScreen} />
-        {/* Placeholder screens for future implementation */}
-        <Stack.Screen name="UserManagement" component={PlaceholderScreen} />
-        <Stack.Screen name="MenuManagement" component={PlaceholderScreen} />
-        <Stack.Screen name="OrderManagement" component={PlaceholderScreen} />
-        <Stack.Screen name="Reports" component={PlaceholderScreen} />
-        <Stack.Screen name="StockManagement" component={PlaceholderScreen} />
+        <Stack.Screen name="UserManagement" component={UserManagementScreen} />
+        <Stack.Screen name="MenuManagement" component={MenuManagementScreen} />
+        <Stack.Screen name="OrderManagement" component={OrderManagementScreen} />
+        <Stack.Screen name="Reports" component={ReportsScreen} />
+        <Stack.Screen name="StockManagement" component={StockManagementScreen} />
         <Stack.Screen name="OrderProcessing" component={PlaceholderScreen} />
         <Stack.Screen name="PaymentProcessing" component={PlaceholderScreen} />
         <Stack.Screen name="CustomerService" component={PlaceholderScreen} />
