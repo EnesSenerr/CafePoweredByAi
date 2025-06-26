@@ -1,6 +1,8 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+
 interface ChatMessage {
   id: string;
   type: "user" | "bot";
@@ -64,7 +66,7 @@ const ChatbotWidget = () => {
     setIsLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("/api/chatbot/gemini", {
+      const response = await fetch(`${API_BASE_URL}/api/chatbot/gemini`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
