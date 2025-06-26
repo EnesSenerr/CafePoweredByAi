@@ -296,7 +296,7 @@ const UserManagementScreen: React.FC = () => {
           ) : (
             <View style={styles.usersList}>
               {filteredUsers.map((user) => (
-                <UserCard key={user.id} user={user} />
+                <UserCard key={user.id || user.email} user={user} />
               ))}
             </View>
           )}

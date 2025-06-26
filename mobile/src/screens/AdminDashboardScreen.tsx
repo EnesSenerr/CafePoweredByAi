@@ -16,6 +16,7 @@ import { useRole } from '../hooks/useRole';
 import { lightHaptic } from '../utils/haptics';
 import { getAdminDashboardStats, getAllUsers, getAllStockItems, getAllOrders } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import Modal from 'react-native-modal';
 
 const { width } = Dimensions.get('window');
 const cardWidth = (width - 60) / 2; // 2 columns with spacing
@@ -48,6 +49,8 @@ const AdminDashboardScreen: React.FC = () => {
     revenueToday: 0,
   });
   const [error, setError] = useState<string | null>(null);
+  const [showNewUsersModal, setShowNewUsersModal] = useState(false);
+  const [newUsersTodayList, setNewUsersTodayList] = useState<any[]>([]);
 
   useEffect(() => {
     loadDashboardData();
@@ -70,7 +73,9 @@ const AdminDashboardScreen: React.FC = () => {
       // Kullanıcılar
       const users = usersRes && Array.isArray(usersRes.users) ? usersRes.users : [];
       const today = new Date().toISOString().slice(0, 10);
-      const newUsersToday = users.filter((u: any) => (u.createdAt || '').slice(0, 10) === today).length;
+      const newUsersTodayArr = users.filter((u: any) => (u.createdAt || '').slice(0, 10) === today);
+      const newUsersToday = newUsersTodayArr.length;
+      setNewUsersTodayList(newUsersTodayArr);
 
       // Sipariş ve ciro
       const statsData = statsRes && typeof statsRes.data === 'object' ? statsRes.data : {};
@@ -207,7 +212,7 @@ const AdminDashboardScreen: React.FC = () => {
                 value={stats.newUsersToday}
                 icon="👥"
                 color="#22c55e"
-                onPress={() => handleCardPress('UserManagement')}
+                onPress={() => setShowNewUsersModal(true)}
               />
               <StatCard
                 title="Tamamlanan Siparişler"
@@ -307,6 +312,28 @@ const AdminDashboardScreen: React.FC = () => {
             </View>
           </View>
         </ScrollView>
+        {/* Yeni Üyeler Modal */}
+        <Modal isVisible={showNewUsersModal} onBackdropPress={() => setShowNewUsersModal(false)}>
+          <View style={{ backgroundColor: 'white', borderRadius: 12, padding: 20, maxHeight: 400 }}>
+            <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 12 }}>Bugün Eklenen Yeni Üyeler</Text>
+            {newUsersTodayList.length === 0 ? (
+              <Text style={{ color: '#888', textAlign: 'center' }}>Bugün yeni üye yok.</Text>
+            ) : (
+              <ScrollView style={{ maxHeight: 300 }}>
+                {newUsersTodayList.map((user, idx) => (
+                  <View key={user.id || user.email || idx} style={{ marginBottom: 12, borderBottomWidth: 1, borderColor: '#eee', paddingBottom: 8 }}>
+                    <Text style={{ fontWeight: 'bold' }}>{user.name}</Text>
+                    <Text style={{ color: '#666' }}>{user.email}</Text>
+                    <Text style={{ color: '#aaa', fontSize: 12 }}>Kayıt: {(user.createdAt && new Date(user.createdAt).toLocaleTimeString('tr-TR')) || '-'}</Text>
+                  </View>
+                ))}
+              </ScrollView>
+            )}
+            <TouchableOpacity onPress={() => setShowNewUsersModal(false)} style={{ marginTop: 16, alignSelf: 'center', backgroundColor: '#ef4444', paddingHorizontal: 24, paddingVertical: 10, borderRadius: 8 }}>
+              <Text style={{ color: 'white', fontWeight: 'bold' }}>Kapat</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
       </SafeAreaView>
     </AdminGuard>
   );
