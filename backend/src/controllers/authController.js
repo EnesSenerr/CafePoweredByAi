@@ -2,7 +2,7 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const sendEmail = require('../utils/sendEmail');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 // Ortam değişkenlerinden JWT secret alınır, yoksa fallback
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_secret';
